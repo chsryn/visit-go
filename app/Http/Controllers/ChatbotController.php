@@ -133,6 +133,6 @@ class ChatbotController extends Controller
             return "Agenda terdekat: Karnaval Karawo 11-13 Sep 2026, Tradisi Dikili Sep 2026, FESBUJATON 9 Jul 2026. Lokasi di GPCC & desa Sidomukti.";
         }
 
-        return "Halo! Saya Sherly — asisten pariwisata Gorontalo. Tanya saya soal destinasi, budaya, kuliner, kerajinan, atau event Gorontalo. Contoh: 'Rencana 2 hari budget menengah?'";
+        return "Halo! Saya Hiu Ajaib — asisten pariwisata Gorontalo. Tanya saya soal destinasi, budaya, kuliner, kerajinan, atau event Gorontalo. Contoh: 'Rencana 2 hari budget menengah?'";
     }
 }
