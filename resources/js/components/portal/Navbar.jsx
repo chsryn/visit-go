@@ -37,7 +37,7 @@ export function Navbar() {
                     <span
                         className={`text-[0.7rem] font-semibold uppercase tracking-[0.25em] leading-none transition-colors duration-300 ${scrolled ? "text-muted-foreground" : "text-aqua-soft/80"}`}
                     >
-                        Gorontalo wael
+                        Gorontalo 
                     </span>
                 </a>
 
