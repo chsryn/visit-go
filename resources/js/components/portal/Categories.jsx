@@ -1,81 +1,97 @@
+import { Link } from "@inertiajs/react";
+import { motion } from "framer-motion";
+import { Reveal, Stagger, cardVariants } from "@/components/ui/Reveal";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
 import kerajinanImage from "@/assets/kategori-kerajinan.jpg";
-const categories = [
+
+const pillars = [
     {
-        id: "destinasi",
+        category: "destinasi",
         name: "Destinasi Wisata",
         body: "Botubarani, Pulo Cinta, Taman Laut Olele, dan pulau-pulau tersembunyi Teluk Tomini.",
         image: destinasiImage,
         alt: "Lagun biru kehijauan dengan vila di atas air di Pulo Cinta",
     },
     {
-        id: "budaya",
+        category: "budaya",
         name: "Ensiklopedia Budaya",
         body: "Tradisi Dikili, Tari Saronde, adat istiadat, dan warisan lisan masyarakat Hulondalo.",
         image: budayaImage,
         alt: "Penari tradisional Gorontalo mengenakan busana sulaman Karawo",
     },
     {
-        id: "kuliner",
+        category: "kuliner",
         name: "Kuliner Khas",
         body: "Milu siram, ilabulo, sambal sagela, dan cita rasa laut khas pesisir Gorontalo.",
         image: kulinerImage,
         alt: "Hidangan khas Gorontalo tersaji di atas meja kayu",
     },
     {
-        id: "kerajinan",
+        category: "kerajinan",
         name: "Kerajinan Daerah",
         body: "Sulaman Karawo, anyaman rotan, dan mahakarya tangan perajin lokal.",
         image: kerajinanImage,
         alt: "Tangan perajin menyulam motif Karawo di atas kain",
     },
 ];
+
 export function Categories() {
     return (
-        <section id="kategori" className="bg-background py-24">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <div className="max-w-xl">
-                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-aqua">
-                        Jelajahi Kategori
-                    </span>
-                    <h2 className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-4xl">
-                        Empat pilar kekayaan Gorontalo
+        <section
+            id="kategori"
+            className="relative overflow-hidden bg-transparent py-[30px] md:py-[50px]"
+        >
+            {/* motif & gradient dipindah ke Welcome wrapper — biar tile-to-tile tanpa patah */}
+            <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+                <Reveal y={30} className="mx-auto max-w-[573px] text-center">
+                    <h2 className="font-display text-[24px] font-bold leading-[1.3] text-foreground md:text-[30px]">
+                        Empat Pilar Kekayaan Gorontalo
                     </h2>
-                </div>
+                    <p className="mt-[10px] text-sm leading-relaxed text-muted-foreground">
+                        Empat pilar yang merangkai jati diri Gorontalo —
+                        destinasi bahari, ensiklopedia budaya Hulondalo, kuliner
+                        khas, dan kerajinan Karawo di jantung Teluk Tomini.
+                    </p>
+                </Reveal>
 
-                <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    {categories.map((item) => (
-                        <a
-                            key={item.id}
-                            id={item.id}
-                            href="#top"
-                            onClick={(e) => e.preventDefault()}
-                            className="group relative block overflow-hidden rounded-2xl bg-card shadow-md transition-shadow duration-300 hover:shadow-xl"
-                        >
-                            <div className="h-80 overflow-hidden">
-                                <img
-                                    src={item.image}
-                                    alt={item.alt}
-                                    width={1280}
-                                    height={960}
-                                    loading="lazy"
-                                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                            </div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/20 to-transparent" />
-                            <div className="absolute inset-x-0 bottom-0 p-6">
-                                <h3 className="font-display text-xl text-primary-foreground">
-                                    {item.name}
-                                </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-primary-foreground/80">
-                                    {item.body}
-                                </p>
-                            </div>
-                        </a>
+                <Stagger
+                    stagger={0.08}
+                    className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 md:mt-[50px]"
+                >
+                    {pillars.map((item) => (
+                        <motion.div key={item.category} variants={cardVariants}>
+                            <Link
+                                href={`/${item.category}`}
+                                className="group relative block overflow-hidden rounded-[15px] bg-white/65 backdrop-blur-xl backdrop-saturate-150 border border-white/30 shadow-soft supports-[backdrop-filter]:bg-white/55 dark:bg-card/60 dark:border-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                            >
+                                <div className="overflow-hidden rounded-xl h-[348px] md:h-[368px]">
+                                    <img
+                                        src={item.image}
+                                        alt={item.alt}
+                                        width={1280}
+                                        height={960}
+                                        loading="lazy"
+                                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                </div>
+                                {/* slide-up detail — blur transparan hitam 20 */}
+                                <div className="absolute inset-x-[10px] bottom-[10px] translate-y-[calc(100%+12px)] rounded-xl bg-black/20 backdrop-blur-xl backdrop-saturate-150 border border-white/20 p-5 shadow-soft supports-[backdrop-filter]:bg-black/20 transition-transform duration-300 ease-[cubic-bezier(.4,0,.2,1)] group-hover:translate-y-0 group-focus-within:translate-y-0">
+                                    <h3 className="font-display text-lg text-white">
+                                        {item.name}
+                                    </h3>
+                                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-white/85">
+                                        {item.body}
+                                    </p>
+                                    <span className="mt-3 inline-flex text-xs font-semibold text-white">
+                                        Lihat koleksi →
+                                    </span>
+                                </div>
+                            </Link>
+                        </motion.div>
                     ))}
-                </div>
+                </Stagger>
             </div>
         </section>
     );

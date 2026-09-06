@@ -67,33 +67,36 @@
 
 :root {
     --radius: 0.75rem;
-    --ocean: oklch(0.31 0.11 264);
-    --ocean-deep: oklch(0.21 0.05 262);
-    --aqua: oklch(0.62 0.11 195);
-    --aqua-soft: oklch(0.93 0.03 195);
-    --sand: oklch(0.78 0.15 76);
-    --sand-deep: oklch(0.66 0.15 61);
-    --terracotta: oklch(0.6 0.16 48);
-    --pearl: oklch(0.985 0.003 247);
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.21 0.04 265);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.21 0.04 265);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.21 0.04 265);
-    --primary: oklch(0.31 0.11 264);
-    --primary-foreground: oklch(0.985 0.003 247);
-    --secondary: oklch(0.93 0.03 195);
-    --secondary-foreground: oklch(0.31 0.11 264);
-    --muted: oklch(0.968 0.007 247.896);
-    --muted-foreground: oklch(0.47 0.035 257);
-    --accent: oklch(0.78 0.15 76);
-    --accent-foreground: oklch(0.21 0.05 262);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.984 0.003 247.858);
-    --border: oklch(0.918 0.013 255.508);
-    --input: oklch(0.918 0.013 255.508);
-    --ring: oklch(0.62 0.11 195);
+    /* Gorontalo Heraldry — 60-30-10: #FFFFFF (60) / #715386 (30) / #D4A017 honey (10) + #00923F / #FF0000 */
+    --ocean: #715386;
+    --ocean-deep: #5B436C;
+    --aqua: #00923F;
+    --aqua-soft: #E6F4EB;
+    --sand: #D4A017;
+    --sand-deep: #B8941F;
+    --terracotta: #D4A017;
+    --pearl: #FFFFFF;
+    --background: #FFFFFF;
+    --foreground: #2A1E32;
+    --card: #FFFFFF;
+    --card-foreground: #2A1E32;
+    --popover: #FFFFFF;
+    --popover-foreground: #2A1E32;
+    --primary: #715386;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F5F0F7;
+    --secondary-foreground: #715386;
+    --muted: #F5F0F7;
+    --muted-foreground: #6B5A7A;
+    --accent: #D4A017;
+    --accent-foreground: #1F2937;
+    --destructive: #FF0000;
+    --destructive-foreground: #FFFFFF;
+    --border: #E8E0EC;
+    --input: #E8E0EC;
+    --ring: #715386;
+    --shadow-card: 0 24px 60px -24px #71538626;
+    --shadow-soft: 0 8px 30px -12px #71538622;
 
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
@@ -111,25 +114,25 @@
 }
 
 .dark {
-    --background: oklch(0.129 0.042 264.695);
-    --foreground: oklch(0.984 0.003 247.858);
-    --card: oklch(0.208 0.042 265.755);
-    --card-foreground: oklch(0.984 0.003 247.858);
-    --popover: oklch(0.208 0.042 265.755);
-    --popover-foreground: oklch(0.984 0.003 247.858);
-    --primary: oklch(0.929 0.013 255.508);
-    --primary-foreground: oklch(0.208 0.042 265.755);
-    --secondary: oklch(0.279 0.041 260.031);
-    --secondary-foreground: oklch(0.984 0.003 247.858);
-    --muted: oklch(0.279 0.041 260.031);
-    --muted-foreground: oklch(0.704 0.04 256.788);
-    --accent: oklch(0.279 0.041 260.031);
-    --accent-foreground: oklch(0.984 0.003 247.858);
-    --destructive: oklch(0.704 0.191 22.216);
-    --destructive-foreground: oklch(0.984 0.003 247.858);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.551 0.027 264.364);
+    --background: #2A1E32;
+    --foreground: #F5F0F7;
+    --card: #352845;
+    --card-foreground: #F5F0F7;
+    --popover: #352845;
+    --popover-foreground: #F5F0F7;
+    --primary: #9A7EB8;
+    --primary-foreground: #2A1E32;
+    --secondary: #352845;
+    --secondary-foreground: #F5F0F7;
+    --muted: #352845;
+    --muted-foreground: #9A7EB8;
+    --accent: #D4A017;
+    --accent-foreground: #1F2937;
+    --destructive: #FF0000;
+    --destructive-foreground: #FFFFFF;
+    --border: #71538633;
+    --input: #71538633;
+    --ring: #9A7EB8;
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -146,6 +149,9 @@
 }
 
 @layer base {
+    html {
+        scroll-behavior: smooth;
+    }
     * {
         border-color: var(--color-border);
     }

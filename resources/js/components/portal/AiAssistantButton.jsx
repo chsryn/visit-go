@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Sparkles, X, Send } from "lucide-react";
+import { Sparkles, X, Send } from "lucide-react";
+import { motion } from "framer-motion";
+import maskotImg from "@/assets/maskot.png";
 
 export function AiAssistantButton() {
     const [open, setOpen] = useState(false);
@@ -67,11 +69,11 @@ export function AiAssistantButton() {
     const quick = ["Hiu paus jam berapa?", "Kuliner khas Gorontalo?", "Karnaval Karawo kapan?"];
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 md:bottom-6 md:right-6">
             {open && (
                 <div className="flex h-[420px] w-72 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-md">
                     <div className="flex items-center gap-3 border-b border-border bg-card px-4 py-3">
-                        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-terracotta text-primary-foreground">
+                        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
                             <Sparkles className="size-5" />
                         </span>
                         <div>
@@ -87,7 +89,7 @@ export function AiAssistantButton() {
                                 <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                                     <div
                                         className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                                            m.role === "user" ? "bg-terracotta text-primary-foreground" : "bg-card border border-border text-foreground"
+                                            m.role === "user" ? "bg-accent text-accent-foreground" : "bg-card border border-border text-foreground"
                                         }`}
                                     >
                                         {parts.map((p, i) =>
@@ -106,9 +108,9 @@ export function AiAssistantButton() {
                         {isLoading && (
                             <div className="flex justify-start">
                                 <div className="flex items-center gap-1 rounded-2xl border border-border bg-card px-4 py-3">
-                                    <span className="size-1.5 animate-bounce rounded-full bg-terracotta [animation-delay:-0.3s]" />
-                                    <span className="size-1.5 animate-bounce rounded-full bg-terracotta [animation-delay:-0.15s]" />
-                                    <span className="size-1.5 animate-bounce rounded-full bg-terracotta" />
+                                    <span className="size-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.3s]" />
+                                    <span className="size-1.5 animate-bounce rounded-full bg-accent [animation-delay:-0.15s]" />
+                                    <span className="size-1.5 animate-bounce rounded-full bg-accent" />
                                 </div>
                             </div>
                         )}
@@ -121,7 +123,7 @@ export function AiAssistantButton() {
                                     key={q}
                                     type="button"
                                     onClick={() => setInput(q)}
-                                    className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:border-terracotta hover:text-foreground"
+                                    className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:border-accent hover:text-foreground"
                                 >
                                     {q}
                                 </button>
@@ -139,7 +141,7 @@ export function AiAssistantButton() {
                             <button
                                 type="submit"
                                 disabled={isLoading || !input.trim()}
-                                className="inline-flex size-9 items-center justify-center rounded-full bg-terracotta text-primary-foreground shadow-sm transition-colors hover:bg-sand-deep disabled:opacity-40"
+                                className="inline-flex size-9 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-sm transition-colors hover:bg-[#B8941F] disabled:opacity-40"
                                 aria-label="Kirim"
                             >
                                 <Send className="size-4" />
@@ -148,21 +150,28 @@ export function AiAssistantButton() {
                     </div>
                 </div>
             )}
-            <button
+            <motion.button
                 type="button"
                 aria-label={open ? "Tutup asisten AI" : "Buka asisten AI"}
                 onClick={() => setOpen((v) => !v)}
-                className="inline-flex size-14 items-center justify-center rounded-full bg-terracotta text-primary-foreground shadow-md transition-all duration-300 hover:-translate-y-1 hover:bg-sand-deep hover:shadow-xl"
+                className="relative size-28 md:size-32 drop-shadow-md hover:drop-shadow-xl transition-all duration-300 hover:-translate-y-1"
+                whileHover={open ? {} : { y: -6, scale: 1.04, rotate: 1 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
-                {open ? (
-                    <X className="size-6" />
-                ) : (
-                    <span className="relative">
-                        <MessageCircle className="size-6" />
-                        <Sparkles className="absolute -right-2 -top-2 size-4 text-sand" />
+                <motion.img
+                    src={maskotImg}
+                    alt="Hiu Ajaib"
+                    className="size-full object-contain"
+                    animate={open ? {} : { y: [0, -4, 0] }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                />
+                {open && (
+                    <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-accent border-2 border-white shadow-md">
+                        <X className="size-3.5 text-white" />
                     </span>
                 )}
-            </button>
+            </motion.button>
         </div>
     );
 }

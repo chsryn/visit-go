@@ -18,6 +18,8 @@ import {
     ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { Reveal, Stagger, cardVariants } from "@/components/ui/Reveal";
 
 const durations = ["1 hari", "2–3 hari", "4–5 hari", "1 minggu"];
 const budgets = ["Hemat / Backpacker", "Menengah", "Premium / Sultan"];
@@ -75,14 +77,14 @@ function CustomSelect({ label, icon: Icon, options, value, onChange }) {
     return (
         <label className="flex min-w-0 flex-1 flex-col gap-2">
             <span className="flex items-center gap-1.5 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-                <Icon className="size-3.5 text-aqua" />
+                <Icon className="size-3.5 text-primary" />
                 {label}
             </span>
             <div className="relative">
                 <select
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-border/80 bg-background/80 px-4 py-3.5 pr-10 text-sm font-medium text-foreground transition-all duration-200 focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20 hover:border-border"
+                    className="w-full appearance-none rounded-xl border border-white/60 bg-white/70 backdrop-blur-sm px-4 py-3.5 pr-10 text-sm font-medium text-foreground transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 hover:border-accent/30"
                 >
                     {options.map((opt) => (
                         <option key={opt} value={opt}>
@@ -195,44 +197,42 @@ export function AiPlanner() {
     };
 
     return (
-        <section id="ai-planner" className="relative bg-secondary/40 py-24 scroll-mt-12">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <section id="ai-planner" className="relative overflow-hidden bg-transparent py-[30px] md:py-[50px] scroll-mt-12">
+            <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
                 {/* Header */}
-                <div className="max-w-2xl">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-aqua/30 bg-aqua/10 px-3.5 py-1 text-[0.7rem] font-bold uppercase tracking-[0.25em] text-aqua">
-                        <Sparkles className="size-3.5" />
-                        AI Travel Assistant
-                    </div>
-                    <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+                <Reveal y={30} className="max-w-xl">
+                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-primary">AI Travel Assistant</span>
+                    <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
                         Rencanakan Perjalanan Gorontalo dengan Pintar
                     </h2>
-                    <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                         Pilih durasi, anggaran, minat, lokasi, dan preferensi makanan Anda. Asisten AI kami akan menyusun rencana perjalanan personal dalam hitungan detik.
                     </p>
-                </div>
+                </Reveal>
 
                 {/* Preset Chips */}
-                <div className="mt-8 flex flex-wrap items-center gap-2.5">
+                <Stagger stagger={0.08} className="mt-10 flex flex-wrap items-center gap-2.5">
                     <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
                         Rencana Cepat:
                     </span>
                     {presets.map((p, idx) => (
+                        <motion.div key={idx} variants={cardVariants}>
                         <button
-                            key={idx}
                             onClick={() => applyPreset(p)}
                             type="button"
-                            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background/60 px-3.5 py-1.5 text-xs font-medium text-foreground transition-all duration-200 hover:border-terracotta hover:bg-terracotta/10 hover:text-terracotta"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft supports-[backdrop-filter]:bg-white/55 px-3.5 py-1.5 text-xs font-medium text-foreground transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card hover:border-accent/30 hover:text-accent-foreground"
                         >
-                            <Sparkles className="size-3 text-terracotta" />
+                            <Sparkles className="size-3 text-accent" />
                             {p.name}
                         </button>
+                        </motion.div>
                     ))}
-                </div>
+                </Stagger>
 
-                {/* Main Form Card */}
-                <form
+                {/* Main Form Card — seamless glass, kuning hanya border */}
+                <Reveal y={30}><form
                     onSubmit={handleSubmit}
-                    className="mt-8 rounded-3xl border border-border/70 bg-card p-6 shadow-xl shadow-black/5 md:p-8"
+                    className="mt-10 rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-soft supports-[backdrop-filter]:bg-white/55 dark:bg-card/60 dark:border-white/15 p-6 md:p-8"
                 >
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
                         <CustomSelect
@@ -276,7 +276,7 @@ export function AiPlanner() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-terracotta px-8 py-4 text-sm font-bold text-primary-foreground shadow-lg shadow-terracotta/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-sand-deep hover:shadow-xl sm:w-auto"
+                            className="group/link relative inline-flex items-center justify-center gap-2 pb-1 text-sm font-semibold tracking-wide text-foreground transition-colors hover:text-accent disabled:opacity-40"
                         >
                             {loading ? (
                                 <>
@@ -287,16 +287,17 @@ export function AiPlanner() {
                                 <>
                                     <Sparkles className="size-4" />
                                     Generate Itinerary Pintar
+                                    <span className="pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 bg-accent transition-transform duration-300 group-hover/link:scale-x-100" />
                                 </>
                             )}
                         </button>
                     </div>
-                </form>
+                </form></Reveal>
 
                 {/* Loading State Animation */}
                 {loading && (
-                    <div className="mt-12 rounded-3xl border border-terracotta/20 bg-card p-12 text-center shadow-lg">
-                        <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-terracotta/10 text-terracotta">
+                    <div className="mt-12 rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-12 text-center">
+                        <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-accent/15 text-primary">
                             <Sparkles className="size-8 animate-bounce" />
                         </div>
                         <h3 className="mt-6 text-xl font-bold text-foreground">
@@ -305,24 +306,24 @@ export function AiPlanner() {
                         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                             Menyeimbangkan preferensi lokasi ({location}), budget ({budget}), dan menu kuliner ({foodPref}).
                         </p>
-                        <div className="mx-auto mt-6 max-w-xs overflow-hidden rounded-full bg-secondary h-2">
-                            <div className="h-full bg-terracotta animate-pulse w-3/4 rounded-full" />
+                        <div className="mx-auto mt-6 max-w-xs overflow-hidden rounded-full bg-[#715386]/10 h-2">
+                            <div className="h-full bg-accent animate-pulse w-3/4 rounded-full" />
                         </div>
                     </div>
                 )}
 
                 {/* Results Section */}
                 {result && !loading && (
-                    <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="mt-12 space-y-8">
                         {/* Summary Header Card */}
-                        <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xl md:p-8">
+                        <Reveal y={30}><div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6 md:p-8">
                             <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                                 <div className="space-y-3">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="rounded-full bg-terracotta/10 px-3 py-1 text-xs font-bold text-terracotta">
+                                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-primary">
                                             {duration}
                                         </span>
-                                        <span className="rounded-full bg-aqua/10 px-3 py-1 text-xs font-bold text-aqua">
+                                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                                             {budget}
                                         </span>
                                         <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-foreground">
@@ -342,8 +343,8 @@ export function AiPlanner() {
                                     {result.highlights && result.highlights.length > 0 && (
                                         <div className="flex flex-wrap gap-2 pt-2">
                                             {result.highlights.map((h, i) => (
-                                                <span key={i} className="inline-flex items-center gap-1 text-xs font-medium text-foreground bg-secondary/80 px-3 py-1 rounded-lg">
-                                                    <CheckCircle2 className="size-3.5 text-aqua" />
+                                                <span key={i} className="inline-flex items-center gap-1 text-xs font-medium text-foreground bg-[#715386]/10 px-3 py-1 rounded-lg">
+                                                    <CheckCircle2 className="size-3.5 text-primary" />
                                                     {h}
                                                 </span>
                                             ))}
@@ -369,32 +370,32 @@ export function AiPlanner() {
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </div></Reveal>
 
                         {/* Budget Breakdown Cards */}
                         {result.budget_breakdown && (
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
-                                <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+                            <Stagger stagger={0.08} className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-5">
+                                <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
                                     <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Akomodasi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.accommodation}</p>
-                                </div>
-                                <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+                                </motion.div>
+                                <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
                                     <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Konsumsi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.food}</p>
-                                </div>
-                                <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+                                </motion.div>
+                                <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
                                     <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Transportasi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.transport}</p>
-                                </div>
-                                <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+                                </motion.div>
+                                <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
                                     <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Tiket/Aktivitas</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.attractions}</p>
-                                </div>
-                                <div className="col-span-2 rounded-2xl border border-terracotta/30 bg-terracotta/5 p-4 shadow-sm sm:col-span-4 lg:col-span-1">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-terracotta">Total Estimasi</span>
-                                    <p className="mt-1 text-xl font-extrabold text-terracotta">{result.budget_breakdown.total_estimated}</p>
-                                </div>
-                            </div>
+                                </motion.div>
+                                <motion.div variants={cardVariants} className="col-span-2 rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft sm:col-span-4 lg:col-span-1">
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-primary">Total Estimasi</span>
+                                    <p className="mt-1 text-xl font-extrabold text-primary">{result.budget_breakdown.total_estimated}</p>
+                                </motion.div>
+                            </Stagger>
                         )}
 
                         {/* Day by Day Accordion / Timeline */}
@@ -408,14 +409,14 @@ export function AiPlanner() {
                                 return (
                                     <div
                                         key={day.day_number}
-                                        className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-200"
+                                        className="overflow-hidden rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft transition-all duration-200"
                                     >
                                         <button
                                             onClick={() => toggleDay(day.day_number)}
-                                            className="flex w-full items-center justify-between bg-card p-5 text-left transition-colors hover:bg-secondary/40"
+                                            className="flex w-full items-center justify-between bg-card p-5 text-left transition-colors hover:bg-[#715386]/[0.06]"
                                         >
                                             <div className="flex items-center gap-3.5">
-                                                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-terracotta text-sm font-bold text-primary-foreground">
+                                                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent text-sm font-bold text-accent-foreground">
                                                     H{day.day_number}
                                                 </span>
                                                 <span className="font-display text-base font-bold text-foreground sm:text-lg">
@@ -434,17 +435,17 @@ export function AiPlanner() {
                                                 {(day.activities || []).map((act, actIdx) => (
                                                     <div
                                                         key={actIdx}
-                                                        className="relative pl-6 border-l-2 border-aqua/40 space-y-1.5 pb-3 last:pb-0"
+                                                        className="relative pl-6 border-l-2 border-primary/40 space-y-1.5 pb-3 last:pb-0"
                                                     >
-                                                        <span className="absolute -left-[7px] top-1 size-3 rounded-full border-2 border-aqua bg-background" />
+                                                        <span className="absolute -left-[7px] top-1 size-3 rounded-full border-2 border-primary bg-background" />
 
                                                         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                                            <span className="inline-flex items-center gap-1 text-aqua font-mono bg-aqua/10 px-2 py-0.5 rounded-md">
+                                                            <span className="inline-flex items-center gap-1 text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-md">
                                                                 <Clock className="size-3" />
                                                                 {act.time}
                                                             </span>
                                                             <span className="inline-flex items-center gap-1 text-muted-foreground">
-                                                                <MapPin className="size-3 text-terracotta" />
+                                                                <MapPin className="size-3 text-accent" />
                                                                 {act.location}
                                                             </span>
                                                             {act.cost_estimate && (
@@ -484,7 +485,7 @@ export function AiPlanner() {
                         {/* Culinary Highlights & Tips */}
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {result.food_highlights && result.food_highlights.length > 0 && (
-                                <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
+                                <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6">
                                     <h4 className="flex items-center gap-2 font-display text-base font-bold text-foreground">
                                         <Utensils className="size-4 text-emerald-500" />
                                         Rekomendasi Kuliner ({foodPref})
@@ -501,7 +502,7 @@ export function AiPlanner() {
                             )}
 
                             {result.travel_tips && result.travel_tips.length > 0 && (
-                                <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
+                                <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6">
                                     <h4 className="flex items-center gap-2 font-display text-base font-bold text-foreground">
                                         <Lightbulb className="size-4 text-amber-500" />
                                         Tips Penting Perjalanan
