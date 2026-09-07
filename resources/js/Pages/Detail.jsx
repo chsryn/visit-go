@@ -184,7 +184,7 @@ export default function Detail({ item, category, related }) {
                                 <div className="rounded-2xl bg-[#5B436C] p-6 text-primary-foreground">
                                     <h3 className="font-display text-lg">Butuh bantuan?</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-primary-foreground/70">
-                                        Tanya Hiu Ajaib untuk rekomendasi rute, kuliner, dan penginapan di sekitar {title}.
+                                        Tanya Si Munggi untuk rekomendasi rute, kuliner, dan penginapan di sekitar {title}.
                                     </p>
                                 </div>
                             </aside>

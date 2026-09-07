@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Menu, X, Globe, ChevronDown, Check } from "lucide-react";
+import { Menu, X, ChevronDown, Check } from "lucide-react";
 
 const langs = [
     { code: "id", label: "Indonesia", short: "ID" },
@@ -100,13 +100,13 @@ const fallbackNav = {
 
 function DropdownPanel({ items }) {
     return (
-        <div className="invisible absolute left-1/2 top-full z-50 mt-4 min-w-[220px] -translate-x-1/2 translate-y-1 rounded-xl border border-black/5 bg-white/95 p-3 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-            <div className="grid max-h-[320px] gap-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="invisible absolute left-1/2 top-full z-50 mt-3 min-w-[240px] -translate-x-1/2 translate-y-1 rounded-lg border border-border bg-white p-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="grid max-h-[320px] gap-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {items.map((it) => (
                     <Link
                         key={it.href}
                         href={it.href}
-                        className="rounded-lg px-3 py-2 text-xs font-medium text-foreground/75 transition-all hover:bg-[#D4A017]/15 hover:text-foreground"
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
                     >
                         {it.label}
                     </Link>
@@ -206,47 +206,58 @@ export function Navbar() {
                     translate="no"
                 >
                     <span
-                        className={`font-display text-[20px] font-bold leading-none tracking-tight md:text-[24px] lg:text-[26px] ${scrolled ? "text-black" : "text-primary-foreground"}`}
+                        className={`font-display text-[24px] font-bold leading-none tracking-tight md:text-[28px] lg:text-[30px] ${scrolled ? "text-black" : "text-primary-foreground"}`}
                     >
                         Visit
                     </span>
                     <span
-                        className={`text-[10px] font-semibold uppercase tracking-[0.14em] leading-none md:text-xs ${scrolled ? "text-black/60" : "text-primary-foreground/70"}`}
+                        className={`text-[11px] font-semibold uppercase tracking-[0.14em] leading-none md:text-[13px] ${scrolled ? "text-black/60" : "text-primary-foreground/70"}`}
                     >
                         Gorontalo
                     </span>
                 </Link>
 
-                <nav className="hidden items-center gap-5 md:flex lg:gap-7">
-                    {menu.map((m) => (
-                        <div key={m.key} className="group relative">
-                            <span className="group/link relative inline-flex items-center gap-1.5 pb-1">
-                                <Link
-                                    href={`/${m.key}`}
-                                    className={`text-[14px] font-semibold tracking-wide transition-colors ${scrolled ? "text-black group-hover/link:text-black" : "text-primary-foreground/85 group-hover/link:text-accent"}`}
-                                >
-                                    {m.label}
-                                </Link>
-                                <ChevronDown
-                                    className={`size-3 shrink-0 pointer-events-none transition-transform duration-300 group-hover/link:rotate-180 md:size-3.5 ${scrolled ? "text-black/70 group-hover/link:text-black" : "text-primary-foreground/80 group-hover/link:text-accent"}`}
-                                />
-                                <span
-                                    className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-accent"}`}
-                                />
-                            </span>
-                            <DropdownPanel items={m.items} />
-                        </div>
-                    ))}
+                <nav className="hidden items-center gap-4 md:flex lg:gap-5">
+                    {menu.map((m) =>
+                        m.key === "event" ? (
+                            <Link
+                                key={m.key}
+                                href="/event"
+                                className={`relative inline-flex items-center pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-accent"}`}
+                            >
+                                {m.label}
+                                <span className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 ${scrolled ? "bg-black" : "bg-accent"}`} />
+                            </Link>
+                        ) : (
+                            <div key={m.key} className="group relative">
+                                <span className="group/link relative inline-flex items-center gap-1 pb-1">
+                                    <Link
+                                        href={`/${m.key}`}
+                                        className={`text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black group-hover/link:text-black" : "text-primary-foreground/85 group-hover/link:text-accent"}`}
+                                    >
+                                        {m.label}
+                                    </Link>
+                                    <ChevronDown
+                                        className={`size-[0.85em] shrink-0 pointer-events-none transition-transform duration-300 group-hover/link:rotate-180 ${scrolled ? "text-black/70 group-hover/link:text-black" : "text-primary-foreground/80 group-hover/link:text-accent"}`}
+                                    />
+                                    <span
+                                        className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-accent"}`}
+                                    />
+                                </span>
+                                <DropdownPanel items={m.items} />
+                            </div>
+                        ),
+                    )}
                     <div className="relative" ref={langRef}>
                         <button
                             type="button"
                             onClick={() => setLangOpen((v) => !v)}
-                            className={`flex items-center gap-1.5 text-[14px] uppercase tracking-[0.1em] font-semibold ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-accent"}`}
+                            className={`relative inline-flex items-center gap-1.5 pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-accent"}`}
                         >
-                            <Globe className="size-3.5 shrink-0" />
+                            <img src={`/flags/${locale}.svg`} alt={locale} width="24" height="24" className="size-[1em] shrink-0 rounded-[2px] object-cover" />
                             {t.lang}
                             <ChevronDown
-                                className={`size-3 shrink-0 text-current transition-transform duration-300 md:size-3.5 ${langOpen ? "rotate-180" : ""} ${scrolled ? "text-black/70" : "text-primary-foreground/80 group-hover:text-accent"}`}
+                                className={`size-[0.85em] shrink-0 text-current transition-transform duration-300 ${langOpen ? "rotate-180" : ""} ${scrolled ? "text-black/70" : "text-primary-foreground/80 group-hover:text-accent"}`}
                             />
                         </button>
                         {langOpen && (
@@ -292,56 +303,67 @@ export function Navbar() {
             {open && (
                 <div className="border-t border-border bg-card px-6 py-6 md:hidden">
                     <nav className="flex flex-col gap-1">
-                        {menu.map((m) => (
-                            <div
-                                key={m.key}
-                                className="border-b border-border/60 last:border-0"
-                            >
-                                <div className="flex items-center justify-between py-3">
-                                    <Link
-                                        href={`/${m.key}`}
-                                        onClick={() => setOpen(false)}
-                                        className="text-[14px] font-semibold tracking-wide text-foreground hover:text-primary"
-                                    >
-                                        {m.label}
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        aria-expanded={mobileOpen === m.key}
-                                        onClick={() =>
-                                            setMobileOpen((v) =>
-                                                v === m.key ? null : m.key,
-                                            )
-                                        }
-                                        className="-mr-2 p-2"
-                                    >
-                                        <ChevronDown
-                                            className={`size-4 shrink-0 text-foreground transition-transform duration-300 ${mobileOpen === m.key ? "rotate-180" : ""}`}
-                                        />
-                                    </button>
-                                </div>
-                                <div
-                                    className={`grid transition-all duration-300 ${mobileOpen === m.key ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                        {menu.map((m) =>
+                            m.key === "event" ? (
+                                <Link
+                                    key={m.key}
+                                    href="/event"
+                                    onClick={() => setOpen(false)}
+                                    className="block border-b border-border/60 py-3 text-[16px] font-semibold tracking-normal text-foreground hover:text-primary last:border-0"
                                 >
-                                    <div className="overflow-hidden pb-3">
-                                        <div className="grid gap-1 rounded-xl border border-black/5 bg-white/95 p-3 shadow-xl backdrop-blur-md">
-                                            {m.items.map((it) => (
-                                                <Link
-                                                    key={it.href}
-                                                    href={it.href}
-                                                    onClick={() =>
-                                                        setOpen(false)
-                                                    }
-                                                    className="rounded-lg px-3 py-2 text-xs font-medium text-foreground/75 transition-all hover:bg-[#D4A017]/15 hover:text-foreground"
-                                                >
-                                                    {it.label}
-                                                </Link>
-                                            ))}
+                                    {m.label}
+                                </Link>
+                            ) : (
+                                <div
+                                    key={m.key}
+                                    className="border-b border-border/60 last:border-0"
+                                >
+                                    <div className="flex items-center justify-between py-3">
+                                        <Link
+                                            href={`/${m.key}`}
+                                            onClick={() => setOpen(false)}
+                                            className="text-[16px] font-semibold tracking-normal text-foreground hover:text-primary"
+                                        >
+                                            {m.label}
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            aria-expanded={mobileOpen === m.key}
+                                            onClick={() =>
+                                                setMobileOpen((v) =>
+                                                    v === m.key ? null : m.key,
+                                                )
+                                            }
+                                            className="-mr-2 p-2"
+                                        >
+                                            <ChevronDown
+                                                className={`size-[1em] shrink-0 text-foreground transition-transform duration-300 ${mobileOpen === m.key ? "rotate-180" : ""}`}
+                                            />
+                                        </button>
+                                    </div>
+                                    <div
+                                        className={`grid transition-all duration-300 ${mobileOpen === m.key ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                                    >
+                                        <div className="overflow-hidden pb-3">
+                                            <div className="grid gap-0.5 rounded-lg border border-border bg-white p-2 shadow-lg">
+                                                {m.items.map((it) => (
+                                                    <Link
+                                                        key={it.href}
+                                                        href={it.href}
+                                                        onClick={() =>
+                                                            setOpen(false)
+                                                        }
+                                                        className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
+                                                    >
+                                                        {it.label}
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ),
+                        )}
                         <div className="flex gap-2 border-t border-border pt-4 mt-2">
                             {langs.map((l) => (
                                 <button

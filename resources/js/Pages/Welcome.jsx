@@ -25,11 +25,11 @@ export default function Welcome({ events }) {
                 <Navbar />
                 <main>
                     <Hero />
+                    <Categories />
                     <div className="relative overflow-hidden bg-background">
                         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.7'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3Cpath d='M60 42 L70 54 L60 66 L50 54 Z'/%3E%3Cpath d='M18 60 L30 50 L42 60 L30 70 Z'/%3E%3Cpath d='M78 60 L90 50 L102 60 L90 70 Z'/%3E%3Ccircle cx='60' cy='30' r='1.8' fill='%23715386' stroke='none' opacity='0.6'/%3E%3Ccircle cx='60' cy='54' r='1.8' fill='%23715386' stroke='none' opacity='0.6'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
                         <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#715386]/[0.02] via-transparent to-[#715386]/[0.03]" />
                         <div className="relative">
-                            <Categories />
                             <AiPlanner />
                         </div>
                     </div>

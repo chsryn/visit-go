@@ -153,6 +153,16 @@ class PortalSeeder extends Seeder
                 'image' => '/storage/portal/event-fesbujaton.jpg',
                 'alt' => 'Panggung FESBUJATON',
             ],
+            [
+                'name' => 'Festival Pesona Teluk Tomini 2026',
+                'slug' => 'festival-pesona-teluk-tomini-2026',
+                'date' => '20–22',
+                'month' => 'Nov 2026',
+                'location' => 'Pantai Bolihutuo, Boalemo',
+                'body' => "Festival Pesona Teluk Tomini 2026 — sail pass perahu hias, lomba foto bawah laut Olele, dan panggung musik etnik di tepi pantai Bolihutuo. Destinasi bahari Gorontalo siap menyambut wisatawan dengan paket snorkeling dan kuliner sagela.",
+                'image' => '/storage/portal/event-karawo.jpg',
+                'alt' => 'Festival Pesona Teluk Tomini',
+            ],
         ];
 
         foreach ($events as $e) {

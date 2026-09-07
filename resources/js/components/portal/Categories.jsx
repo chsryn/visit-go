@@ -5,6 +5,7 @@ import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
 import kerajinanImage from "@/assets/kategori-kerajinan.jpg";
+import gorontalo from "@/assets/gorontalo.jpg"; // ponytail: placeholder Olele bawah laut, ganti dengan foto Olele asli jika sudah ada (resources/js/assets/olele-underwater.jpg)
 
 const pillars = [
     {
@@ -41,15 +42,29 @@ export function Categories() {
     return (
         <section
             id="kategori"
-            className="relative overflow-hidden bg-transparent py-[30px] md:py-[50px]"
+            className="relative isolate overflow-hidden pt-[50px] pb-[70px] md:pt-[70px] md:pb-[90px]"
         >
-            {/* motif & gradient dipindah ke Welcome wrapper — biar tile-to-tile tanpa patah */}
-            <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-                <Reveal y={30} className="mx-auto max-w-[573px] text-center">
-                    <h2 className="font-display text-[24px] font-bold leading-[1.3] text-foreground md:text-[30px]">
+            {/* parallax bg — Olele bawah laut, bg-fixed biar parallax (no jarallax). isolate+absolute tanpa -z-10 biar tidak ketutup bg-background */}
+            <div aria-hidden className="absolute inset-0">
+                <div
+                    className="absolute inset-0 bg-cover bg-center bg-scroll md:bg-fixed"
+                    style={{ backgroundImage: `url(${gorontalo})` }}
+                />
+                {/* fallback img untuk preload + a11y, hidden tapi bantu Vite preload */}
+                <img src={gorontalo} alt="" className="hidden" aria-hidden />
+                <div className="absolute inset-0 bg-[#1a1020]/30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25" />
+            </div>
+
+            <div className="relative mx-auto max-w-7xl px-6 pb-4 md:pb-6 lg:px-8">
+                <Reveal
+                    y={30}
+                    className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10"
+                >
+                    <h2 className="font-display text-[24px] font-bold leading-[1.3] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] md:text-[30px]">
                         Empat Pilar Kekayaan Gorontalo
                     </h2>
-                    <p className="mt-[10px] text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-4 text-sm leading-relaxed text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.3)] md:mt-5">
                         Empat pilar yang merangkai jati diri Gorontalo —
                         destinasi bahari, ensiklopedia budaya Hulondalo, kuliner
                         khas, dan kerajinan Karawo di jantung Teluk Tomini.
@@ -64,7 +79,7 @@ export function Categories() {
                         <motion.div key={item.category} variants={cardVariants}>
                             <Link
                                 href={`/${item.category}`}
-                                className="group relative block overflow-hidden rounded-[15px] bg-white/65 backdrop-blur-xl backdrop-saturate-150 border border-white/30 shadow-soft supports-[backdrop-filter]:bg-white/55 dark:bg-card/60 dark:border-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                                className="group relative block overflow-hidden rounded-[15px] border-0 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.4),0_8px_16px_-8px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.08)_inset] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-14px_rgba(0,0,0,0.5),0_12px_24px_-10px_rgba(0,0,0,0.35)] transform-gpu dark:bg-card/60"
                             >
                                 <div className="overflow-hidden rounded-xl h-[348px] md:h-[368px]">
                                     <img

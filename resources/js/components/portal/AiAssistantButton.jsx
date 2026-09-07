@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, X, Send } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import maskotImg from "@/assets/maskot.png";
 
 export function AiAssistantButton() {
     const [open, setOpen] = useState(false);
+    const [showBubble, setShowBubble] = useState(false);
     const [messages, setMessages] = useState([
         {
             id: 1,
             role: "assistant",
-            text: "Halo! Saya Hiu Ajaib — asisten pariwisata Gorontalo. Tanya saya soal destinasi, budaya, kuliner, atau event. Coba: 'Rencana 2 hari budget menengah?'",
+            text: "Wololo habari! 👋\n\nSaya Si Munggi, teman jalanmu di Gorontalo. Mau cari info destinasi wisata seru, kuliner enak, atau jadwal event?\n\Tanya aja ke aku!",
         },
     ]);
     const [input, setInput] = useState("");
@@ -42,7 +43,9 @@ export function AiAssistantButton() {
         setInput("");
         setIsLoading(true);
         try {
-            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+            const token = document
+                .querySelector('meta[name="csrf-token"]')
+                ?.getAttribute("content");
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
@@ -54,19 +57,32 @@ export function AiAssistantButton() {
                 body: JSON.stringify({ message: text }),
             });
             const data = await res.json();
-            const reply = data.reply || "Maaf, saya belum bisa menjawab. Coba tanya soal wisata Gorontalo.";
-            setMessages((m) => [...m, { id: Date.now() + 1, role: "assistant", text: reply }]);
+            const reply =
+                data.reply ||
+                "Maaf, saya belum bisa menjawab. Coba tanya soal wisata Gorontalo.";
+            setMessages((m) => [
+                ...m,
+                { id: Date.now() + 1, role: "assistant", text: reply },
+            ]);
         } catch {
             setMessages((m) => [
                 ...m,
-                { id: Date.now() + 1, role: "assistant", text: "Koneksi terputus. Coba lagi — atau tanya soal Botubarani / Karawo / kuliner Gorontalo." },
+                {
+                    id: Date.now() + 1,
+                    role: "assistant",
+                    text: "Koneksi terputus. Coba lagi — atau tanya soal Botubarani / Karawo / kuliner Gorontalo.",
+                },
             ]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const quick = ["Hiu paus jam berapa?", "Kuliner khas Gorontalo?", "Karnaval Karawo kapan?"];
+    const quick = [
+        "Hiu paus jam berapa?",
+        "Kuliner khas Gorontalo?",
+        "Karnaval Karawo kapan?",
+    ];
 
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 md:bottom-6 md:right-6">
@@ -77,29 +93,66 @@ export function AiAssistantButton() {
                             <Sparkles className="size-5" />
                         </span>
                         <div>
-                            <h3 className="text-sm font-semibold text-foreground">Hiu Ajaib</h3>
-                            <p className="text-xs text-muted-foreground">Asisten Wisata Gorontalo</p>
+                            <h3 className="text-sm font-semibold text-foreground">
+                                Si Munggi
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                                Asisten Wisata Gorontalo
+                            </p>
                         </div>
                     </div>
 
-                    <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-background p-4">
+                    <div
+                        ref={listRef}
+                        className="flex-1 space-y-3 overflow-y-auto bg-background p-4"
+                    >
                         {messages.map((m) => {
                             const parts = m.text.split(/(\*\*.*?\*\*)/g);
                             return (
-                                <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                                <div
+                                    key={m.id}
+                                    className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                                >
                                     <div
-                                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                                            m.role === "user" ? "bg-accent text-accent-foreground" : "bg-card border border-border text-foreground"
+                                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                                            m.role === "user"
+                                                ? "bg-accent text-accent-foreground"
+                                                : "bg-card border border-border text-foreground"
                                         }`}
                                     >
-                                        {parts.map((p, i) =>
-                                            p.startsWith("**") && p.endsWith("**") ? (
-                                                <strong key={i} className="font-semibold">
-                                                    {p.slice(2, -2)}
-                                                </strong>
-                                            ) : (
-                                                <span key={i}>{p}</span>
-                                            ),
+                                        {parts.flatMap((p, i) =>
+                                            p.startsWith("**") &&
+                                            p.endsWith("**")
+                                                ? [
+                                                      <strong
+                                                          key={`${i}-b`}
+                                                          className="font-semibold"
+                                                      >
+                                                          {p.slice(2, -2)}
+                                                      </strong>,
+                                                  ]
+                                                : p
+                                                      .split("\n")
+                                                      .flatMap((line, j) =>
+                                                          j === 0
+                                                              ? [
+                                                                    <span
+                                                                        key={`${i}-${j}`}
+                                                                    >
+                                                                        {line}
+                                                                    </span>,
+                                                                ]
+                                                              : [
+                                                                    <br
+                                                                        key={`${i}-${j}-br`}
+                                                                    />,
+                                                                    <span
+                                                                        key={`${i}-${j}`}
+                                                                    >
+                                                                        {line}
+                                                                    </span>,
+                                                                ],
+                                                      ),
                                         )}
                                     </div>
                                 </div>
@@ -129,7 +182,10 @@ export function AiAssistantButton() {
                                 </button>
                             ))}
                         </div>
-                        <form onSubmit={sendMessage} className="flex items-center gap-2">
+                        <form
+                            onSubmit={sendMessage}
+                            className="flex items-center gap-2"
+                        >
                             <input
                                 type="text"
                                 value={input}
@@ -150,28 +206,55 @@ export function AiAssistantButton() {
                     </div>
                 </div>
             )}
-            <motion.button
-                type="button"
-                aria-label={open ? "Tutup asisten AI" : "Buka asisten AI"}
-                onClick={() => setOpen((v) => !v)}
-                className="relative size-28 md:size-32 drop-shadow-md hover:drop-shadow-xl transition-all duration-300 hover:-translate-y-1"
-                whileHover={open ? {} : { y: -6, scale: 1.04, rotate: 1 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            <div
+                className="relative"
+                onMouseEnter={() => !open && setShowBubble(true)}
+                onMouseLeave={() => setShowBubble(false)}
             >
-                <motion.img
-                    src={maskotImg}
-                    alt="Hiu Ajaib"
-                    className="size-full object-contain"
-                    animate={open ? {} : { y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                />
-                {open && (
-                    <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-accent border-2 border-white shadow-md">
-                        <X className="size-3.5 text-white" />
-                    </span>
-                )}
-            </motion.button>
+                <AnimatePresence>
+                    {!open && showBubble && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="pointer-events-none absolute bottom-full right-2 mb-3 w-[220px] rounded-2xl border border-border/50 bg-white px-4 py-3 text-sm leading-relaxed text-foreground shadow-lg"
+                        >
+                            Halo saya Munggi, AI asisten yang menemani
+                            perjalanan kamu.
+                            <span className="absolute -bottom-1.5 right-10 size-3 rotate-45 border-b border-r border-border/50 bg-white shadow-sm" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                <motion.button
+                    type="button"
+                    aria-label={open ? "Tutup Si Munggi" : "Buka Si Munggi"}
+                    onClick={() => setOpen((v) => !v)}
+                    onHoverStart={() => !open && setShowBubble(true)}
+                    onHoverEnd={() => setShowBubble(false)}
+                    className="relative size-28 md:size-32 drop-shadow-md hover:drop-shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    whileHover={open ? {} : { y: -6, scale: 1.04, rotate: 1 }}
+                    whileTap={{ scale: 0.96 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                >
+                    <motion.img
+                        src={maskotImg}
+                        alt="Si Munggi"
+                        className="size-full object-contain"
+                        animate={open ? {} : { y: [0, -4, 0] }}
+                        transition={{
+                            repeat: Infinity,
+                            duration: 3,
+                            ease: "easeInOut",
+                        }}
+                    />
+                    {open && (
+                        <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-accent border-2 border-white shadow-md">
+                            <X className="size-3.5 text-white" />
+                        </span>
+                    )}
+                </motion.button>
+            </div>
         </div>
     );
 }

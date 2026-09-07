@@ -40,12 +40,14 @@ export default function CategoryIndex({ category, items, banner }) {
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
                 <main>
-                    {/* Header ungu + motif halus — banner_image dari DB jika ada */}
-                    <div className="relative overflow-hidden bg-primary pt-28 pb-12">
+                    {/* Header transparan seperti hero — banner_image dari DB jika ada */}
+                    <div className="relative overflow-hidden bg-black pt-28 pb-12">
                         {isBannerStorage ? (
-                            <img src={bannerSrc} alt={banner?.banner_alt ?? label} className="absolute inset-0 size-full object-cover opacity-30" />
+                            <img src={bannerSrc} alt={banner?.banner_alt ?? label} className="absolute inset-0 size-full object-cover" />
                         ) : null}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-primary/70" />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-black/40" />
+                        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
+                        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-black/70 to-transparent" />
                         <div
                             aria-hidden
                             className="pointer-events-none absolute inset-0 opacity-[0.05]"
