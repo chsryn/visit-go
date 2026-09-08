@@ -1,5 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\AiApiKeyController;
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\BudayaController as AdminBudayaController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\KerajinanController as AdminKerajinanController;
+use App\Http\Controllers\Admin\KulinerController as AdminKulinerController;
+use App\Http\Controllers\Admin\MapController as AdminMapController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\AiPlannerController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DestinasiController;
@@ -7,6 +17,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\KnowledgeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -21,3 +32,27 @@ Route::resource('knowledge', KnowledgeController::class)->only(['index', 'store'
 Route::resource('destinasi', DestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::resource('events', EventController::class)->only(['index', 'store', 'update', 'destroy']);
 
+// ---- Admin panel  ----
+Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->middleware('guest')->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('guest')->name('admin.login.store');
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('admin.logout');
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Destination grouped per category (accordion filter via ?category_id=)
+    Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('kuliners', AdminKulinerController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('kerajinans', AdminKerajinanController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('events', AdminEventController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('ai-keys', AiApiKeyController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password');
+
+    Route::get('/maps', [AdminMapController::class, 'index'])->name('maps');
+    Route::get('/api/map-points', [AdminMapController::class, 'points'])->name('api.map-points');
+});

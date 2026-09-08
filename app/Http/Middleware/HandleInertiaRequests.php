@@ -37,7 +37,21 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+
+            'auth' => [
+                'user' => fn () => $request->user()?->only(['id', 'name', 'email']),
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'adminCategories' => fn () => $request->is('admin*')
+                ? \App\Models\Category::orderBy('name')->get(['id', 'name', 'slug'])
+                : [],
+            'nav' => [
+                'categories' => fn () => \App\Models\Destinasi::where('is_active', true)->whereNotIn('slug', \App\Http\Controllers\PortalController::PILLARS)->latest()->take(20)->get(['name', 'slug', 'category']),
+                'events' => fn () => \App\Models\Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location']),
+            ],
         ];
     }
 }
