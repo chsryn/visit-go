@@ -62,13 +62,17 @@ export function Events({ items }) {
             className="relative bg-[#715386]/[0.04] pt-[50px] pb-[70px] md:pt-[70px] md:pb-[90px]"
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <Reveal y={12} className="max-w-xl">
+                <Reveal y={12} className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10">
                     <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
                         Agenda Budaya
                     </span>
-                    <h2 className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-4xl">
+                    <h2 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
                         Perayaan yang akan datang
                     </h2>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:mt-5">
+                        Perayaan yang merangkai kalender budaya Gorontalo — Karnaval Karawo,
+                        Tradisi Dikili, dan Festival Pesona Teluk Tomini di jantung Hulondalo.
+                    </p>
                 </Reveal>
 
                 {hasData ? (
