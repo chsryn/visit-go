@@ -27,7 +27,15 @@ class AiPlannerService
         $destContext = "";
         $knowContext = "";
         try {
-            $destinations = Destinasi::where('is_active', true)->limit(15)->get(['name', 'category', 'body']);
+            $destinations = Destinasi::where('is_active', true)->limit(8)->get(['name', 'category', 'body']);
+            // Tabel baru hasil migrasi legacy rows — ikut jadi grounding
+            $extras = \App\Models\Budaya::where('is_active', true)->limit(3)->get(['name', 'body'])
+                ->map(fn ($b) => (object) ['name' => $b->name, 'category' => 'budaya', 'body' => $b->body])
+                ->merge(\App\Models\Kuliner::where('is_active', true)->limit(3)->get(['name', 'body'])
+                    ->map(fn ($k) => (object) ['name' => $k->name, 'category' => 'kuliner', 'body' => $k->body]))
+                ->merge(\App\Models\Kerajinan::where('is_active', true)->limit(3)->get(['name', 'body'])
+                    ->map(fn ($k) => (object) ['name' => $k->name, 'category' => 'kerajinan', 'body' => $k->body]));
+            $destinations = $destinations->merge($extras);
             $knowledge = Knowledge::where('is_active', true)->limit(15)->get(['topic', 'question', 'answer']);
 
             $destContext = $destinations->map(fn($d) => "- {$d->name} ({$d->category}): " . substr(strip_tags($d->body), 0, 150))->implode("\n");

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Budaya;
 use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
+use App\Models\Kerajinan;
+use App\Models\Kuliner;
 use Inertia\Inertia;
 
 class PortalController extends Controller
@@ -29,7 +32,15 @@ class PortalController extends Controller
             // map to same shape as Destinasi for Category/Index reuse
             $items = $items->map(fn($e) => ['id'=>$e->id,'name'=>$e->name,'slug'=>$e->slug,'category'=>'event','body'=>$e->body,'image'=>$e->image,'alt'=>$e->alt,'date'=>$e->date,'month'=>$e->month,'location'=>$e->location]);
         } else {
-            $items = Destinasi::where('category', $category)->whereNotIn('slug', self::PILLARS)->where('is_active', true)->latest()->get();
+            // budaya/kuliner/kerajinan dibaca dari tabelnya masing-masing (legacy rows sudah dimigrasi)
+            $model = match ($category) {
+                'budaya' => Budaya::class,
+                'kuliner' => Kuliner::class,
+                'kerajinan' => Kerajinan::class,
+                default => Destinasi::class,
+            };
+            $items = $model::where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
+            $items = $items->map(fn($i) => array_merge($i->toArray(), ['category' => $category]));
         }
         $banner = Category::where('slug', $category)->where('is_active', true)->first();
         return Inertia::render('Category/Index', [
@@ -45,8 +56,14 @@ class PortalController extends Controller
             $item = Event::where('slug', $slug)->where('is_active', true)->firstOrFail();
             $related = Event::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
         } else {
-            $item = Destinasi::where('slug', $slug)->where('category', $category)->where('is_active', true)->firstOrFail();
-            $related = Destinasi::where('category', $category)->where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            $model = match ($category) {
+                'budaya' => Budaya::class,
+                'kuliner' => Kuliner::class,
+                'kerajinan' => Kerajinan::class,
+                default => Destinasi::class,
+            };
+            $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
+            $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
         }
 
         return Inertia::render('Detail', [
@@ -54,6 +71,77 @@ class PortalController extends Controller
             'category' => $category,
             'related' => $related,
         ]);
+    }
+
+    // ---- Dynamic Destination categories (issue.md: child of Destination) ----
+
+    /**
+     * GET /destinasi — overview kartu kategori dinamis (Pegunungan, Laut, Buatan, ...).
+     */
+    public function destinationIndex()
+    {
+        $categories = Category::destinationChildren()
+            ->where('is_active', true)
+            ->withCount(['destinasis' => fn ($q) => $q->where('is_active', true)])
+            ->orderBy('name')
+            ->get();
+
+        $banner = Category::where('slug', 'destinasi')->where('is_active', true)->first();
+
+        return Inertia::render('Destination/Index', [
+            'categories' => $categories,
+            'banner' => $banner,
+        ]);
+    }
+
+    /**
+     * GET /destinasi/kategori/{slug} — daftar destinasi per kategori dinamis.
+     */
+    public function destinationByCategory(string $slug)
+    {
+        $category = Category::destinationChildren()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        return Inertia::render('Destination/Category', [
+            'category' => $category,
+            'categories' => $this->destinationCategories(),
+            'items' => $this->destinationItems($category->id),
+        ]);
+    }
+
+    /**
+     * GET /api/destinasi/kategori/{slug} — JSON untuk tab switching di FE.
+     */
+    public function destinationCategoryApi(string $slug)
+    {
+        $category = Category::destinationChildren()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        return response()->json([
+            'category' => $category,
+            'items' => $this->destinationItems($category->id),
+        ]);
+    }
+
+    private function destinationCategories()
+    {
+        return Category::destinationChildren()
+            ->where('is_active', true)
+            ->withCount(['destinasis' => fn ($q) => $q->where('is_active', true)])
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function destinationItems(int $categoryId)
+    {
+        return Destinasi::where('category_id', $categoryId)
+            ->where('is_active', true)
+            ->latest()
+            ->get(['id', 'name', 'slug', 'body', 'image', 'alt', 'location']);
     }
 
     // explicit aliases for 5-route option
