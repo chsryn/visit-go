@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import heroImage from "@/assets/hero-whale-shark.jpg";
-import destinasiImage from "@/assets/kategori-destinasi.jpg";
+import destinasiImage from "@/assets/saronde.jpeg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
 
 const slides = [
@@ -65,6 +65,19 @@ export function Hero() {
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
                     {slides[current].subtitle}
                 </p>
+                <a
+                    href="#ai-planner"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById("ai-planner")?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                        });
+                    }}
+                    className="mt-8 inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-md shadow-lg transition-all hover:-translate-y-0.5 hover:bg-accent/20 hover:text-white hover:border-accent/30 hover:backdrop-blur-md"
+                >
+                    AI Guide Plan
+                </a>
             </div>
 
             <div className="absolute bottom-[30px] left-1/2 flex -translate-x-1/2 gap-2">
