@@ -8,18 +8,21 @@ import kulinerImage from "@/assets/kategori-kuliner.jpg";
 const slides = [
     {
         image: heroImage,
-        title: "Discover The Hidden Paradise",
-        subtitle: "Telusuri keindahan Gorontalo yang belum tersentuh.",
+        title: "Discover Gorontalo's Hidden Wonders",
+        subtitle:
+            "Telusuri surga tersembunyi dan pesona alam bawah laut Gorontalo.",
     },
     {
         image: destinasiImage,
-        title: "Rich Culture & Heritage",
-        subtitle: "Rasakan kehangatan tradisi Hulondalo.",
+        title: "Rich Culture & Hulondalo Heritage",
+        subtitle:
+            "Berkenalan dengan budaya melalui kehangatan tradisi masyarakat lokal.",
     },
     {
         image: kulinerImage,
-        title: "Authentic Culinary",
-        subtitle: "Nikmati cita rasa pesisir yang tak terlupakan.",
+        title: "Authentic Gorontalo Culinary",
+        subtitle:
+            "Nikmati cita rasa khas Gorontalo yang tak terlupakan.",
     },
 ];
 

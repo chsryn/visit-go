@@ -59,16 +59,13 @@ export function Events({ items }) {
     return (
         <section
             id="agenda"
-            className="relative bg-[#715386]/[0.04] py-12 md:py-16"
+            className="relative bg-[#715386]/[0.04] pt-4 pb-12 md:pt-6 md:pb-16"
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <Reveal
                     y={12}
-                    className="mx-auto max-w-[640px] px-4 py-4 text-center md:py-6"
+                    className="mx-auto max-w-[640px] px-4 pt-1 pb-4 text-center md:pt-2 md:pb-6"
                 >
-                    {/* <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
-                        Agenda Budaya
-                    </span> */}
                     <h2 className="font-display text-3xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-4xl">
                         Perayaan yang akan datang
                     </h2>
