@@ -59,28 +59,29 @@ export function Events({ items }) {
     return (
         <section
             id="agenda"
-            className="relative bg-[#715386]/[0.04] pt-[50px] pb-[70px] md:pt-[70px] md:pb-[90px]"
+            className="relative bg-[#715386]/[0.04] pt-4 pb-12 md:pt-6 md:pb-16"
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <Reveal y={12} className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10">
-                    <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
-                        Agenda Budaya
-                    </span>
-                    <h2 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+                <Reveal
+                    y={12}
+                    className="mx-auto max-w-[640px] px-4 pt-1 pb-4 text-center md:pt-2 md:pb-6"
+                >
+                    <h2 className="font-display text-3xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-4xl">
                         Perayaan yang akan datang
                     </h2>
                     <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:mt-5">
-                        Perayaan yang merangkai kalender budaya Gorontalo — Karnaval Karawo,
-                        Tradisi Dikili, dan Festival Pesona Teluk Tomini di jantung Hulondalo.
+                        Perayaan yang merangkai kalender budaya Gorontalo —
+                        Karnaval Karawo, Tradisi Dikili, dan Festival Pesona
+                        Teluk Tomini di jantung Hulondalo.
                     </p>
                 </Reveal>
 
                 {hasData ? (
-                    <div className="relative mt-12 px-8 md:mt-16 lg:px-8">
+                    <div className="relative mt-8 px-8 md:mt-10 lg:px-8">
                         <Swiper
                             modules={[Navigation]}
                             slidesPerView={1}
-                            spaceBetween={24}
+                            spaceBetween={20}
                             slidesPerGroup={1}
                             navigation={
                                 showSwiper
@@ -91,10 +92,10 @@ export function Events({ items }) {
                                     : false
                             }
                             breakpoints={{
-                                768: { slidesPerView: 2, spaceBetween: 24 },
-                                1024: { slidesPerView: 3, spaceBetween: 32 },
+                                768: { slidesPerView: 2, spaceBetween: 20 },
+                                1024: { slidesPerView: 3, spaceBetween: 20 },
                             }}
-                            className="!pb-8 !pt-4 [&_.swiper-wrapper]:!items-stretch"
+                            className="!pb-6 !pt-2 [&_.swiper-wrapper]:!items-stretch"
                         >
                             {data.map((event, i) => {
                                 const raw = event.image;
@@ -137,16 +138,16 @@ export function Events({ items }) {
                                         >
                                             <Link
                                                 href={`/event/${event.slug}`}
-                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
+                                                className="group flex h-[320px] min-h-[320px] w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
                                             >
-                                                <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-muted">
+                                                <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
                                                     <img
                                                         src={src}
                                                         alt={event.alt}
                                                         width={1280}
                                                         height={960}
                                                         loading="lazy"
-                                                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        className="size-full object-cover transition-transform duration-500 will-change-transform group-hover:scale-105"
                                                     />
                                                     <div className="absolute left-3 top-3 rounded-lg border border-white/15 bg-black/10 px-2.5 py-1.5 text-center shadow-sm backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-black/10">
                                                         <p className="text-xs font-bold leading-tight text-white">
@@ -157,14 +158,22 @@ export function Events({ items }) {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div className="relative flex flex-1 flex-col justify-between overflow-hidden p-4">
-                                                    <img src={src} alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover blur-[5px] scale-110" />
-                                                    <div aria-hidden className="pointer-events-none absolute inset-0 bg-primary/65 backdrop-blur-lg backdrop-saturate-150 supports-[backdrop-filter]:bg-primary/55" />
+                                                <div className="relative flex flex-1 flex-col overflow-hidden p-3.5 min-h-[108px]">
+                                                    <img
+                                                        src={src}
+                                                        alt=""
+                                                        aria-hidden
+                                                        className="pointer-events-none absolute inset-0 size-full object-cover blur-[4px] scale-105"
+                                                    />
+                                                    <div
+                                                        aria-hidden
+                                                        className="pointer-events-none absolute inset-0 bg-primary/65 backdrop-blur-lg backdrop-saturate-150 supports-[backdrop-filter]:bg-primary/55"
+                                                    />
                                                     <div className="relative">
-                                                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-white">
+                                                        <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
                                                             {event.name}
                                                         </p>
-                                                        <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-white/80">
+                                                        <p className="mt-1 line-clamp-2 text-xs leading-[1.5] text-white/80">
                                                             {event.body}
                                                         </p>
                                                     </div>

@@ -56,18 +56,18 @@ export function Categories() {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25" />
             </div>
 
-            <div className="relative mx-auto max-w-7xl px-6 pb-4 md:pb-6 lg:px-8">
+            <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-center px-6 pb-4 md:pb-6 lg:px-8">
                 <Reveal
                     y={30}
-                    className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10"
+                    className="mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-6 text-center md:py-10"
                 >
-                    <h2 className="font-display text-3xl font-bold leading-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] sm:text-4xl">
-                        Empat Pilar Kekayaan Gorontalo
+                    <h2 className="font-display whitespace-nowrap text-center text-xl font-bold leading-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] sm:text-3xl md:text-4xl lg:text-5xl">
+                        Jelajahi Pesona Wisata & Budaya Gorontalo
                     </h2>
-                    <p className="mt-4 text-sm leading-relaxed text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.3)] md:mt-5">
-                        Empat pilar yang merangkai jati diri Gorontalo —
-                        destinasi bahari, ensiklopedia budaya Hulondalo, kuliner
-                        khas, dan kerajinan Karawo di jantung Teluk Tomini.
+                    <p className="mt-4 max-w-2xl text-center text-base leading-relaxed text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.3)] md:mt-5 md:text-lg">
+                        Dari eksotisme bahari Teluk Tomini dan cita rasa khas Gorontalo diselimuti dengan kain
+                        Karawo, jelajahi ragam destinasi alam, warisan budaya
+                        Hulonthalo.
                     </p>
                 </Reveal>
 

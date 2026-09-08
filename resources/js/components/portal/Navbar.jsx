@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { Menu, X, ChevronDown, Check } from "lucide-react";
+import { AudioPlayer } from "@/components/portal/AudioPlayer";
 
 const langs = [
     { code: "id", label: "Indonesia", short: "ID" },
@@ -223,25 +224,25 @@ export function Navbar() {
                             <Link
                                 key={m.key}
                                 href="/event"
-                                className={`relative inline-flex items-center pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-accent"}`}
+                                className={`relative inline-flex items-center pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-primary-foreground"}`}
                             >
                                 {m.label}
-                                <span className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 ${scrolled ? "bg-black" : "bg-accent"}`} />
+                                <span className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`} />
                             </Link>
                         ) : (
                             <div key={m.key} className="group relative">
                                 <span className="group/link relative inline-flex items-center gap-1 pb-1">
                                     <Link
                                         href={`/${m.key}`}
-                                        className={`text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black group-hover/link:text-black" : "text-primary-foreground/85 group-hover/link:text-accent"}`}
+                                        className={`text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black group-hover/link:text-black" : "text-primary-foreground/85 group-hover/link:text-primary-foreground"}`}
                                     >
                                         {m.label}
                                     </Link>
                                     <ChevronDown
-                                        className={`size-[0.85em] shrink-0 pointer-events-none transition-transform duration-300 group-hover/link:rotate-180 ${scrolled ? "text-black/70 group-hover/link:text-black" : "text-primary-foreground/80 group-hover/link:text-accent"}`}
+                                        className={`size-[0.85em] shrink-0 pointer-events-none transition-transform duration-300 group-hover/link:rotate-180 ${scrolled ? "text-black/70 group-hover/link:text-black" : "text-primary-foreground/80 group-hover/link:text-primary-foreground"}`}
                                     />
                                     <span
-                                        className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-accent"}`}
+                                        className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`}
                                     />
                                 </span>
                                 <DropdownPanel items={m.items} />
@@ -252,12 +253,12 @@ export function Navbar() {
                         <button
                             type="button"
                             onClick={() => setLangOpen((v) => !v)}
-                            className={`relative inline-flex items-center gap-1.5 pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-accent"}`}
+                            className={`relative inline-flex items-center gap-1.5 pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-primary-foreground"}`}
                         >
                             <img src={`/flags/${locale}.svg`} alt={locale} width="24" height="24" className="size-[1em] shrink-0 rounded-[2px] object-cover" />
                             {t.lang}
                             <ChevronDown
-                                className={`size-[0.85em] shrink-0 text-current transition-transform duration-300 ${langOpen ? "rotate-180" : ""} ${scrolled ? "text-black/70" : "text-primary-foreground/80 group-hover:text-accent"}`}
+                                className={`size-[0.85em] shrink-0 text-current transition-transform duration-300 ${langOpen ? "rotate-180" : ""} ${scrolled ? "text-black/70" : "text-primary-foreground/80"}`}
                             />
                         </button>
                         {langOpen && (
@@ -284,6 +285,7 @@ export function Navbar() {
                             </div>
                         )}
                     </div>
+                    <AudioPlayer scrolled={scrolled} />
                 </nav>
 
                 <button
