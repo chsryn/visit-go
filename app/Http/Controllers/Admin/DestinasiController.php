@@ -30,7 +30,7 @@ class DestinasiController extends Controller
 
         return Inertia::render('Admin/Destinasi/Index', [
             'items' => $items,
-            'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
+            'categories' => Category::destinationChildren()->orderBy('name')->get(['id', 'name', 'slug']),
             'filterCategoryId' => $categoryId ? (int) $categoryId : null,
         ]);
     }
@@ -51,6 +51,7 @@ class DestinasiController extends Controller
         ]);
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
+        $data['category'] = 'destinasi'; // tabel destinasis hanya berisi destinasi wisata
         $data['image'] = $this->storeImage($request, 'image', 'uploads/destinasis');
 
         Destinasi::create($data);

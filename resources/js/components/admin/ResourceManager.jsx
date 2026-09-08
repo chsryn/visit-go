@@ -68,7 +68,7 @@ function FieldInput({ field, value, onChange, error }) {
     );
 }
 
-function ResourceForm({ fields, initial, existingImageUrl, submitLabel, onSubmit, onCancel, busy }) {
+function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy }) {
     const [values, setValues] = useState(initial);
     const [file, setFile] = useState(null);
     const set = (name, v) => setValues((s) => ({ ...s, [name]: v }));
@@ -77,7 +77,7 @@ function ResourceForm({ fields, initial, existingImageUrl, submitLabel, onSubmit
         <form
             onSubmit={(e) => {
                 e.preventDefault();
-                onSubmit({ ...values, image: file });
+                onSubmit({ ...values, [imageField]: file });
             }}
             className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:p-5"
         >
@@ -111,18 +111,19 @@ function ResourceForm({ fields, initial, existingImageUrl, submitLabel, onSubmit
  * Generic admin CRUD manager (table + create/edit forms + delete).
  * Keeps the 5 content modules consistent without duplicating code.
  */
-export default function ResourceManager({ items, basePath, fields, columns, defaults = {} }) {
+export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null }) {
     const [showCreate, setShowCreate] = useState(false);
     const [editing, setEditing] = useState(null);
     const [busy, setBusy] = useState(false);
     const rows = items?.data ?? [];
+    const urlKey = imageUrlKey ?? `${imageField}_url`;
 
     const submit = (payload, method, url, done) => {
         setBusy(true);
         const formData = new FormData();
         for (const [k, v] of Object.entries(payload)) {
             if (v === null || v === undefined || v === "") continue;
-            if (k === "image" && !(v instanceof File)) continue;
+            if (k === imageField && !(v instanceof File)) continue;
             if (typeof v === "boolean") {
                 formData.append(k, v ? "1" : "0");
                 continue;
@@ -157,6 +158,7 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     fields={fields}
                     initial={{ ...emptyFor(fields), ...defaults }}
                     busy={busy}
+                    imageField={imageField}
                     submitLabel="Simpan"
                     onCancel={() => setShowCreate(false)}
                     onSubmit={(payload) =>
@@ -219,7 +221,8 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                                 initial={Object.fromEntries(
                                                     fields.map((f) => [f.name, row[f.name] ?? (f.type === "checkbox" ? true : "")])
                                                 )}
-                                                existingImageUrl={row.image_url}
+                                                existingImageUrl={row[urlKey]}
+                                                imageField={imageField}
                                                 busy={busy}
                                                 submitLabel="Simpan perubahan"
                                                 onCancel={() => setEditing(null)}

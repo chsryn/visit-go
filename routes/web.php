@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AiApiKeyController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BudayaController as AdminBudayaController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
@@ -25,8 +26,9 @@ Route::get('/', function () {
 
 Route::get('/', [PortalController::class, 'index'])->name('home');
 
-// Category listing — harus di atas detail {slug} agar /destinasi tidak dianggap slug (seperti kategori lain)
-Route::get('/destinasi', [PortalController::class, 'indexByCategory'])->defaults('category', 'destinasi')->name('destinasi.index');
+// Destination: overview kategori dinamis + list per kategori (sebelum detail {slug})
+Route::get('/destinasi', [PortalController::class, 'destinationIndex'])->name('destinasi.index');
+Route::get('/destinasi/kategori/{slug}', [PortalController::class, 'destinationByCategory'])->name('destinasi.category');
 Route::get('/budaya', [PortalController::class, 'indexByCategory'])->defaults('category', 'budaya')->name('budaya.index');
 Route::get('/kuliner', [PortalController::class, 'indexByCategory'])->defaults('category', 'kuliner')->name('kuliner.index');
 Route::get('/kerajinan', [PortalController::class, 'indexByCategory'])->defaults('category', 'kerajinan')->name('kerajinan.index');
@@ -41,6 +43,7 @@ Route::get('/event/{slug}', [PortalController::class, 'showEvent'])->name('event
 
 Route::post('/api/chat', [ChatbotController::class, 'handle'])->name('api.chat');
 Route::post('/api/ai-planner', [AiPlannerController::class, 'generate'])->name('api.ai-planner');
+Route::get('/api/destinasi/kategori/{slug}', [PortalController::class, 'destinationCategoryApi'])->name('api.destinasi.category');
 Route::get('/api/knowledge/search', [KnowledgeController::class, 'search'])->name('api.knowledge.search');
 
 // Admin CRUD (nanti bisa tambah middleware auth) — index destinasi sudah dipakai untuk public listing /destinasi
@@ -59,6 +62,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     // Destination grouped per category (accordion filter via ?category_id=)
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('kuliners', AdminKulinerController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('kerajinans', AdminKerajinanController::class)->only(['index', 'store', 'update', 'destroy']);

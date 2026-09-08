@@ -103,6 +103,17 @@ export default function AdminLayout({ children, title, subtitle }) {
                         {categories.length === 0 && (
                             <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada kategori.</p>
                         )}
+                        <Link
+                            href="/admin/categories"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                url.startsWith("/admin/categories")
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-primary/80 hover:bg-muted hover:text-primary"
+                            )}
+                        >
+                            + Kelola Kategori
+                        </Link>
                     </div>
                 )}
 
