@@ -37,7 +37,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            'nav' => [
+                'categories' => fn () => \App\Models\Destinasi::where('is_active', true)->whereNotIn('slug', \App\Http\Controllers\PortalController::PILLARS)->latest()->take(20)->get(['name', 'slug', 'category']),
+                'events' => fn () => \App\Models\Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location']),
+            ],
         ];
     }
 }
