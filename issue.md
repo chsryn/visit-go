@@ -1,72 +1,191 @@
-# Issue: Pengembangan AI Assistance Rekomendasi Perjalanan (Visit-Go)
+# Issue: Admin Dashboard & Database Restructuring
 
-## 📌 Deskripsi Fitur
-Pengembangan modul **AI Assistance** yang berfungsi menghasilkan rekomendasi rencana perjalanan (*itinerary*) secara cerdas dan terpersonalisasi berdasarkan parameter input pengguna (durasi, budget, minat, lokasi, dan preferensi makanan).
-
----
-
-## 🎯 Parameter Input Utama
-Sistem AI akan menerima parameter input dari pengguna:
-1. **Durasi (Duration):** Lama perjalanan (contoh: 1 hari, 3 hari 2 malam atau rentang waktu dinamis dengan max 30 hari).
-2. **Budget (Anggaran):** Alokasi dana perjalanan (contoh: Backpacker/Hemat, Sedang, Mewah, atau rentang nominal).
-3. **Minat (Interests):** Kategori wisata favorit (contoh: Alam, Sejarah & Budaya, Petualangan, Kuliner, Belanja, Relaksasi).
-4. **Lokasi (Location):** area destinasi tujuan (contoh:laut, gunung, atau preferensi lain).
-5. **Preferensi Makanan (Food Preferences):** Restriksi atau preferensi kuliner (contoh: Halal, Vegetarian, Seafood, Kuliner Lokal, Bebas Alergen).
+> Planning document — instruksi high-level untuk implementasi oleh programmer / model.
 
 ---
 
-## 🏗️ Alokasi Tugas & Komponen High-Level
+## 1. Login Admin
 
-### Task 1: UI / Antarmuka Form Input (Frontend)
-- Buat antarmuka form interaktif yang intuitif untuk menangkap 5 parameter input pengguna.
-- Tambahkan elemen UI pendukung seperti *slider*, *checkbox/chip selection*, dan *dropdown pencarian lokasi*.
-- Sediakan status indikator pemrosesan (*loading state/spinner/skeleton*) saat AI sedang melakukan kalkulasi rekomendasi.
+**Referensi UI:** `free-react-tailwind-admin-dashboard-main/src/pages/AuthPages/SignIn.tsx` & `src/components/auth/SignInForm.tsx`
 
-### Task 2: Service Integration & Prompt Engineering (Backend)
-- Buat *Service Layer* khusus (misalnya `AiRecommendationService`) untuk mengelola koneksi ke LLM API (seperti OpenAI, Gemini, Claude, Groq, Tavily).
-- Rancang **System & User Prompt**:
-  - Konfigurasikan AI agar bertindak sebagai *travel planner* profesional.
-  - Sertakan instruksi format keluaran wajib dalam bentuk **JSON Terstruktur** (misal: JSON Schema/Structured Output) agar mudah diparse backend.
-- Kelola API Key & batas *rate limit* melalui `.env`.
-
-### Task 3: Pengayaan Context & Data Lokal (Knowledge & Database)
-- Integrasikan data destinasi lokal yang tersimpan di database (`Destinasi`, `Event`, `Knowledge`) sebagai konteks acuan AI jika tersedia jika tidak ada maka buatkan db nya.
-- Pastikan AI mengutamakan tempat wisata dan kuliner riil yang ada dalam cakupan database aplikasi atau bisa menambahkan tempat yang belum ada di database aplikasi jika tidak ada.
-
-### Task 4: Parsing Output & Penyajian Rekomendasi (Presenter / View)
-- Menerima dan memparse hasil keluaran AI JSON menjadi tampilan *Itinerary* interaktif.
-- Struktur tampilan rekomendasi memuat:
-  - Lokasi, nama tempat wisata dan gambar
-  - Rencana perjalanan harian (*Day-by-Day timeline*: Pagi, Siang, Malam).
-  - Estimasi pembagian alokasi budget (Akomodasi, Tiket Masuk, Makan, Transportasi).
-  - Rekomendasi tempat makan spesifik sesuai preferensi makanan user.
-- Sediakan mekanisme *fallback* dan penanganan *error* jika koneksi API terputus atau output gagal diparse.
-
-### Task 5: Fitur Tambahan & Simpan Itinerary
-- Opsi simpan rekomendasi ke profil pengguna (*Save Itinerary*).
-- Opsi bagikan (*Share Link*) atau cetak/unduh ringkasan perjalanan.
+- Konversi komponen SignIn dari **TSX → JSX** dan integrasikan ke Inertia.
+- Buat halaman `resources/js/Pages/Admin/Auth/SignIn.jsx` — adaptasi layout & form dari template.
+- Backend: buat `AuthController` dengan method `login` / `logout`, gunakan Laravel session auth (`Auth::attempt`).
+- Tambahkan middleware `auth` pada semua route `/admin/*`.
+- Route: `GET /admin/login` → form, `POST /admin/login` → proses, `POST /admin/logout`.
 
 ---
 
-## 🔄 High-Level Workflow (Alur Kerja Sistem)
-1. **User Request**: User mengisi 5 parameter pada form dan menekan tombol "Buat Rekomendasi".
-2. **Validation & Context Prep**: Backend memvalidasi input, lalu menyusun prompt beserta konteks lokasi/destinasi pendukung.
-3. **AI Execution**: Backend memanggil LLM Service untuk memproses prompt.
-4. **Response Parsing**: Backend memparse respons terstruktur (JSON) dari LLM Service.
-5. **Render Results**: Frontend menampilkan rekomendasi perjalanan berupa garis waktu harian , lokasi dan estimasi biaya.
+## 2. Sidebar Admin
+
+**Referensi UI:** `free-react-tailwind-admin-dashboard-main/src/layout/AppSidebar.tsx`
+
+Buat layout admin (`resources/js/Layouts/AdminLayout.jsx`) dengan sidebar yang berisi menu:
+
+| # | Menu | Sub-menu | Keterangan |
+|---|------|----------|------------|
+| 1 | **Destination** | Sub-kategori dinamis dari tabel `categories` (misal: Pegunungan, Laut, Buatan) | Accordion / collapsible, data grouping per category |
+| 2 | **Budaya** | — | CRUD tabel `budayas` |
+| 3 | **Kuliner** | — | CRUD tabel `kuliners` |
+| 4 | **Kerajinan** | — | CRUD tabel `kerajinans` (sudah ada page stub) |
+| 5 | **Event** | — | CRUD tabel `events` (sudah ada) |
+| 6 | **AI Usage** | — | Manajemen API key & monitoring token |
+| 7 | **User Profile** | — | Profil admin |
+| 8 | **Maps** | — | Peta semua lokasi |
+
+> **Catatan:** Belum perlu implementasi logika CRUD di tahap ini — cukup halaman kosong + sidebar navigasi.
 
 ---
 
-## ✅ Acceptance Criteria (Kriteria Keberhasilan)
-- [ ] Form dapat menerima 5 parameter (Durasi, Budget, Minat, Lokasi, Preferensi Makanan) dengan validasi yang pas.
-- [ ] AI berhasil menghasilkan rencana perjalanan yang relevan dengan kelima parameter tersebut.
-- [ ] Rekomendasi makanan secara ketat mematuhi preferensi makanan yang dipilih pengguna.
-- [ ] Respons AI berformat terstruktur (JSON) dan ditampilkan dengan rapi di antarmuka pengguna.
-- [ ] Terdapat penanganan error yang ramah pengguna apabila LLM API mengalami gangguan.
+## 3. Database — Tabel Baru & Perubahan
+
+### 3a. Tabel `budayas` (BARU)
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigIncrements | PK |
+| name | string | |
+| slug | string, unique | |
+| body | text | Deskripsi |
+| image | string, nullable | Path file upload |
+| alt | string, nullable | |
+| latitude | decimal(10,7) | Ganti dari string lokasi |
+| longitude | decimal(10,7) | |
+| jam_buka | time | Jam operasional mulai |
+| jam_tutup | time | Jam operasional selesai |
+| is_active | boolean, default true | |
+| timestamps | | |
+
+### 3b. Tabel `kuliners` (BARU)
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigIncrements | PK |
+| name | string | |
+| slug | string, unique | |
+| body | text | |
+| image | string, nullable | Path file upload |
+| alt | string, nullable | |
+| latitude | decimal(10,7) | |
+| longitude | decimal(10,7) | |
+| harga | integer | Harga dalam rupiah |
+| is_active | boolean, default true | |
+| timestamps | | |
+
+### 3c. Modifikasi tabel `destinasis`
+
+- **Hapus** kolom `category` (string) — relasi akan pakai FK ke `categories`.
+- **Tambah** `category_id` → foreign key ke `categories.id`.
+- **Ganti** lokasi string (jika ada) menjadi `latitude` decimal(10,7) & `longitude` decimal(10,7).
+- **Tambah** kolom `image` sudah ada, pastikan support upload.
+
+### 3d. Modifikasi tabel `events`
+
+- **Ganti** kolom `location` (string) → `latitude` decimal(10,7) & `longitude` decimal(10,7).
+- Tambah `location_name` (string) untuk label display.
+
+### 3e. Tabel `categories` — review
+
+- Tabel `categories` sudah ada. Digunakan sebagai **sub-kategori Destination** di FE (Pegunungan, Laut, Buatan).
+- `destinasis.category_id` → FK ke `categories.id`.
+- Tidak perlu perubahan schema, cukup pastikan relasi Eloquent benar.
+
+### 3f. Tabel `kerajinans` — cek existing
+
+- Cek apakah migration sudah ada. Jika belum, buat dengan schema mirip `budayas` (tanpa jam operasional, tanpa harga).
+
+| Kolom | Tipe |
+|-------|------|
+| id | bigIncrements |
+| name | string |
+| slug | string, unique |
+| body | text |
+| image | string, nullable |
+| alt | string, nullable |
+| latitude | decimal(10,7) |
+| longitude | decimal(10,7) |
+| is_active | boolean, default true |
+| timestamps | |
 
 ---
 
-## 💡 Panduan untuk Executer / Model Pelaksana
-- Fokus utama implementasi adalah keandalan prompt (Prompt Engineering) agar LLM selalu mengembalikan JSON yang valid.
-- Pastikan validasi input dilakukan di sisi client dan server sebelum dikirim ke LLM API.
-- Gunakan struktur kode yang modular agar mudah mengganti provider LLM di kemudian hari.
+## 4. Upload Gambar
+
+- Gunakan Laravel filesystem (`storage/app/public`) + symlink.
+- Setiap modul (destinasi, budaya, kuliner, kerajinan, event) support single image upload.
+- FE: komponen reusable `ImageUpload.jsx` — preview + upload via Inertia form.
+
+---
+
+## 5. AI Usage & API Key Management
+
+Buat fitur di sidebar **AI Usage** untuk:
+
+### 5a. Tabel `ai_api_keys` (BARU)
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| id | bigIncrements | PK |
+| provider | string | claude, grok, tavily, dll |
+| label | string | Nama label untuk identifikasi |
+| api_key | text, encrypted | Key disimpan terenkripsi |
+| is_active | boolean, default true | |
+| expires_at | datetime, nullable | Tanggal expired key |
+| last_used_at | datetime, nullable | Terakhir digunakan |
+| usage_count | integer, default 0 | Berapa kali dipakai |
+| timestamps | | |
+
+### 5b. Halaman Admin
+
+- Tabel daftar API key: provider, label, status (active/expired), last used, usage count.
+- Form tambah/edit key baru — pilih provider, isi label & key.
+- Indikator visual jika key mendekati/sudah expired.
+- Baca key aktif dari tabel ini (bukan `.env`) untuk service AI yang sudah ada (`AiPlannerService`, `ChatbotController`).
+
+---
+
+## 6. User Profile
+
+**Referensi UI:** `free-react-tailwind-admin-dashboard-main/src/pages/UserProfiles.tsx` & `src/components/UserProfile/`
+
+- Konversi dari TSX → JSX, integrasikan ke Inertia.
+- Halaman: `resources/js/Pages/Admin/Profile.jsx`.
+- Fitur: lihat & edit nama, email, avatar, ganti password.
+
+---
+
+## 7. Maps — Overview Semua Lokasi
+
+- Halaman `resources/js/Pages/Admin/Maps.jsx`.
+- Gunakan **Leaflet.js** (react-leaflet) — gratis, tanpa API key.
+- Tampilkan semua pin dari: destinasi, budaya, kuliner, kerajinan, event.
+- Setiap pin: icon berbeda per tipe, klik → popup nama + link ke detail.
+- Backend: satu endpoint `/admin/api/map-points` → gabung semua latitude/longitude dari semua tabel.
+
+---
+
+## 8. Urutan Implementasi (Rekomendasi)
+
+```
+1. Login Admin + Middleware Auth
+2. Layout Admin + Sidebar (halaman kosong)
+3. Migration & Model (budayas, kuliners, kerajinans, modifikasi destinasis & events)
+4. CRUD Destination + sub-kategori (categories)
+5. CRUD Budaya, Kuliner, Kerajinan, Event
+6. Upload Gambar (komponen reusable)
+7. AI Usage & API Key Management
+8. User Profile
+9. Maps Overview
+```
+
+---
+
+## Stack
+
+| Layer | Teknologi |
+|-------|-----------|
+| Frontend | React (JSX) + Inertia.js + TailwindCSS |
+| Backend | Laravel (PHP) |
+| Auth | Laravel session auth |
+| Maps | Leaflet.js / react-leaflet |
+| Template referensi | `free-react-tailwind-admin-dashboard-main` |
