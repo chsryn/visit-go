@@ -9,11 +9,28 @@ export function AudioPlayer() {
         if (!el) return;
         try {
             if (isPlaying) {
+                // seamless fade out 300ms
+                const startVol = el.volume;
+                const steps = 10;
+                for (let i = steps; i >= 0; i--) {
+                    el.volume = (startVol * i) / steps;
+                    // eslint-disable-next-line no-await-in-loop
+                    await new Promise((r) => setTimeout(r, 30));
+                }
                 el.pause();
+                el.volume = startVol || 0.7;
                 setIsPlaying(false);
             } else {
+                el.volume = 0;
                 await el.play();
                 setIsPlaying(true);
+                // seamless fade in 300ms
+                for (let i = 0; i <= 10; i++) {
+                    el.volume = (0.7 * i) / 10;
+                    // eslint-disable-next-line no-await-in-loop
+                    await new Promise((r) => setTimeout(r, 30));
+                }
+                el.volume = 0.7;
             }
         } catch {
             setIsPlaying(false);
@@ -27,11 +44,11 @@ export function AudioPlayer() {
                 type="button"
                 onClick={toggle}
                 aria-label={isPlaying ? "Matikan musik" : "Putar musik"}
-                className="fixed bottom-5 left-5 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white shadow-lg transition-all hover:scale-110 hover:bg-black/50"
+                className="fixed bottom-5 left-5 z-50 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white/90 shadow-soft opacity-80 transition-all duration-300 hover:scale-105 hover:opacity-100 hover:bg-black/40 hover:text-white"
             >
                 {isPlaying ? (
                     <svg
-                        className="size-5 animate-pulse"
+                        className="size-4 animate-pulse"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -46,7 +63,7 @@ export function AudioPlayer() {
                     </svg>
                 ) : (
                     <svg
-                        className="size-5"
+                        className="size-4"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
