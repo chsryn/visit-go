@@ -44,11 +44,11 @@ export function AudioPlayer() {
                 type="button"
                 onClick={toggle}
                 aria-label={isPlaying ? "Matikan musik" : "Putar musik"}
-                className="fixed bottom-5 left-5 z-50 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white/90 shadow-soft opacity-80 transition-all duration-300 hover:scale-105 hover:opacity-100 hover:bg-black/40 hover:text-white"
+                className="fixed bottom-5 left-5 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 shadow-soft opacity-60 transition-all duration-300 hover:scale-105 hover:opacity-100 hover:bg-black/30 hover:text-white"
             >
                 {isPlaying ? (
                     <svg
-                        className="size-4 animate-pulse"
+                        className="size-3.5 animate-pulse"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -63,7 +63,7 @@ export function AudioPlayer() {
                     </svg>
                 ) : (
                     <svg
-                        className="size-4"
+                        className="size-3.5"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
