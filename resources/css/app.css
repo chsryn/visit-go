@@ -10,7 +10,7 @@
  */
 
 @theme inline {
-    --font-sans: "Sans Serif", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
     --font-display: "Playfair Display", ui-serif, Georgia, serif;
     --color-ocean: var(--ocean);
     --color-ocean-deep: var(--ocean-deep);
@@ -151,6 +151,7 @@
 @layer base {
     html {
         scroll-behavior: smooth;
+        font-family: var(--font-sans);
     }
     * {
         border-color: var(--color-border);
@@ -159,5 +160,8 @@
     body {
         background-color: var(--color-background);
         color: var(--color-foreground);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 }

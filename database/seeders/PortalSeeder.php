@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Budaya;
 use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
+use App\Models\Kerajinan;
+use App\Models\Kuliner;
 use Illuminate\Database\Seeder;
 
 class PortalSeeder extends Seeder
@@ -44,10 +47,17 @@ class PortalSeeder extends Seeder
                 'image' => '/storage/portal/kategori-destinasi.jpg',
                 'alt' => 'Lagun biru kehijauan Pulo Cinta',
             ],
+        ];
+
+        foreach ($destinasis as $d) {
+            Destinasi::updateOrCreate(['slug' => $d['slug']], $d);
+        }
+
+        // Budaya/kuliner/kerajinan hidup di tabelnya masing-masing (bukan destinasis)
+        $budayas = [
             [
                 'name' => 'Tari Saronde',
                 'slug' => 'tari-saronde',
-                'category' => 'budaya',
                 'body' => "Tari Saronde adalah tari pergaulan penyambutan tamu dengan selendang, diiringi musik polopalo — ikon keramahan Gorontalo.",
                 'image' => '/storage/portal/kategori-budaya.jpg',
                 'alt' => 'Tari Saronde',
@@ -55,7 +65,6 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Tradisi Dikili',
                 'slug' => 'tradisi-dikili',
-                'category' => 'budaya',
                 'body' => "Tradisi Dikili adalah zikir semalam suntuk memperingati Maulid Nabi di masjid-masjid bersejarah Gorontalo — sarat nilai religius Hulondalo.",
                 'image' => '/storage/portal/kategori-budaya.jpg',
                 'alt' => 'Tradisi Dikili',
@@ -63,15 +72,19 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Ensiklopedia Budaya',
                 'slug' => 'tari-saronde-dikili',
-                'category' => 'budaya',
                 'body' => "Tradisi Dikili adalah zikir semalam suntuk memperingati Maulid Nabi di masjid-masjid bersejarah Gorontalo — sarat nilai religius Hulondalo. Tari Saronde adalah tari pergaulan penyambutan tamu dengan selendang, diiringi musik polopalo. Upacara adat Moloopu dan warisan lisan Pohutu Limo Lo Pohalaa (lima kerajaan Gorontalo) menjadi pilar identitas budaya yang terus dilestarikan Dinas Pariwisata.",
                 'image' => '/storage/portal/kategori-budaya.jpg',
                 'alt' => 'Penari Saronde Gorontalo',
             ],
+        ];
+        foreach ($budayas as $b) {
+            Budaya::updateOrCreate(['slug' => $b['slug']], $b);
+        }
+
+        $kuliners = [
             [
                 'name' => 'Milu Siram',
                 'slug' => 'milu-siram',
-                'category' => 'kuliner',
                 'body' => "Milu Siram — jagung siram kuah santan gurih dengan ikan, kuliner pesisir paling ikonik Gorontalo.",
                 'image' => '/storage/portal/kategori-kuliner.jpg',
                 'alt' => 'Milu Siram',
@@ -79,7 +92,6 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Ilabulo',
                 'slug' => 'ilabulo',
-                'category' => 'kuliner',
                 'body' => "Ilabulo — pepes sagu dan ayam dibungkus daun pisang, wajib coba saat berkunjung ke Gorontalo.",
                 'image' => '/storage/portal/kategori-kuliner.jpg',
                 'alt' => 'Ilabulo',
@@ -87,15 +99,19 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Kuliner Khas',
                 'slug' => 'milu-siram-ilabulo',
-                'category' => 'kuliner',
                 'body' => "Milu Siram adalah jagung siram kuah santan gurih dengan ikan, kuliner pesisir paling ikonik. Ilabulo — pepes sagu dan ayam dibungkus daun pisang — wajib coba saat berkunjung. Sambal Sagela (ikan sagela asap) dan Sate Tuna Gorontalo melengkapi cita rasa laut. Rekomendasi: RM Citra Kota, Kampung Kuliner Limboto, dan warung tepi Teluk Tomini.",
                 'image' => '/storage/portal/kategori-kuliner.jpg',
                 'alt' => 'Hidangan Milu Siram dan Ilabulo',
             ],
+        ];
+        foreach ($kuliners as $k) {
+            Kuliner::updateOrCreate(['slug' => $k['slug']], $k);
+        }
+
+        $kerajinans = [
             [
                 'name' => 'Sulaman Karawo',
                 'slug' => 'sulaman-karawo',
-                'category' => 'kerajinan',
                 'body' => "Karawo adalah sulaman khas Gorontalo dengan teknik iris dan cabut benang, bermotif flora yang dijahit tangan di atas kain. Berasal dari Kabupaten Gorontalo, kini menjadi ikon Karnaval Karawo.",
                 'image' => '/storage/portal/kategori-kerajinan.jpg',
                 'alt' => 'Sulaman Karawo',
@@ -103,7 +119,6 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Anyaman Rotan',
                 'slug' => 'anyaman-rotan',
-                'category' => 'kerajinan',
                 'body' => "Anyaman rotan dan kerajinan kayu ebony — mahakarya perajin lokal Gorontalo dengan motif tradisional.",
                 'image' => '/storage/portal/kategori-kerajinan.jpg',
                 'alt' => 'Anyaman Rotan',
@@ -111,15 +126,13 @@ class PortalSeeder extends Seeder
             [
                 'name' => 'Kerajinan Daerah',
                 'slug' => 'kerajinan-daerah',
-                'category' => 'kerajinan',
                 'body' => "Sulaman Karawo, anyaman rotan, dan mahakarya tangan perajin lokal — bisa ditemui di Kampung Karawo, Kota Gorontalo.",
                 'image' => '/storage/portal/kategori-kerajinan.jpg',
                 'alt' => 'Kerajinan Daerah',
             ],
         ];
-
-        foreach ($destinasis as $d) {
-            Destinasi::updateOrCreate(['slug' => $d['slug']], $d);
+        foreach ($kerajinans as $k) {
+            Kerajinan::updateOrCreate(['slug' => $k['slug']], $k);
         }
 
         $events = [

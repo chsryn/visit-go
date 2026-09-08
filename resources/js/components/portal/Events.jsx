@@ -62,13 +62,17 @@ export function Events({ items }) {
             className="relative bg-[#715386]/[0.04] pt-[50px] pb-[70px] md:pt-[70px] md:pb-[90px]"
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <Reveal y={12} className="max-w-xl">
-                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-primary">
+                <Reveal y={12} className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10">
+                    <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
                         Agenda Budaya
                     </span>
-                    <h2 className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-4xl">
+                    <h2 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
                         Perayaan yang akan datang
                     </h2>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:mt-5">
+                        Perayaan yang merangkai kalender budaya Gorontalo — Karnaval Karawo,
+                        Tradisi Dikili, dan Festival Pesona Teluk Tomini di jantung Hulondalo.
+                    </p>
                 </Reveal>
 
                 {hasData ? (
@@ -133,7 +137,7 @@ export function Events({ items }) {
                                         >
                                             <Link
                                                 href={`/event/${event.slug}`}
-                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-card/60"
+                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
                                             >
                                                 <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-muted">
                                                     <img
@@ -148,7 +152,7 @@ export function Events({ items }) {
                                                         <p className="text-xs font-bold leading-tight text-white">
                                                             {event.date}
                                                         </p>
-                                                        <p className="text-[0.6rem] uppercase tracking-[0.12em] text-white/80">
+                                                        <p className="text-[0.6rem] uppercase tracking-[0.15em] text-white/80">
                                                             {event.month}
                                                         </p>
                                                     </div>
