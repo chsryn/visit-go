@@ -44,7 +44,7 @@ export function AudioPlayer({ scrolled = false, className = "" }) {
                 type="button"
                 onClick={toggle}
                 aria-label={isPlaying ? "Matikan musik" : "Putar musik"}
-                className={`inline-flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm border shadow-soft transition-all duration-300 hover:scale-105 ${scrolled ? "bg-black/10 border-black/10 text-black hover:bg-black/15" : "bg-white/15 border-white/15 text-white hover:bg-white/20"} ${className}`}
+                className={`inline-flex h-7 w-7 items-center justify-center rounded-full border shadow-sm transition-all duration-200 hover:scale-105 ${scrolled ? "bg-black/5 border-black/10 text-black hover:bg-black/10" : "bg-white/10 border-white/20 text-white hover:bg-white/15"} ${className}`}
             >
                 {isPlaying ? (
                     <svg
