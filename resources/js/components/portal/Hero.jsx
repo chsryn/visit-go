@@ -59,7 +59,7 @@ export function Hero() {
                 <span className="text-[0.68rem] uppercase tracking-[0.35em] text-white/80">
                     Portal Informasi Wisata & Budaya Provinsi Gorontalo
                 </span>
-                <h1 className="mt-6 max-w-3xl font-display text-4xl font-light leading-[0.95] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                <h1 className="mt-6 max-w-3xl font-display text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
                     {slides[current].title}
                 </h1>
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">

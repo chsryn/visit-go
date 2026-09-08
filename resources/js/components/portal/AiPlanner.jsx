@@ -201,7 +201,7 @@ export function AiPlanner() {
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
                 {/* Header */}
                 <Reveal y={30} className="max-w-xl">
-                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-primary">AI Travel Assistant</span>
+                    <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">AI Travel Assistant</span>
                     <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
                         Rencanakan Perjalanan Gorontalo dengan Pintar
                     </h2>
@@ -212,7 +212,7 @@ export function AiPlanner() {
 
                 {/* Preset Chips */}
                 <Stagger stagger={0.08} className="mt-10 flex flex-wrap items-center gap-2.5">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+                    <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground/80">
                         Rencana Cepat:
                     </span>
                     {presets.map((p, idx) => (
@@ -276,7 +276,7 @@ export function AiPlanner() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group/link relative inline-flex items-center justify-center gap-2 pb-1 text-sm font-semibold tracking-wide text-foreground transition-colors hover:text-accent disabled:opacity-40"
+                            className="group/link relative inline-flex items-center justify-center gap-2 pb-1 text-sm font-semibold tracking-[0.15em] text-foreground transition-colors hover:text-accent disabled:opacity-40"
                         >
                             {loading ? (
                                 <>
@@ -376,24 +376,24 @@ export function AiPlanner() {
                         {result.budget_breakdown && (
                             <Stagger stagger={0.08} className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-5">
                                 <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Akomodasi</span>
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Akomodasi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.accommodation}</p>
                                 </motion.div>
                                 <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Konsumsi</span>
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Konsumsi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.food}</p>
                                 </motion.div>
                                 <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Transportasi</span>
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Transportasi</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.transport}</p>
                                 </motion.div>
                                 <motion.div variants={cardVariants} className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-4">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground">Tiket/Aktivitas</span>
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-muted-foreground">Tiket/Aktivitas</span>
                                     <p className="mt-1 text-lg font-bold text-foreground">{result.budget_breakdown.attractions}</p>
                                 </motion.div>
                                 <motion.div variants={cardVariants} className="col-span-2 rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft sm:col-span-4 lg:col-span-1">
-                                    <span className="text-[0.7rem] font-bold uppercase tracking-wider text-primary">Total Estimasi</span>
-                                    <p className="mt-1 text-xl font-extrabold text-primary">{result.budget_breakdown.total_estimated}</p>
+                                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.15em] text-primary">Total Estimasi</span>
+                                    <p className="mt-1 text-xl font-bold text-primary">{result.budget_breakdown.total_estimated}</p>
                                 </motion.div>
                             </Stagger>
                         )}
