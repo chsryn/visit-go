@@ -24,7 +24,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminUserSeeder::class,
-            PortalSeeder::class,
         ]);
+
+        if (class_exists('\Database\Seeders\PortalSeeder')) {
+            $this->call('\Database\Seeders\PortalSeeder');
+        }
     }
 }
