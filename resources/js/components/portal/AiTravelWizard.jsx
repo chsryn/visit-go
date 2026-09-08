@@ -4,15 +4,12 @@ import {
     Search,
     Calendar,
     Wallet,
-    Coins,
-    Gem,
     Palmtree,
     Fish,
     Mountain,
     Landmark,
     Camera,
     Heart,
-    Tent,
     Fish as FishIcon,
     Leaf,
     Coffee,
@@ -35,11 +32,6 @@ import {
     Palette,
     Accessibility,
     Baby,
-    User,
-    Users,
-    UsersRound,
-    Plus,
-    Minus,
     UtensilsCrossed,
     X,
     Home,
@@ -66,18 +58,7 @@ const destinasiList = [
 ];
 const destinasiUnggulan = destinasiList.filter(d => d.unggulan || ["Kota Gorontalo","Bone Bolango","Boalemo"].includes(d.value));
 
-const companions = [
-    { value: "Solo", label: "Perjalanan sendiri", sub: "Solo", icon: User },
-    { value: "Couple", label: "Perjalanan berdua", sub: "Couple", icon: Heart },
-    { value: "Keluarga", label: "Perjalanan keluarga", sub: "Keluarga", icon: Users },
-    { value: "Teman", label: "Perjalanan bersama teman", sub: "Teman", icon: UsersRound },
-];
 
-const budgets = [
-    { value: "Hemat / Backpacker", label: "Hemat", sub: "Backpacker", price: "Rp", desc: "Homestay, umum", icon: Wallet },
-    { value: "Menengah", label: "Menengah", sub: "Comfort", price: "RpRp", desc: "Hotel 3★, rental", icon: Coins },
-    { value: "Premium / Sultan", label: "Mewah", sub: "Premium", price: "RpRpRp", desc: "Resor privat", icon: Gem },
-];
 
 const interests = [
     { value: "Pantai", label: "Pantai", icon: Palmtree },
@@ -111,24 +92,38 @@ const penginapanList = [
     { value: "Hemat", label: "Hemat", icon: Wallet },
 ];
 
-const currencies = ["IDR","USD","EUR","JPY","GBP","AUD","CAD","CHF","CNY","HKD","NZD","SEK","KRW","SGD","NOK","MXN","XCD"];
-
 const steps = [
     { id: 1, title: "Destinasi", desc: "Di mana perjalananmu dimulai?" },
     { id: 2, title: "Tanggal", desc: "Kapan petualanganmu dimulai?" },
-    { id: 3, title: "Teman & Budget", desc: "Siapa & berapa budget?" },
-    { id: 4, title: "Minat & Preferensi", desc: "Ceritakan minatmu" },
+    { id: 3, title: "Minat & Preferensi", desc: "Ceritakan minatmu" },
 ];
+
+function parseRupiah(str) {
+    if (!str) return 0;
+    const n = parseInt(String(str).replace(/[^\d]/g, ""), 10);
+    return isNaN(n) ? 0 : n;
+}
+function formatRupiah(n) {
+    return "Rp " + Number(n).toLocaleString("id-ID");
+}
+function calcEstimasiTotal(result) {
+    if (!result) return 0;
+    // Prioritas: jumlahkan cost_estimate tiap aktivitas (tiket+kuliner+aktivitas)
+    const fromActivities = (result.days || []).flatMap(d => d.activities || []).reduce((acc, a) => acc + parseRupiah(a.cost_estimate || a.cost), 0);
+    if (fromActivities > 0) return fromActivities;
+    // Fallback ke budget_breakdown.total_estimated jika tidak ada cost_estimate
+    return parseRupiah(result.budget_breakdown?.total_estimated);
+}
 
 export function AiTravelWizard() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
-    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "", companion: "", pax: 2, budget: "", currency: "IDR", food: [], penginapan: "" });
+    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "", food: [], penginapan: "" });
     const [range, setRange] = useState({ from: undefined, to: undefined });
     const [destSearch, setDestSearch] = useState("");
     const [showDestDropdown, setShowDestDropdown] = useState(false);
     const isMobile = useIsMobile();
-    const today = new Date(); today.setHours(0,0,0,0);
+    const [today] = useState(() => { const d = new Date(); d.setHours(0,0,0,0); return d; });
     const [month, setMonth] = useState(today);
     const durationDays = range.from && range.to ? Math.min(30, differenceInCalendarDays(range.to, range.from) + 1) : range.from ? 1 : form.durationDays;
     const disabledAfter = range.from ? addDays(range.from, 29) : undefined;
@@ -149,14 +144,13 @@ export function AiTravelWizard() {
     const [copied, setCopied] = useState(false);
     const [expandedDays, setExpandedDays] = useState({});
 
-    const totalSteps = 4;
+    const totalSteps = 3;
     const progress = (step / totalSteps) * 100;
 
     const isValid = () => {
         if (step === 1) return !!form.destinasi;
         if (step === 2) return !!range.from && !!range.to && durationDays >= 1 && durationDays <= 30;
-        if (step === 3) return !!form.companion && !!form.budget && form.pax >= 1;
-        if (step === 4) return form.interests.length >= 1;
+        if (step === 3) return form.interests.length >= 1;
         return false;
     };
 
@@ -164,8 +158,7 @@ export function AiTravelWizard() {
         if (!isValid()) {
             if (step === 1) return toast.error("Pilih destinasi dulu");
             if (step === 2) return toast.error("Pilih tanggal mulai & selesai (maks 30 hari)");
-            if (step === 3) return toast.error("Pilih teman, jumlah orang & budget");
-            if (step === 4) return toast.error("Pilih minimal 1 minat");
+            if (step === 3) return toast.error("Pilih minimal 1 minat");
             return toast.error("Lengkapi dulu ya!");
         }
         if (step === 2) setForm(f => ({ ...f, durationDays }));
@@ -205,12 +198,8 @@ export function AiTravelWizard() {
                     location: form.destinasi || "Provinsi Gorontalo",
                     duration: durationLabel,
                     duration_days: finalDays,
-                    budget: form.budget || "Menengah",
                     interest: allInterests.join(", ") || "Pantai",
                     food_preference: form.food.join(", ") || "Kuliner Khas Gorontalo",
-                    companion: form.companion || "Solo",
-                    pax: form.pax,
-                    currency: form.currency,
                     penginapan: form.penginapan || "Hotel & Resor",
                     custom_interest: form.customInterest.trim(),
                 }),
@@ -283,10 +272,10 @@ export function AiTravelWizard() {
                     <p className="mt-2 text-xs font-medium text-muted-foreground">{steps[step - 1].title} — {steps[step - 1].desc}</p>
                 </div>
 
-                {/* Wizard Card - seragam max-w-4xl, min-h stabil agar #agenda tidak naik-turun */}
-                <div className="mt-8 flex flex-col w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8 min-h-[560px]">
+                {/* Wizard Card - rapat fit-content */}
+                <div className="mt-8 flex flex-col w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm p-5 pb-7">
                     <AnimatePresence mode="wait" custom={direction}>
-                        <motion.div key={step} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="flex-1">
+                        <motion.div key={step} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="w-full">
                             {step === 1 && (
                                 <div>
                                     <h3 className="font-display text-xl font-bold text-foreground">dimana destinasi <span className="text-primary">yang ingin dituju?</span></h3>
@@ -333,7 +322,7 @@ export function AiTravelWizard() {
                             )}
                             {step === 2 && (
                                 <>
-                                    <div className="text-center mb-8">
+                                    <div className="text-center mb-4">
                                         <h3 className="font-display text-2xl font-bold text-foreground">Kapan petualanganmu dimulai?</h3>
                                         <p className="mt-1 text-sm text-muted-foreground">Pilih tanggal perjalananmu dan temukan tempat terbaik • Maks 30 hari</p>
                                     </div>
@@ -347,18 +336,24 @@ export function AiTravelWizard() {
                                             numberOfMonths={isMobile ? 1 : 2}
                                             locale={localeId}
                                             fromDate={today}
-                                            disabled={range.from && !range.to ? [{ before: today }, { after: disabledAfter }] : { before: today }}
-                                            className="bg-transparent p-0 w-full [--cell-size:1.7rem] text-sm"
+                                            disabled={range.from ? [{ before: today }, { after: disabledAfter }] : { before: today }}
+                                            className="bg-transparent p-0 w-full [--cell-size:2rem] text-[13px] leading-none"
                                             classNames={{
-                                                months: "flex flex-col md:flex-row gap-6 relative",
-                                                month: "bg-white/65 backdrop-blur-xl border border-white/30 rounded-2xl p-5 shadow-sm flex w-full flex-col gap-4",
-                                                nav: "absolute inset-x-0 top-2 flex w-full items-center justify-between px-2",
+                                                months: "flex flex-col md:flex-row gap-3 relative",
+                                                month: "bg-white/65 backdrop-blur-xl border border-white/30 rounded-2xl p-3.5 shadow-sm flex w-full flex-col gap-2 min-h-0",
+                                                month_caption: "h-7 text-[13px] font-semibold",
+                                                weekdays: "grid grid-cols-7 gap-px",
+                                                weekday: "flex items-center justify-center h-8 w-8 mx-auto text-[11px] leading-none",
+                                                week: "grid grid-cols-7 gap-px mt-1 w-full",
+                                                day: "flex items-center justify-center h-8 w-8 mx-auto p-0",
+                                                nav: "absolute inset-x-0 top-1.5 flex w-full items-center justify-between px-1.5 z-10 pointer-events-none",
+                                                button_previous: "relative z-20 pointer-events-auto",
+                                                button_next: "relative z-20 pointer-events-auto",
                                             }}
-                                            fixedWeeks
-                                            showOutsideDays
+                                            showOutsideDays={false}
                                         />
                                     </div>
-                                    <div className="mt-6 text-center text-sm text-gray-500">
+                                    <div className="mt-3 text-center text-sm text-gray-500">
                                         {range.from && range.to ? (
                                             <p className="font-medium text-primary">{format(range.from, "d MMM yyyy", { locale: localeId })} — {format(range.to, "d MMM yyyy", { locale: localeId })} • <span className="font-bold">{durationDays} hari</span></p>
                                         ) : range.from ? (
@@ -370,49 +365,6 @@ export function AiTravelWizard() {
                                 </>
                             )}
                             {step === 3 && (
-                                <div>
-                                    <h3 className="font-display text-xl font-bold text-foreground">Siapa & <span className="text-primary">Budget?</span></h3>
-                                    <p className="mt-1 text-xs text-muted-foreground">Pilih teman, jumlah orang & budget</p>
-                                    <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                        {companions.map(o => {
-                                            const active = form.companion === o.value;
-                                            const Icon = o.icon;
-                                            return (
-                                                <button key={o.value} type="button" onClick={() => setForm(f => ({ ...f, companion: o.value }))} className={`relative flex flex-col items-center gap-3 rounded-[15px] border-2 p-6 text-center transition-all hover:-translate-y-1 ${active ? "border-primary bg-primary/10 shadow-card" : "border-white/60 bg-white/70 hover:border-primary/30"}`}>
-                                                    {active && <Check className="absolute right-3 top-3 size-5 text-primary" />}
-                                                    <span className={`flex size-14 items-center justify-center rounded-2xl ${active ? "bg-primary text-white" : "bg-secondary text-primary"}`}><Icon className="size-7" /></span>
-                                                    <span className="text-base font-bold text-foreground">{o.label}</span>
-                                                    <span className="text-xs text-muted-foreground">{o.desc}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="mt-6 grid gap-4 md:grid-cols-2">
-                                        <div className="rounded-[15px] border border-border bg-card p-4">
-                                            <p className="text-xs font-semibold text-foreground">Dengan berapa orang?</p>
-                                            <div className="mt-3 flex items-center justify-between">
-                                                <button type="button" onClick={() => setForm(f => ({ ...f, pax: Math.max(1, f.pax - 1) }))} className="flex size-10 items-center justify-center rounded-full border bg-card hover:bg-secondary"><Minus className="size-4" /></button>
-                                                <span className="text-2xl font-bold text-primary">{form.pax}</span>
-                                                <button type="button" onClick={() => setForm(f => ({ ...f, pax: f.pax + 1 }))} className="flex size-10 items-center justify-center rounded-full bg-primary text-white hover:bg-primary/90"><Plus className="size-4" /></button>
-                                            </div>
-                                        </div>
-                                        <div className="rounded-[15px] border border-border bg-card p-4">
-                                            <p className="text-xs font-semibold text-foreground">Mata uang & Budget</p>
-                                            <div className="mt-3 flex gap-2">
-                                                <select value={form.currency} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))} className="rounded-xl border border-border bg-card px-3 py-2 text-sm">
-                                                    {currencies.map(c => <option key={c} value={c}>{c}</option>)}
-                                                </select>
-                                                <div className="flex flex-1 gap-2">
-                                                    {budgets.map(o => (
-                                                        <button key={o.value} type="button" onClick={() => setForm(f => ({ ...f, budget: o.value }))} className={`flex-1 rounded-xl border px-2 py-2 text-xs font-bold ${form.budget === o.value ? "border-primary bg-primary text-white" : "border-border bg-card"}`}>{o.price}<br />{o.label}</button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            {step === 4 && (
                                 <div className="max-h-[520px] overflow-y-auto pr-1">
                                     <h3 className="font-display text-xl font-bold text-foreground">Ceritakan <span className="text-primary">minatmu!</span></h3>
                                     <p className="mt-1 text-xs text-muted-foreground">Pilih 1–5 minat • {form.interests.length}/5 • Tambahkan bebas</p>
@@ -463,7 +415,7 @@ export function AiTravelWizard() {
                     </AnimatePresence>
 
                     {/* Nav - inside main card */}
-                    <div className="flex items-center justify-between mt-10 pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-200">
                         <button type="button" onClick={back} disabled={step === 1} className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-all ${step === 1 ? "border-transparent text-muted-foreground/40 cursor-not-allowed" : "border border-gray-300 bg-white hover:bg-gray-50 text-foreground"}`}>
                             <ChevronLeft className="size-4" /> Kembali
                         </button>
@@ -484,7 +436,7 @@ export function AiTravelWizard() {
                     <div className="mt-8 rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-12 text-center">
                         <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-accent/15 text-primary"><Sparkles className="size-8 animate-bounce" /></div>
                         <h3 className="mt-6 text-xl font-bold text-foreground">AI Sedang Meracik Perjalanan Gorontalo Terbaik...</h3>
-                        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Merancang {form.durationDays} hari • {form.companion} • {form.pax} orang • {form.budget} • {form.interests.join(", ")}</p>
+                        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Merancang {form.durationDays} hari • {form.interests.join(", ")}</p>
                         <div className="mx-auto mt-6 max-w-xs overflow-hidden rounded-full bg-[#715386]/10 h-2"><div className="h-full bg-accent animate-pulse w-3/4 rounded-full" /></div>
                     </div>
                 )}
@@ -497,9 +449,17 @@ export function AiTravelWizard() {
                                 <div className="space-y-3">
                                     <div className="flex flex-wrap gap-2">
                                         <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-primary">{form.durationDays} hari</span>
-                                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">{form.budget}</span>
-                                        <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">👥 {form.companion} • {form.pax} orang • {form.currency}</span>
                                     </div>
+                                    {(() => {
+                                        const total = calcEstimasiTotal(result);
+                                        return total > 0 ? (
+                                            <div className="rounded-xl bg-primary px-4 py-3 text-white shadow-sm">
+                                                <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] opacity-90">Estimasi Total Biaya</p>
+                                                <p className="mt-1 text-xl font-bold tabular-nums">{formatRupiah(total)}</p>
+                                                <p className="mt-1 text-[0.7rem] opacity-80">Akumulasi tiket destinasi + kuliner + aktivitas terpilih</p>
+                                            </div>
+                                        ) : null;
+                                    })()}
                                     <h3 className="font-display text-2xl font-bold sm:text-3xl">{result.title}</h3>
                                     <p className="text-base leading-relaxed text-muted-foreground">{result.summary}</p>
                                     {result.highlights?.length>0 && <div className="flex flex-wrap gap-2 pt-2">{result.highlights.map((h,i)=><span key={i} className="inline-flex items-center gap-1 text-xs font-medium bg-[#715386]/10 px-3 py-1 rounded-lg"><CheckCircle2 className="size-3.5 text-primary"/>{h}</span>)}</div>}
