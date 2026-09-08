@@ -63,7 +63,7 @@ export function Events({ items }) {
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <Reveal y={12} className="max-w-xl">
-                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-primary">
+                    <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
                         Agenda Budaya
                     </span>
                     <h2 className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-4xl">
@@ -133,7 +133,7 @@ export function Events({ items }) {
                                         >
                                             <Link
                                                 href={`/event/${event.slug}`}
-                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:bg-card/60"
+                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
                                             >
                                                 <div className="relative aspect-[16/9] shrink-0 overflow-hidden bg-muted">
                                                     <img
@@ -148,7 +148,7 @@ export function Events({ items }) {
                                                         <p className="text-xs font-bold leading-tight text-white">
                                                             {event.date}
                                                         </p>
-                                                        <p className="text-[0.6rem] uppercase tracking-[0.12em] text-white/80">
+                                                        <p className="text-[0.6rem] uppercase tracking-[0.15em] text-white/80">
                                                             {event.month}
                                                         </p>
                                                     </div>

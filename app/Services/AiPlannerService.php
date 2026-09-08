@@ -12,16 +12,25 @@ class AiPlannerService
     /**
      * Generate structured travel itinerary recommendations based on user preferences.
      *
-     * @param array $params [duration, budget, interest, location, food_preference]
+     * @param array $params [duration, interest, location, food_preference]
      * @return array
      */
     public function generateItinerary(array $params): array
     {
-        $duration = $params['duration'] ?? '2–3 hari';
-        $budget = $params['budget'] ?? 'Menengah';
+        // Durasi bebas 1-30: prioritaskan duration_days integer jika ada
+        if (isset($params['duration_days']) && is_numeric($params['duration_days'])) {
+            $daysInt = min(max((int) $params['duration_days'], 1), 30);
+            $duration = $daysInt . ' hari';
+        } else {
+            $duration = $params['duration'] ?? '2–3 hari';
+        }
         $interest = $params['interest'] ?? 'Alam & Bahari';
-        $location = $params['location'] ?? 'Kota Gorontalo';
+        $location = $params['location'] ?? 'Provinsi Gorontalo';
         $foodPref = $params['food_preference'] ?? 'Kuliner Khas Gorontalo';
+        $companion = $params['companion'] ?? 'Solo';
+        $currency = $params['currency'] ?? 'IDR';
+        $penginapan = $params['penginapan'] ?? 'Hotel & Resor';
+        $customInterest = $params['custom_interest'] ?? '';
 
         // 1. Grounding context from DB (wrapped in try-catch for resilience)
         $destContext = "";
@@ -63,12 +72,14 @@ KNOWLEDGE PARIWISATA:
 {$knowContext}
 
 ATURAN DAN FORMAT OUTPUT:
-1. Rekomendasi HARUS mematuhi kelima parameter input dari pengguna:
-   - Durasi: {$duration}
-   - Budget: {$budget}
-   - Minat: {$interest}
-   - Lokasi Utama/Titik Awal: {$location}
-   - Preferensi Makanan: {$foodPref} (Pastikan SEMUA rekomendasi makanan mematuhi preferensi ini secara ketat!)
+1. Rekomendasi HARUS mematuhi tujuh parameter input dari pengguna:
+    - Durasi: {$duration}
+    - Minat: {$interest}
+    - Minat Tambahan (free text): {$customInterest}
+    - Lokasi Utama/Titik Awal: {$location}
+    - Preferensi Makanan: {$foodPref} (Pastikan SEMUA rekomendasi makanan mematuhi preferensi ini secara ketat!)
+    - Teman Perjalanan: {$companion}
+    - Penginapan: {$penginapan} (Hotel & Resor / Villa / Hemat)
 
 2. JAWAB HARUS HANYA DALAM FORMAT JSON VALID tanpa teks pengantar atau markdown block (no ```json). Format JSON harus mengikuti skema berikut:
 {
@@ -109,7 +120,7 @@ ATURAN DAN FORMAT OUTPUT:
 }
 PROMPT;
 
-        $userPrompt = "Buatkan itinerary perjalanan Gorontalo dengan parameter:\n- Durasi: {$duration}\n- Budget: {$budget}\n- Minat: {$interest}\n- Lokasi: {$location}\n- Preferensi Makanan: {$foodPref}";
+        $userPrompt = "Buatkan itinerary perjalanan Gorontalo dengan parameter:\n- Durasi: {$duration}\n- Minat: {$interest}\n- Minat Tambahan: {$customInterest}\n- Lokasi: {$location}\n- Preferensi Makanan: {$foodPref}\n- Teman Perjalanan: {$companion}\n- Penginapan: {$penginapan}";
 
         // Try API Call if API key configured (DB-managed key first, .env fallback)
         $key = \App\Models\AiApiKey::resolveKey('groq') ?? config('services.groq.key');
@@ -151,27 +162,45 @@ PROMPT;
         }
 
         // Fallback Generator if API unavailable or response invalid
-        return $this->generateFallbackItinerary($duration, $budget, $interest, $location, $foodPref);
+        return $this->generateFallbackItinerary($duration, $interest, $location, $foodPref, $companion, $currency, $penginapan);
     }
 
     /**
      * Smart local fallback generator ensuring instant, robust responses.
      */
-    private function generateFallbackItinerary(string $duration, string $budget, string $interest, string $location, string $foodPref): array
+    private function generateFallbackItinerary(string $duration, string $interest, string $location, string $foodPref, string $companion = 'Solo', $currency = 'IDR', $penginapan = 'Hotel & Resor'): array
     {
-        $numDays = match (true) {
-            str_contains($duration, '1 hari') => 1,
-            str_contains($duration, '4–5') || str_contains($duration, '4-5') => 4,
-            str_contains($duration, 'minggu') => 5,
-            default => 3,
+        // Dukung durasi bebas 1-30 hari (angka di string, misal "12 hari")
+        if (preg_match('/(\d+)/', $duration, $m)) {
+            $parsed = (int) $m[1];
+            if ($parsed >= 1 && $parsed <= 30) {
+                $numDays = min($parsed, 30);
+            } else {
+                $numDays = match (true) {
+                    str_contains($duration, '1 hari') => 1,
+                    str_contains($duration, '4–5') || str_contains($duration, '4-5') => 4,
+                    str_contains($duration, 'minggu') => 5,
+                    default => 3,
+                };
+            }
+        } else {
+            $numDays = match (true) {
+                str_contains($duration, '1 hari') => 1,
+                str_contains($duration, '4–5') || str_contains($duration, '4-5') => 4,
+                str_contains($duration, 'minggu') => 5,
+                default => 3,
+            };
+        }
+        // Companion aware note
+        $companionNote = match (strtolower($companion)) {
+            'couple' => 'Itinerary romantis untuk pasangan — pilih penginapan privat & sunset point.',
+            'keluarga' => 'Ramah anak & akses difabel — pilih rute landai, rest area, dan kuliner keluarga.',
+            'teman' => 'Seru bareng teman — aktivitas grup, snorkeling & foto bareng.',
+            default => 'Fleksibel untuk solo traveler — jadwal santai & mudah diubah.',
         };
 
-        // Budget multiplier
-        $multiplier = match (strtolower($budget)) {
-            'hemat', 'backpacker' => 0.6,
-            'premium', 'sultan', 'mewah' => 2.5,
-            default => 1.0,
-        };
+        // Budget dinamis: hitung dari akumulasi aktivitas terpilih (tanpa input budget user)
+        $multiplier = 1.0;
 
         $baseAcc = 250000 * $multiplier * max(1, $numDays - 1);
         $baseFood = 150000 * $multiplier * $numDays;
@@ -256,11 +285,12 @@ PROMPT;
 
         return [
             'title' => "Rencana Perjalanan {$duration} di {$location} ({$interest})",
-            'summary' => "Itinerary spesial dirancang untuk gaya travel {$budget} dengan fokus minat {$interest} di sekitar titik awal {$location}. Seluruh rekomendasi makanan disesuaikan dengan preferensi {$foodPref}.",
+            'summary' => "Itinerary spesial dirancang untuk fokus minat {$interest} di sekitar titik awal {$location} untuk {$companion}. {$companionNote} Seluruh rekomendasi makanan disesuaikan dengan preferensi {$foodPref}.",
             'highlights' => [
                 "Eksplorasi destinasi ikonik di {$location} & sekitarnya",
                 "Rekomendasi kuliner tervalidasi preferensi {$foodPref}",
-                "Estimasi alokasi budget terencana untuk kategori {$budget}"
+                "Estimasi alokasi biaya terencana (akumulasi tiket+kuliner+aktivitas)",
+                "Dioptimalkan untuk {$companion} — {$companionNote}"
             ],
             'days' => $days,
             'budget_breakdown' => [

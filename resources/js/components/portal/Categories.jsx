@@ -61,7 +61,7 @@ export function Categories() {
                     y={30}
                     className="mx-auto max-w-[640px] px-4 py-6 text-center md:py-10"
                 >
-                    <h2 className="font-display text-[24px] font-bold leading-[1.3] text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] md:text-[30px]">
+                    <h2 className="font-display text-3xl font-bold leading-tight text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] sm:text-4xl">
                         Empat Pilar Kekayaan Gorontalo
                     </h2>
                     <p className="mt-4 text-sm leading-relaxed text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.3)] md:mt-5">

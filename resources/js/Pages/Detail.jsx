@@ -73,7 +73,7 @@ export default function Detail({ item, category, related }) {
                                 <ArrowLeft className="size-3.5" /> Kembali ke Beranda
                             </Link>
                             <div className="mt-4 flex flex-wrap items-center gap-2">
-                                <span className="rounded-full bg-accent px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-accent-foreground">
+                                <span className="rounded-full bg-accent px-3 py-1 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-accent-foreground">
                                     {category}
                                 </span>
                                 {isEvent && item.month && (
@@ -87,7 +87,7 @@ export default function Detail({ item, category, related }) {
                                     </span>
                                 )}
                             </div>
-                            <h1 className="mt-4 max-w-3xl font-display text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-5xl">
+                            <h1 className="mt-4 max-w-3xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
                                 {title}
                             </h1>
                         </div>
@@ -99,7 +99,7 @@ export default function Detail({ item, category, related }) {
                             <article className="min-w-0">
                                 <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm md:p-8">
                                     <h2 className="font-display text-xl font-semibold text-foreground">Tentang</h2>
-                                    <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-muted-foreground">
+                                    <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                                         {body}
                                     </p>
                                     {item.created_at && (
