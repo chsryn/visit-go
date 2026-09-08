@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { router } from "@inertiajs/react";
+import { Search } from "lucide-react";
 import heroImage from "@/assets/hero-whale-shark.jpg";
 import destinasiImage from "@/assets/saronde.jpeg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -23,6 +25,12 @@ const slides = [
 
 export function Hero() {
     const [current, setCurrent] = useState(0);
+    const [q, setQ] = useState("");
+    const go = (val) => {
+        const v = (val ?? q).trim();
+        if (!v) return;
+        router.get("/search", { q: v });
+    };
 
     useEffect(() => {
         const id = setInterval(() => {
@@ -65,19 +73,44 @@ export function Hero() {
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
                     {slides[current].subtitle}
                 </p>
-                <a
-                    href="#ai-planner"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("ai-planner")?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                        });
-                    }}
-                    className="mt-8 inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-md shadow-lg transition-all hover:-translate-y-0.5 hover:bg-accent/20 hover:text-white hover:border-accent/30 hover:backdrop-blur-md"
-                >
-                    AI Guide Plan
-                </a>
+                <div className="mt-8 w-full max-w-xl">
+                    <div className="flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md border border-white/20 p-1.5 shadow-lg">
+                        <Search className="ml-3 size-4 shrink-0 text-muted-foreground" />
+                        <input
+                            type="text"
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && go()}
+                            placeholder="Cari destinasi, budaya, kuliner Gorontalo..."
+                            className="flex-1 bg-transparent px-2 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        />
+                        <datalist id="hero-reco">
+                            <option value="Pulo Cinta" />
+                            <option value="Karawo" />
+                            <option value="Milu Siram" />
+                            <option value="Botubarani" />
+                        </datalist>
+                        <button
+                            type="button"
+                            onClick={() => go()}
+                            className="shrink-0 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90"
+                        >
+                            Cari
+                        </button>
+                    </div>
+                    <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                        {["Pulo Cinta", "Karawo", "Milu Siram", "Botubarani"].map((s) => (
+                            <button
+                                key={s}
+                                type="button"
+                                onClick={() => go(s)}
+                                className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-white/25"
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             <div className="absolute bottom-[30px] left-1/2 flex -translate-x-1/2 gap-2">
