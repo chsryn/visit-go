@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export function AudioPlayer() {
+export function AudioPlayer({ scrolled = false, className = "" }) {
     const audioRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
@@ -44,7 +44,7 @@ export function AudioPlayer() {
                 type="button"
                 onClick={toggle}
                 aria-label={isPlaying ? "Matikan musik" : "Putar musik"}
-                className="fixed bottom-5 left-5 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 shadow-soft opacity-60 transition-all duration-300 hover:scale-105 hover:opacity-100 hover:bg-black/30 hover:text-white"
+                className={`inline-flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm border shadow-soft transition-all duration-300 hover:scale-105 ${scrolled ? "bg-black/10 border-black/10 text-black hover:bg-black/15" : "bg-white/15 border-white/15 text-white hover:bg-white/20"} ${className}`}
             >
                 {isPlaying ? (
                     <svg

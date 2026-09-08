@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { Menu, X, ChevronDown, Check } from "lucide-react";
+import { AudioPlayer } from "@/components/portal/AudioPlayer";
 
 const langs = [
     { code: "id", label: "Indonesia", short: "ID" },
@@ -284,6 +285,7 @@ export function Navbar() {
                             </div>
                         )}
                     </div>
+                    <AudioPlayer scrolled={scrolled} />
                 </nav>
 
                 <button

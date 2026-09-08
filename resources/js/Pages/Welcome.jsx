@@ -7,7 +7,6 @@ import { AiTravelWizard } from "@/components/portal/AiTravelWizard";
 import { Events } from "@/components/portal/Events";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
-import { AudioPlayer } from "@/components/portal/AudioPlayer";
 
 export default function Welcome({ events }) {
     useEffect(() => {
@@ -37,7 +36,6 @@ export default function Welcome({ events }) {
                     <Events items={events} />
                 </main>
                 <SiteFooter />
-                <AudioPlayer />
                 <AiAssistantButton />
             </div>
         </>
