@@ -60,7 +60,7 @@ export default function CategoryIndex({ category, items, banner }) {
                             <Link href="/#kategori" className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-white/20">
                                 <ArrowLeft className="size-3.5" /> Kembali
                             </Link>
-                            <h1 className="mt-6 font-display text-3xl font-bold text-white sm:text-4xl">{label}</h1>
+                            <h1 className="mt-6 font-display text-3xl font-bold leading-tight text-white sm:text-4xl">{label}</h1>
                             <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80">{hero.desc}</p>
                             {banner && <p className="mt-2 text-xs text-white/60">Banner: {banner.banner_image} — ganti via DB categories</p>}
                         </div>

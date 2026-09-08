@@ -18,10 +18,16 @@ class AiPlannerController extends Controller
     {
         $validated = $request->validate([
             'duration' => 'nullable|string|max:100',
+            'duration_days' => 'nullable|integer|min:1|max:30',
             'budget' => 'nullable|string|max:100',
             'interest' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:100',
             'food_preference' => 'nullable|string|max:100',
+            'companion' => 'nullable|string|max:50',
+            'pax' => 'nullable|integer|min:1|max:20',
+            'currency' => 'nullable|string|max:10',
+            'penginapan' => 'nullable|string|max:50',
+            'custom_interest' => 'nullable|string|max:200',
         ]);
 
         $itinerary = $this->aiPlannerService->generateItinerary($validated);

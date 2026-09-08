@@ -63,7 +63,7 @@ export function Events({ items }) {
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <Reveal y={12} className="max-w-xl">
-                    <span className="text-[0.7rem] uppercase tracking-[0.35em] text-primary">
+                    <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">
                         Agenda Budaya
                     </span>
                     <h2 className="mt-6 font-display text-3xl leading-tight text-foreground sm:text-4xl">
@@ -148,7 +148,7 @@ export function Events({ items }) {
                                                         <p className="text-xs font-bold leading-tight text-white">
                                                             {event.date}
                                                         </p>
-                                                        <p className="text-[0.6rem] uppercase tracking-[0.12em] text-white/80">
+                                                        <p className="text-[0.6rem] uppercase tracking-[0.15em] text-white/80">
                                                             {event.month}
                                                         </p>
                                                     </div>
