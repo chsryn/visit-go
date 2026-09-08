@@ -103,8 +103,8 @@ PROMPT;
 
         $userPrompt = "Buatkan itinerary perjalanan Gorontalo dengan parameter:\n- Durasi: {$duration}\n- Budget: {$budget}\n- Minat: {$interest}\n- Lokasi: {$location}\n- Preferensi Makanan: {$foodPref}";
 
-        // Try API Call if API key configured
-        $key = config('services.groq.key');
+        // Try API Call if API key configured (DB-managed key first, .env fallback)
+        $key = \App\Models\AiApiKey::resolveKey('groq') ?? config('services.groq.key');
         $url = config('services.groq.url', 'https://api.groq.com/openai/v1/chat/completions');
         $model = config('services.groq.model', 'openai/gpt-oss-20b');
 
@@ -123,6 +123,7 @@ PROMPT;
                     ]);
 
                 if ($response->successful()) {
+                    \App\Models\AiApiKey::markUsed('groq');
                     $raw = $response->json('choices.0.message.content');
                     if ($raw) {
                         $cleaned = trim($raw);
