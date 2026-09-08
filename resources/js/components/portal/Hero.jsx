@@ -74,41 +74,23 @@ export function Hero() {
                     {slides[current].subtitle}
                 </p>
                 <div className="mt-8 w-full max-w-xl">
-                    <div className="flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md border border-white/20 p-1.5 shadow-lg">
-                        <Search className="ml-3 size-4 shrink-0 text-muted-foreground" />
+                    <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 p-1.5 shadow-soft">
+                        <Search className="ml-3 size-4 shrink-0 text-white/70" />
                         <input
                             type="text"
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && go()}
                             placeholder="Cari destinasi, budaya, kuliner Gorontalo..."
-                            className="flex-1 bg-transparent px-2 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                            className="flex-1 bg-transparent px-2 py-2.5 text-sm text-white placeholder:text-white/60 focus:outline-none"
                         />
-                        <datalist id="hero-reco">
-                            <option value="Pulo Cinta" />
-                            <option value="Karawo" />
-                            <option value="Milu Siram" />
-                            <option value="Botubarani" />
-                        </datalist>
                         <button
                             type="button"
                             onClick={() => go()}
-                            className="shrink-0 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90"
+                            className="shrink-0 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-white/90"
                         >
                             Cari
                         </button>
-                    </div>
-                    <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-                        {["Pulo Cinta", "Karawo", "Milu Siram", "Botubarani"].map((s) => (
-                            <button
-                                key={s}
-                                type="button"
-                                onClick={() => go(s)}
-                                className="rounded-full bg-white/15 backdrop-blur px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-white/25"
-                            >
-                                {s}
-                            </button>
-                        ))}
                     </div>
                 </div>
             </div>
