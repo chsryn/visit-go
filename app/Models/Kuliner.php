@@ -10,7 +10,7 @@ class Kuliner extends Model
 
     protected $fillable = [
         'name', 'slug', 'body', 'image', 'alt',
-        'latitude', 'longitude', 'harga', 'is_active',
+        'latitude', 'longitude', 'harga', 'tags', 'is_active',
     ];
 
     protected $casts = [
