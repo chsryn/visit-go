@@ -26,6 +26,7 @@ export default function BudayaIndex({ items }) {
                         { name: "latitude", label: "Latitude", type: "number", step: "any" },
                         { name: "longitude", label: "Longitude", type: "number", step: "any" },
                         { name: "alt", label: "Alt teks gambar" },
+                        { name: "tags", label: "Tags (opsional)", placeholder: "cth: tari, sejarah, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}
                     columns={[

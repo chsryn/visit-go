@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BudayaController as AdminBudayaController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
+use App\Http\Controllers\Admin\DestinationPriceController as AdminDestinationPriceController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\KerajinanController as AdminKerajinanController;
 use App\Http\Controllers\Admin\KulinerController as AdminKulinerController;
@@ -41,8 +42,9 @@ Route::get('/kuliner/{slug}', [PortalController::class, 'showKuliner'])->name('k
 Route::get('/kerajinan/{slug}', [PortalController::class, 'showKerajinan'])->name('kerajinan.show');
 Route::get('/event/{slug}', [PortalController::class, 'showEvent'])->name('event.show');
 
-Route::post('/api/chat', [ChatbotController::class, 'handle'])->name('api.chat');
-Route::post('/api/ai-planner', [AiPlannerController::class, 'generate'])->name('api.ai-planner');
+// API publik berbiaya (AI berbayar per token) — throttle anti-abuse, tanpa ubah perilaku
+Route::post('/api/chat', [ChatbotController::class, 'handle'])->middleware('throttle:30,1')->name('api.chat');
+Route::post('/api/ai-planner', [AiPlannerController::class, 'generate'])->middleware('throttle:15,1')->name('api.ai-planner');
 Route::get('/api/destinasi/kategori/{slug}', [PortalController::class, 'destinationCategoryApi'])->name('api.destinasi.category');
 Route::get('/api/knowledge/search', [KnowledgeController::class, 'search'])->name('api.knowledge.search');
 
@@ -62,6 +64,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     // Destination grouped per category (accordion filter via ?category_id=)
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('destination-prices', AdminDestinationPriceController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('kuliners', AdminKulinerController::class)->only(['index', 'store', 'update', 'destroy']);

@@ -4,7 +4,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import AdminLayout from "@/Layouts/AdminLayout";
 
-// Fix default marker icons when bundled with Vite
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -70,19 +69,47 @@ export default function Maps() {
     useEffect(() => {
         if (!mapRef.current || points.length === 0) return;
 
+        const baseMaps = {
+            Street: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19,
+            }),
+            Satellite: L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+                    attribution: "Imagery &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+                    maxZoom: 19,
+                }
+            ),
+            Terrain: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+                attribution:
+                    'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, SRTM | Style: <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
+                maxZoom: 17,
+            }),
+            Terang: L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 20,
+            }),
+        };
+
         const map = L.map(mapRef.current).setView([0.55, 123.06], 9);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 18,
-        }).addTo(map);
+        baseMaps.Street.addTo(map);
+        L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
+        L.control.scale({ imperial: false }).addTo(map);
+        map.on("baselayerchange", (e) => {
+            const max = e.layer?.options?.maxZoom;
+            if (max && map.getZoom() > max) map.setZoom(max);
+        });
 
         const bounds = L.latLngBounds();
         for (const p of points) {
             const marker = L.marker([p.latitude, p.longitude], {
                 icon: dotIcon(TYPE_COLORS[p.type] ?? "#715386"),
             }).addTo(map);
+            const sub = p.category_name ?? TYPE_LABELS[p.type] ?? p.type;
             marker.bindPopup(
-                `<strong>${p.name}</strong><br/><span style="color:#6B5A7A">${TYPE_LABELS[p.type] ?? p.type}</span>`
+                `<strong>${p.name}</strong><br/><span style="color:#6B5A7A">${sub}</span>`
             );
             bounds.extend([p.latitude, p.longitude]);
         }
@@ -112,7 +139,7 @@ export default function Maps() {
                     ))}
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-border bg-card">
-                    <div ref={mapRef} className="h-[540px] w-full" />
+                    <div ref={mapRef} className="z-0 h-[540px] w-full" />
                 </div>
                 {loading && <p className="mt-3 text-sm text-muted-foreground">Memuat titik peta…</p>}
                 {!loading && points.length === 0 && (

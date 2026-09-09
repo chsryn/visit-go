@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Destinasi;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class EventController extends Controller
@@ -31,6 +33,8 @@ class EventController extends Controller
             'date' => 'required|string|max:20',
             'month' => 'required|string|max:20',
             'location_name' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'body' => 'required|string',
@@ -56,6 +60,8 @@ class EventController extends Controller
             'date' => 'required|string|max:20',
             'month' => 'required|string|max:20',
             'location_name' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'body' => 'required|string',
