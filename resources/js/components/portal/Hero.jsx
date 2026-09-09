@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { router } from "@inertiajs/react";
+import { Search } from "lucide-react";
 import heroImage from "@/assets/hero-whale-shark.jpg";
 import destinasiImage from "@/assets/saronde.jpeg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -6,23 +8,32 @@ import kulinerImage from "@/assets/kategori-kuliner.jpg";
 const slides = [
     {
         image: heroImage,
-        title: "Discover The Hidden Paradise",
-        subtitle: "Telusuri keindahan Gorontalo yang belum tersentuh.",
+        title: "Discover Gorontalo's Hidden Wonders",
+        subtitle:
+            "Telusuri surga tersembunyi dan pesona alam bawah laut Gorontalo.",
     },
     {
         image: destinasiImage,
-        title: "Rich Culture & Heritage",
-        subtitle: "Rasakan kehangatan tradisi Hulondalo.",
+        title: "Rich Culture & Hulondalo Heritage",
+        subtitle:
+            "Berkenalan dengan budaya melalui kehangatan tradisi masyarakat lokal.",
     },
     {
         image: kulinerImage,
-        title: "Authentic Culinary",
-        subtitle: "Nikmati cita rasa pesisir yang tak terlupakan.",
+        title: "Authentic Gorontalo Culinary",
+        subtitle:
+            "Nikmati cita rasa khas Gorontalo yang tak terlupakan.",
     },
 ];
 
 export function Hero() {
     const [current, setCurrent] = useState(0);
+    const [q, setQ] = useState("");
+    const go = (val) => {
+        const v = (val ?? q).trim();
+        if (!v) return;
+        router.get("/search", { q: v });
+    };
 
     useEffect(() => {
         const id = setInterval(() => {
@@ -65,19 +76,26 @@ export function Hero() {
                 <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
                     {slides[current].subtitle}
                 </p>
-                <a
-                    href="#ai-planner"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("ai-planner")?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                        });
-                    }}
-                    className="mt-8 inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-md shadow-lg transition-all hover:-translate-y-0.5 hover:bg-accent/20 hover:text-white hover:border-accent/30 hover:backdrop-blur-md"
-                >
-                    AI Guide Plan
-                </a>
+                <div className="mt-8 w-full max-w-xl">
+                    <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 p-1.5 shadow-soft">
+                        <Search className="ml-3 size-4 shrink-0 text-white/70" />
+                        <input
+                            type="text"
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && go()}
+                            placeholder="Cari destinasi, budaya, kuliner Gorontalo..."
+                            className="flex-1 bg-transparent px-2 py-2.5 text-sm text-white placeholder:text-white/60 focus:outline-none"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => go()}
+                            className="shrink-0 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-white/90"
+                        >
+                            Cari
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="absolute bottom-[30px] left-1/2 flex -translate-x-1/2 gap-2">

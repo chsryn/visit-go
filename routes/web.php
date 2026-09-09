@@ -17,6 +17,7 @@ use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\PortalController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,6 +26,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/', [PortalController::class, 'index'])->name('home');
+
+// Search (hero) — sebelum wildcard {slug}
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/api/search', [SearchController::class, 'api'])->name('api.search');
 
 // Destination: overview kategori dinamis + list per kategori (sebelum detail {slug})
 Route::get('/destinasi', [PortalController::class, 'destinationIndex'])->name('destinasi.index');

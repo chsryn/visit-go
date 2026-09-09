@@ -71,7 +71,7 @@ DESTINASI LOKAL:
 KNOWLEDGE PARIWISATA:
 {$knowContext}
 
-  ATURAN DAN FORMAT OUTPUT:
+ATURAN DAN FORMAT OUTPUT:
 1. Rekomendasi HARUS mematuhi tujuh parameter input dari pengguna:
     - Durasi: {$duration}
     - Minat: {$interest}

@@ -27,9 +27,5 @@ class DatabaseSeeder extends Seeder
             PortalSeeder::class,
             DestinationCategorySeeder::class,
         ]);
-
-        if (class_exists('\Database\Seeders\PortalSeeder')) {
-            $this->call('\Database\Seeders\PortalSeeder');
-        }
     }
 }
