@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUpload from "@/components/admin/ImageUpload";
+import LocationPicker from "@/components/admin/LocationPicker";
 import { cn } from "@/lib/utils";
 
 const emptyFor = (fields) => {
@@ -68,6 +69,21 @@ function FieldInput({ field, value, onChange, error }) {
     );
 }
 
+function LocationField({ field, values, onChange }) {
+    const latField = field.latField ?? "latitude";
+    const lngField = field.lngField ?? "longitude";
+    return (
+        <LocationPicker
+            latitude={values[latField]}
+            longitude={values[lngField]}
+            onChange={(lat, lng) => {
+                onChange(latField, lat);
+                onChange(lngField, lng);
+            }}
+        />
+    );
+}
+
 function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy }) {
     const [values, setValues] = useState(initial);
     const [file, setFile] = useState(null);
@@ -83,9 +99,13 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
         >
             <div className="grid gap-4 sm:grid-cols-2">
                 {fields.map((f) => (
-                    <div key={f.name} className={cn("space-y-2", f.full && "sm:col-span-2")}>
+                    <div key={f.name} className={cn("space-y-2", (f.full || f.type === "location") && "sm:col-span-2")}>
                         {f.type !== "checkbox" && <Label>{f.label}</Label>}
-                        <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} />
+                        {f.type === "location" ? (
+                            <LocationField field={f} values={values} onChange={set} />
+                        ) : (
+                            <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} />
+                        )}
                         {f.hint && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
                     </div>
                 ))}

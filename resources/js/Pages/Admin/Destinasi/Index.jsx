@@ -47,8 +47,9 @@ export default function DestinasiIndex({ items, categories, filterCategoryId }) 
                         },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "location", label: "Lokasi (label)" },
-                        { name: "latitude", label: "Latitude", type: "number", step: "any", placeholder: "cth: 0.5401" },
-                        { name: "longitude", label: "Longitude", type: "number", step: "any", placeholder: "cth: 123.0298" },
+                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
+                        { name: "latitude", label: "Latitude", readonly: true },
+                        { name: "longitude", label: "Longitude", readonly: true },
                         { name: "alt", label: "Alt teks gambar" },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}

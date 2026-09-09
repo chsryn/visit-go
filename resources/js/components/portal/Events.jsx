@@ -139,12 +139,9 @@ export function Events({ items }) {
                                         >
                                             <Link
                                                 href={`/event/${event.slug}`}
-<<<<<<< HEAD
-                                                className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
-=======
+
                                                 className="group flex h-[320px] min-h-[320px] w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-white/65 backdrop-blur-xl backdrop-saturate-150 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] dark:bg-card/60"
->>>>>>> 644650c923e24dfe4bf2e200bf0635abd1eb3eaf
-                                            >
+                                                >
                                                 <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
                                                     <img
                                                         src={src}

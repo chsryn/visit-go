@@ -27,8 +27,9 @@ export default function KulinerIndex({ items }) {
                         { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "harga", label: "Harga (Rp)", type: "number", placeholder: "cth: 25000" },
-                        { name: "latitude", label: "Latitude", type: "number", step: "any" },
-                        { name: "longitude", label: "Longitude", type: "number", step: "any" },
+                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
+                        { name: "latitude", label: "Latitude", readonly: true },
+                        { name: "longitude", label: "Longitude", readonly: true },
                         { name: "alt", label: "Alt teks gambar" },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}
