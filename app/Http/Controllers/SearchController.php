@@ -17,13 +17,12 @@ class SearchController extends Controller
 
     public function index(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
-        $type = $request->query('type');
-
         $validated = $request->validate([
             'q' => 'nullable|string|max:100',
             'type' => 'nullable|string|in:destinasi,budaya,kuliner,kerajinan,event',
         ]);
+        $q = trim((string) ($validated['q'] ?? ''));
+        $type = $validated['type'] ?? null;
 
         $results = [];
         $counts = [];
@@ -47,9 +46,14 @@ class SearchController extends Controller
 
     public function api(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
-        $type = $request->query('type');
-        $limit = min(max((int) $request->query('limit', 5), 1), 10);
+        $validated = $request->validate([
+            'q' => 'nullable|string|max:100',
+            'type' => 'nullable|string|in:destinasi,budaya,kuliner,kerajinan,event',
+            'limit' => 'nullable|integer|min:1|max:10',
+        ]);
+        $q = trim((string) ($validated['q'] ?? $request->query('q', '')));
+        $type = $validated['type'] ?? null;
+        $limit = min(max((int) ($validated['limit'] ?? $request->query('limit', 5)), 1), 10);
 
         if ($q === '' || mb_strlen($q) < 2) {
             return response()->json(['items' => [], 'counts' => []]);
@@ -81,7 +85,6 @@ class SearchController extends Controller
         }
 
         // sort by relevance: name match first, then latest
-        $all = $all->sortByDesc(fn ($item) => 0)->values();
         // ponytail: O(n) union scan, add FULLTEXT/Meilisearch if >10k rows
         $all = $all->sort(function ($a, $b) use ($q) {
             $qLower = mb_strtolower($q);

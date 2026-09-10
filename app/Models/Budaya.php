@@ -10,7 +10,7 @@ class Budaya extends Model
 
     protected $fillable = [
         'name', 'slug', 'body', 'image', 'alt',
-        'latitude', 'longitude', 'jam_buka', 'jam_tutup', 'is_active',
+        'latitude', 'longitude', 'jam_buka', 'jam_tutup', 'area', 'tags', 'is_active',
     ];
 
     protected $casts = [

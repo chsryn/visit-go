@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             guests: '/admin/login',
             users: '/admin'
         );
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
         $middleware->web(append: [
             HandleInertiaRequests::class,
         ]);

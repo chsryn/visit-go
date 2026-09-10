@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Destinasi;
 use App\Models\Kuliner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class KulinerController extends Controller
@@ -29,6 +31,8 @@ class KulinerController extends Controller
             'slug' => 'nullable|string|max:150|unique:kuliners,slug',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'harga' => 'nullable|integer|min:0|max:100000000',
@@ -50,6 +54,8 @@ class KulinerController extends Controller
             'slug' => 'required|string|max:150|unique:kuliners,slug,'.$kuliner->id,
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'harga' => 'nullable|integer|min:0|max:100000000',

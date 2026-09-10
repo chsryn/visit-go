@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Destinasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class DestinasiController extends Controller
@@ -46,6 +47,8 @@ class DestinasiController extends Controller
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'location' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
         ]);
@@ -70,6 +73,8 @@ class DestinasiController extends Controller
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'location' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
         ]);

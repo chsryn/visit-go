@@ -10,7 +10,7 @@ class Kerajinan extends Model
 
     protected $fillable = [
         'name', 'slug', 'body', 'image', 'alt',
-        'latitude', 'longitude', 'is_active',
+        'latitude', 'longitude', 'area', 'tags', 'is_active',
     ];
 
     protected $casts = [

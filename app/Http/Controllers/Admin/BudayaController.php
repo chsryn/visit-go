@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Budaya;
+use App\Models\Destinasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class BudayaController extends Controller
@@ -29,6 +31,8 @@ class BudayaController extends Controller
             'slug' => 'nullable|string|max:150|unique:budayas,slug',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'jam_buka' => 'nullable|date_format:H:i',
@@ -51,6 +55,8 @@ class BudayaController extends Controller
             'slug' => 'required|string|max:150|unique:budayas,slug,'.$budaya->id,
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'jam_buka' => 'nullable|date_format:H:i',
