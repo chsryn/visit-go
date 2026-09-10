@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Destinasi;
 use App\Models\Kerajinan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class KerajinanController extends Controller
@@ -29,6 +31,8 @@ class KerajinanController extends Controller
             'slug' => 'nullable|string|max:150|unique:kerajinans,slug',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'image' => 'nullable|image|max:4096',
@@ -49,6 +53,8 @@ class KerajinanController extends Controller
             'slug' => 'required|string|max:150|unique:kerajinans,slug,'.$kerajinan->id,
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
+            'area' => ['nullable', Rule::in(Destinasi::AREAS)],
+            'tags' => 'nullable|string|max:500',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'image' => 'nullable|image|max:4096',

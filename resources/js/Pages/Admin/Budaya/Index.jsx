@@ -27,6 +27,21 @@ export default function BudayaIndex({ items }) {
                         { name: "latitude", label: "Latitude", readonly: true },
                         { name: "longitude", label: "Longitude", readonly: true },
                         { name: "alt", label: "Alt teks gambar" },
+                        {
+                            name: "area",
+                            label: "Wilayah",
+                            type: "select",
+                            placeholder: "Pilih wilayah",
+                            options: [
+                                "Kota Gorontalo",
+                                "Kab. Gorontalo",
+                                "Bone Bolango",
+                                "Boalemo",
+                                "Pohuwato",
+                                "Gorontalo Utara",
+                            ].map((a) => ({ value: a, label: a })),
+                        },
+                        { name: "tags", label: "Tags (opsional)", placeholder: "cth: tari, sejarah, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}
                     columns={[
