@@ -32,6 +32,7 @@ class GroundingBuilder
             $totalRows = 0;
             $kulinerIncluded = false;
 
+            $canonicalArea = $area ? $this->canonicalArea($area) : null;
             foreach ($interests as $interest) {
                 $tokens = $this->interestTokens($interest);
                 $scored = [];
@@ -47,7 +48,13 @@ class GroundingBuilder
                                 $q->whereHas('categoryRef', fn ($qq) => $qq->where('slug', $catSlug));
                             }
                         }
-                        foreach ($q->get() as $r) {
+                        // ponytail: push area filter to SQL to avoid OOM — keep orWhereNull for legacy rows
+                        if ($canonicalArea !== null) {
+                            $q->where(function ($qq) use ($canonicalArea) {
+                                $qq->where('area', $canonicalArea)->orWhereNull('area');
+                            });
+                        }
+                        foreach ($q->limit(60)->get() as $r) {
                             if (! $this->rowAreaMatches($r, $area)) {
                                 continue;
                             }
@@ -145,6 +152,20 @@ class GroundingBuilder
             $destinations = [];
             $total = 0;
 
+            // ponytail: single whereIn instead of N+1 per destinasi
+            $destIds = collect($places)
+                ->filter(fn ($p) => ($p['category'] ?? '') === 'destinasi')
+                ->map(fn ($p) => (int) str_replace('destinasi:', '', (string) ($p['key'] ?? '')))
+                ->filter(fn ($id) => $id > 0)
+                ->unique()->values()->all();
+            $grouped = $destIds
+                ? DestinationPriceEstimate::whereIn('destinasi_id', $destIds)
+                    ->where('is_active', true)
+                    ->orderBy('harga')
+                    ->get(['destinasi_id', 'jenis', 'label', 'harga', 'satuan'])
+                    ->groupBy('destinasi_id')
+                : collect();
+
             foreach ($places as $p) {
                 if (($p['category'] ?? '') !== 'destinasi') {
                     continue;
@@ -153,10 +174,7 @@ class GroundingBuilder
                 if ($id <= 0) {
                     continue;
                 }
-                $items = DestinationPriceEstimate::where('destinasi_id', $id)
-                    ->where('is_active', true)
-                    ->orderBy('harga')
-                    ->get(['jenis', 'label', 'harga', 'satuan']);
+                $items = $grouped->get($id, collect());
                 if ($items->isEmpty()) {
                     continue;
                 }
@@ -301,6 +319,16 @@ class GroundingBuilder
      * Normalisasi nama area agar "BoneBolango" == "Bone Bolango".
      * Return null untuk se-Provinsi (tanpa filter area).
      */
+    private function canonicalArea(string $key): ?string
+    {
+        foreach (Destinasi::AREAS as $canonical) {
+            if ($this->areaKey($canonical) === $key) {
+                return $canonical;
+            }
+        }
+        return null;
+    }
+
     private function normalizeArea(string $location): ?string
     {
         $loc = strtolower(trim($location));

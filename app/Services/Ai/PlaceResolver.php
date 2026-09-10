@@ -73,7 +73,7 @@ class PlaceResolver
             [Event::class, 'event'],
         ];
         foreach ($tables as [$model, $category]) {
-            foreach ($model::where('is_active', true)->get(self::COLUMNS) as $r) {
+            foreach ($model::where('is_active', true)->limit(80)->get(self::COLUMNS) as $r) {
                 if (mb_strlen($r->name) < self::MIN_NAME_LENGTH) {
                     continue;
                 }
@@ -101,7 +101,14 @@ class PlaceResolver
                 continue;
             }
             $cn = mb_strtolower($c['name']);
-            if (str_contains($low, $cn) || str_contains($cn, $low)) {
+            // ponytail: require min 5-char substring to reduce false positives like "Pantai" matching everything
+            if (mb_strlen($cn) >= 5 && str_contains($low, $cn)) {
+                return $c;
+            }
+            if (mb_strlen($low) >= 5 && str_contains($cn, $low)) {
+                return $c;
+            }
+            if ($cn === $low) {
                 return $c;
             }
         }
