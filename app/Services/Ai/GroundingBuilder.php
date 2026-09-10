@@ -101,6 +101,107 @@ class GroundingBuilder
         }
     }
 
+    /**
+     * Baris DB mentah per minat (area + tags aware) untuk dipakai ulang,
+     * mis. generator fallback. Tanpa scoring — urut relevansi.
+     *
+     * @return array [{name,category,location,body,entry_fee,tags}]
+     */
+    public function findRowsForInterests(array $interests, string $location, int $limit = 20): array
+    {
+        try {
+            $area = $this->normalizeArea($location);
+            $out = [];
+            $seen = [];
+            foreach ($interests as $interest) {
+                $tokens = $this->interestTokens($interest);
+                $scored = [];
+                foreach ($this->sourcesForInterest($interest) as [$model, $catSlug]) {
+                    try {
+                        $q = $model::where('is_active', true);
+                        if ($model === Destinasi::class) {
+                            $q->whereNotIn('slug', PortalController::PILLARS);
+                            if ($catSlug !== null) {
+                                $q->whereHas('categoryRef', fn ($qq) => $qq->where('slug', $catSlug));
+                            }
+                        }
+                        foreach ($q->get() as $r) {
+                            if (! $this->rowAreaMatches($r, $area)) {
+                                continue;
+                            }
+                            $key = $model.':'.$r->id;
+                            if (isset($seen[$key])) {
+                                continue;
+                            }
+                            $score = 0;
+                            $rowTags = strtolower($r->tags ?? '');
+                            $rowName = strtolower($r->name ?? '');
+                            foreach ($tokens as $t) {
+                                if ($rowTags !== '' && str_contains($rowTags, $t)) {
+                                    $score += 2;
+                                } elseif (str_contains($rowName, $t)) {
+                                    $score += 1;
+                                }
+                            }
+                            $seen[$key] = true;
+                            $scored[] = ['score' => $score, 'row' => $r];
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('GroundingBuilder find rows failed: '.$e->getMessage());
+                    }
+                }
+                usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
+                foreach (array_slice($scored, 0, $limit) as $s) {
+                    $r = $s['row'];
+                    $out[] = [
+                        'name' => $r->name,
+                        'category' => $this->categoryOf(get_class($r)),
+                        'location' => $r->location_name ?? $r->location ?? $r->area ?? null,
+                        'body' => $r->body,
+                        'entry_fee' => $this->entryFeeFor($r),
+                    ];
+                }
+                if (count($out) >= $limit) {
+                    break;
+                }
+            }
+
+            return array_slice($out, 0, $limit);
+        } catch (\Throwable $e) {
+            Log::warning('GroundingBuilder find rows failed: '.$e->getMessage());
+
+            return [];
+        }
+    }
+
+    private function categoryOf(string $model): string
+    {
+        return match ($model) {
+            Budaya::class => 'budaya',
+            Kuliner::class => 'kuliner',
+            Kerajinan::class => 'kerajinan',
+            Event::class => 'event',
+            default => 'destinasi',
+        };
+    }
+
+    private function entryFeeFor($row): ?int
+    {
+        try {
+            if (! isset($row->id) || $this->categoryOf(get_class($row)) !== 'destinasi') {
+                return null;
+            }
+            $min = DestinationPriceEstimate::where('destinasi_id', $row->id)
+                ->where('is_active', true)
+                ->where('jenis', 'tiket_masuk')
+                ->min('harga');
+
+            return $min !== null ? (int) $min : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     public function knowledgeContext(): string
     {
         try {

@@ -24,11 +24,11 @@ export default function CostEstimate({ estimate }) {
     if (dests.length === 0 && foods.length === 0) return null;
 
     return (
-        <div className="rounded-[15px] border border-emerald-300/40 bg-emerald-50/70 backdrop-blur-xl p-6 shadow-soft">
+        <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl p-6 shadow-soft">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h4 className="flex items-center gap-2 font-display font-bold">
-                        <Wallet className="size-4 text-emerald-600" /> Estimasi Biaya
+                        <Wallet className="size-4 text-black" /> Estimasi Biaya
                     </h4>
                     <p className="mt-1 text-xs text-muted-foreground">Dihitung dari data harga di database.</p>
                 </div>

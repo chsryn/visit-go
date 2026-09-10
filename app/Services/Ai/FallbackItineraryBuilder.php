@@ -13,6 +13,20 @@ use App\Models\Kuliner;
  */
 class FallbackItineraryBuilder
 {
+    private const DB_DAY_TIMES = ['09:00 - 12:00', '13:00 - 16:00', '16:30 - 18:30'];
+
+    private const DB_VERBS = [
+        'destinasi' => 'Kunjungi',
+        'kuliner' => 'Cicipi',
+        'budaya' => 'Jelajahi',
+        'kerajinan' => 'Lihat langsung',
+        'event' => 'Hadiri',
+    ];
+
+    public function __construct(
+        protected GroundingBuilder $grounding,
+    ) {}
+
     public function build(
         string $duration,
         string $interest,
@@ -47,17 +61,21 @@ class FallbackItineraryBuilder
             default => "Hari {$i}: Penjelajahan Spesial Gorontalo",
         };
 
-        // Mode ketat: satu bucket minat spesifik → hari hanya berisi aktivitas
-        // yang cocok (tanpa bocoran kategori lain). Minat campuran/umum → variasi pool.
-        $strictBucket = $this->strictInterestBucket($interest, $customInterest);
-        $strictFlat = $strictBucket ? $this->filterPoolByBucket($activitiesPool, $strictBucket) : [];
+        // Prioritas 1 — baris DB cocok minat+area (tags-aware): tanpa bocoran kategori lain.
+        // Prioritas 2 — pool teks cocok bucket. Prioritas 3 — variasi pool.
+        $interestList = array_values(array_filter(
+            array_map('trim', explode(',', $interest.','.$customInterest)),
+            fn ($s) => $s !== ''
+        ));
+        $dbRows = $this->grounding->findRowsForInterests($interestList, $location, 12);
+        $dbActs = $this->dbActivities($dbRows, $foodRecs);
 
-        if ($strictFlat) {
-            $perDay = max(1, (int) ceil(count($strictFlat) / $numDays));
+        if ($dbActs) {
+            $perDay = max(1, (int) ceil(count($dbActs) / $numDays));
             for ($i = 1; $i <= $numDays; $i++) {
                 $slice = [];
                 for ($k = 0; $k < $perDay; $k++) {
-                    $slice[] = $strictFlat[(($i - 1) * $perDay + $k) % count($strictFlat)];
+                    $slice[] = $dbActs[(($i - 1) * $perDay + $k) % count($dbActs)];
                 }
                 $days[] = [
                     'day_number' => $i,
@@ -66,14 +84,33 @@ class FallbackItineraryBuilder
                 ];
             }
         } else {
-            for ($i = 1; $i <= $numDays; $i++) {
-                $poolIndex = $poolOrder[($i - 1) % count($poolOrder)];
+            // Prioritas 2 — pool teks cocok bucket. Prioritas 3 — variasi pool.
+            $strictBucket = $this->strictInterestBucket($interest, $customInterest);
+            $strictFlat = $strictBucket ? $this->filterPoolByBucket($activitiesPool, $strictBucket) : [];
 
-                $days[] = [
-                    'day_number' => $i,
-                    'title' => $dayTitle($i),
-                    'activities' => $activitiesPool[$poolIndex],
-                ];
+            if ($strictFlat) {
+                $perDay = max(1, (int) ceil(count($strictFlat) / $numDays));
+                for ($i = 1; $i <= $numDays; $i++) {
+                    $slice = [];
+                    for ($k = 0; $k < $perDay; $k++) {
+                        $slice[] = $strictFlat[(($i - 1) * $perDay + $k) % count($strictFlat)];
+                    }
+                    $days[] = [
+                        'day_number' => $i,
+                        'title' => $dayTitle($i),
+                        'activities' => $slice,
+                    ];
+                }
+            } else {
+                for ($i = 1; $i <= $numDays; $i++) {
+                    $poolIndex = $poolOrder[($i - 1) % count($poolOrder)];
+
+                    $days[] = [
+                        'day_number' => $i,
+                        'title' => $dayTitle($i),
+                        'activities' => $activitiesPool[$poolIndex],
+                    ];
+                }
             }
         }
 
@@ -249,6 +286,30 @@ class FallbackItineraryBuilder
             str_contains($interestLow, 'pantai') || str_contains($interestLow, 'laut') || str_contains($interestLow, 'bahari') || str_contains($interestLow, 'alam') || str_contains($interestLow, 'petualangan') || str_contains($interestLow, 'snorkeling') || str_contains($interestLow, 'diving') => [1, 2, 3, 4, 6, 5],
             default => [1, 2, 3, 4, 5, 6],
         };
+    }
+
+    /**
+     * Bangun aktivitas dari baris DB (prioritas 1 fallback).
+     */
+    private function dbActivities(array $rows, array $foodRecs): array
+    {
+        $times = self::DB_DAY_TIMES;
+        $acts = [];
+        foreach (array_values($rows) as $i => $r) {
+            $verb = self::DB_VERBS[$r['category'] ?? ''] ?? 'Kunjungi';
+            $where = $r['name'].($r['location'] ? ', '.$r['location'] : '');
+            $notes = ! empty($r['body']) ? substr(strip_tags($r['body']), 0, 120) : 'Rekomendasi dari database wisata Gorontalo.';
+            $acts[] = [
+                'time' => $times[$i % count($times)],
+                'activity' => "{$verb} {$r['name']}",
+                'location' => $where,
+                'food' => $foodRecs[$i % count($foodRecs)],
+                'cost' => $r['entry_fee'] !== null ? 'Rp '.number_format($r['entry_fee'], 0, ',', '.') : '—',
+                'notes' => $notes,
+            ];
+        }
+
+        return $acts;
     }
 
     /**
