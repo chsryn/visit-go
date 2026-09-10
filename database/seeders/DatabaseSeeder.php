@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             PortalSeeder::class,
             DestinationCategorySeeder::class,
+            DestinationPriceSeeder::class,
+            KnowledgeSeeder::class,
+            WisataGorontaloSeeder::class,
         ]);
     }
 }
