@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Sparkles, RefreshCw } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Reveal } from "@/components/ui/Reveal";
@@ -15,10 +15,7 @@ import {
     MAX_INTERESTS,
     MAX_TRIP_DAYS,
 } from "./wizard/wizardOptions";
-import StepDestination from "./wizard/StepDestination";
-import StepDate from "./wizard/StepDate";
-import StepPreferences from "./wizard/StepPreferences";
-import WizardProgress from "./wizard/WizardProgress";
+import WizardSteps from "./wizard/WizardSteps";
 import WizardResult from "./wizard/WizardResult";
 
 export function AiTravelWizard() {
@@ -157,48 +154,57 @@ export function AiTravelWizard() {
                     <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">Rencanakan Perjalanan Gorontalo dengan Pintar</h2>
                 </Reveal>
 
-                <WizardProgress steps={steps} step={step} totalSteps={totalSteps} progress={progress} />
+                <div className="mt-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            {steps.map(s => (
+                                <div key={s.id} className="flex items-center gap-2">
+                                    <div className={`flex size-8 items-center justify-center rounded-full border text-xs font-bold transition-all ${step >= s.id ? "bg-primary border-primary text-primary-foreground shadow-sm" : "bg-white border-border text-muted-foreground"} ${step === s.id ? "ring-2 ring-primary/20 scale-105" : ""}`}>
+                                        {step > s.id ? <Check className="size-4" /> : s.id}
+                                    </div>
+                                    {s.id < totalSteps && <div className={`hidden h-[2px] w-8 sm:block ${step > s.id ? "bg-primary" : "bg-border"}`} />}
+                                </div>
+                            ))}
+                        </div>
+                        <span className="text-xs font-medium text-muted-foreground">{step} / {totalSteps}</span>
+                    </div>
+                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#715386]/10">
+                        <motion.div className="h-full bg-primary" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
+                    </div>
+                    <p className="mt-2 text-xs font-medium text-muted-foreground">{steps[step - 1].title} — {steps[step - 1].desc}</p>
+                </div>
 
                 {/* Wizard Card - rapat fit-content */}
                 <div className="mt-8 flex flex-col w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm p-5 pb-7">
                     <AnimatePresence mode="wait" custom={direction}>
                         <motion.div key={step} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.35, ease: "easeInOut" }} className="w-full">
-                            {step === 1 && (
-                                <StepDestination
-                                    destSearch={destSearch}
-                                    setDestSearch={setDestSearch}
-                                    showDestDropdown={showDestDropdown}
-                                    setShowDestDropdown={setShowDestDropdown}
-                                    filteredDestinasi={filteredDestinasi}
-                                    destinasiList={destinasiList}
-                                    destinasiUnggulan={destinasiUnggulan}
-                                    selected={form.destinasi}
-                                    onSelect={selectDestinasi}
-                                />
-                            )}
-                            {step === 2 && (
-                                <StepDate
-                                    range={range}
-                                    onSelectRange={handleRange}
-                                    month={month}
-                                    onMonthChange={setMonth}
-                                    today={today}
-                                    disabledAfter={disabledAfter}
-                                    isMobile={isMobile}
-                                    durationDays={durationDays}
-                                />
-                            )}
-                            {step === 3 && (
-                                <StepPreferences
-                                    form={form}
-                                    interests={interests}
-                                    foods={foods}
-                                    penginapanList={penginapanList}
-                                    onToggleInterest={toggleInterest}
-                                    onToggleFood={toggleFood}
-                                    onChange={patchForm}
-                                />
-                            )}
+                            <WizardSteps
+                                step={step}
+                                destSearch={destSearch}
+                                setDestSearch={setDestSearch}
+                                showDestDropdown={showDestDropdown}
+                                setShowDestDropdown={setShowDestDropdown}
+                                filteredDestinasi={filteredDestinasi}
+                                destinasiList={destinasiList}
+                                destinasiUnggulan={destinasiUnggulan}
+                                selected={form.destinasi}
+                                onSelect={selectDestinasi}
+                                range={range}
+                                onSelectRange={handleRange}
+                                month={month}
+                                onMonthChange={setMonth}
+                                today={today}
+                                disabledAfter={disabledAfter}
+                                isMobile={isMobile}
+                                durationDays={durationDays}
+                                form={form}
+                                interests={interests}
+                                foods={foods}
+                                penginapanList={penginapanList}
+                                onToggleInterest={toggleInterest}
+                                onToggleFood={toggleFood}
+                                onChange={patchForm}
+                            />
                         </motion.div>
                     </AnimatePresence>
 
