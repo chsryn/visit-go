@@ -94,14 +94,15 @@ export function AiTravelWizard() {
         if (!isValid()) return toast.error("Lengkapi minat & kuliner");
         setLoading(true);
         setResult(null);
-        await new Promise(r => setTimeout(r, 900));
         try {
             const finalDays = range.from && range.to ? durationDays : form.durationDays;
             const durationLabel = `${finalDays} hari`;
             const allInterests = [...form.interests, ...(form.customInterest.trim() ? [form.customInterest.trim()] : [])];
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
             const res = await fetch("/api/ai-planner", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Accept: "application/json" },
+                headers: { "Content-Type": "application/json", Accept: "application/json", ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}) },
+                credentials: "same-origin",
                 body: JSON.stringify({
                     location: form.destinasi || "Provinsi Gorontalo",
                     duration: durationLabel,
@@ -112,17 +113,19 @@ export function AiTravelWizard() {
                     custom_interest: form.customInterest.trim(),
                 }),
             });
+            if (res.status === 419) { toast.error("Sesi habis — muat ulang halaman."); return; }
+            if (res.status === 429) { toast.error("Terlalu banyak permintaan — coba lagi sebentar."); return; }
             const json = await res.json();
             if (json.success && json.data) {
                 setResult(json.data);
                 toast.success("Rencana perjalanan berhasil dibuat!");
                 setTimeout(() => document.getElementById("ai-result")?.scrollIntoView({ behavior: "smooth" }), 100);
-            } else toast.error("Gagal mendapatkan rekomendasi AI.");
+            } else toast.error(json.message || "Gagal mendapatkan rekomendasi AI.");
         } catch (e) { toast.error("Gagal terhubung ke AI."); console.error(e); }
         finally { setLoading(false); }
     };
 
-    const copyToClipboard = () => {
+    const copyToClipboard = async () => {
         if (!result) return;
         let t = `🌟 ${result.title} 🌟\n\n📌 ${result.summary}\n\n`;
         (result.days || []).forEach(d => {
@@ -134,7 +137,13 @@ export function AiTravelWizard() {
             t += "\n";
         });
         if (result.budget_breakdown) t += `💰 Total: ${result.budget_breakdown.total_estimated}\n`;
-        navigator.clipboard.writeText(t);
+        try {
+            if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(t);
+            else throw new Error('no clipboard');
+        } catch {
+            const ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.opacity='0';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+        }
         setCopied(true); toast.success("Tersalin!"); setTimeout(() => setCopied(false), 2000);
     };
 

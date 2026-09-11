@@ -28,15 +28,14 @@ final class GroqClient
      */
     public function generateContent(string $systemPrompt, string $userPrompt): ?array
     {
-        $key = AiApiKey::resolveKey('groq') ?? config('services.groq.key');
-        if (! $key) {
-            return null;
-        }
-
-        $url = $this->url !== '' ? $this->url : config('services.groq.url', 'https://api.groq.com/openai/v1/chat/completions');
-        $model = $this->model !== '' ? $this->model : config('services.groq.model', 'openai/gpt-oss-20b');
-
         try {
+            $key = AiApiKey::resolveKey('groq') ?? config('services.groq.key');
+            if (! $key) {
+                return null;
+            }
+
+            $url = $this->url !== '' ? $this->url : config('services.groq.url', 'https://api.groq.com/openai/v1/chat/completions');
+            $model = $this->model !== '' ? $this->model : config('services.groq.model', 'openai/gpt-oss-20b');
             $response = null;
             for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
                 $response = Http::withToken($key)
@@ -55,8 +54,9 @@ final class GroqClient
                     break;
                 }
                 $wait = $this->rateLimitWaitSeconds($response);
-                Log::info("AiPlanner 429, retry {$attempt} after {$wait}s");
-                sleep($wait);
+                Log::info("AiPlanner 429, retry {$attempt} after {$wait}s — fallback instead of blocking sleep");
+                // ponytail: sleep() blocks FPM worker; fallback to local builder is faster & cheaper
+                return null;
             }
 
             if (! $response->successful()) {
