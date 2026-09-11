@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Destinasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -16,23 +15,14 @@ class DestinasiController extends Controller
 
     public function index(Request $request)
     {
-        $categoryId = $request->query('category_id');
-
-        $items = Destinasi::with('categoryRef')
-            ->when($categoryId, fn ($q) => $q->where('category_id', $categoryId))
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
+        $items = Destinasi::latest()->paginate(12);
 
         $items->through(fn ($d) => array_merge($d->toArray(), [
             'image_url' => $this->resolveModelImageUrl($d->image),
-            'category_name' => $d->categoryRef?->name ?? $d->category,
         ]));
 
         return Inertia::render('Admin/Destinasi/Index', [
             'items' => $items,
-            'categories' => Category::destinationChildren()->orderBy('name')->get(['id', 'name', 'slug']),
-            'filterCategoryId' => $categoryId ? (int) $categoryId : null,
         ]);
     }
 
@@ -41,7 +31,6 @@ class DestinasiController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'nullable|string|max:150|unique:destinasis,slug',
-            'category_id' => 'nullable|exists:categories,id',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -67,7 +56,6 @@ class DestinasiController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'required|string|max:150|unique:destinasis,slug,'.$destinasi->id,
-            'category_id' => 'nullable|exists:categories,id',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'latitude' => 'nullable|numeric|between:-90,90',

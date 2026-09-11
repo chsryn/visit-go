@@ -18,18 +18,13 @@ const coords = (row) =>
         <span className="text-xs text-muted-foreground">—</span>
     );
 
-export default function DestinasiIndex({ items, categories, filterCategoryId }) {
-    const activeCat = categories.find((c) => c.id === filterCategoryId);
+export default function DestinasiIndex({ items }) {
     return (
         <>
-            <Head title="Destination — Admin" />
+            <Head title="Destinasi — Admin" />
             <AdminLayout
-                title="Destination"
-                subtitle={
-                    activeCat
-                        ? `Sub-kategori: ${activeCat.name} — grouping per tabel categories.`
-                        : "Semua destinasi — pilih sub-kategori di sidebar untuk filter."
-                }
+                title="Destinasi"
+                subtitle="Semua destinasi wisata — tanpa sub-kategori."
             >
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
@@ -45,17 +40,9 @@ export default function DestinasiIndex({ items, categories, filterCategoryId }) 
                 <ResourceManager
                     items={items}
                     basePath="/admin/destinasis"
-                    defaults={{ category_id: filterCategoryId ?? "" }}
                     fields={[
                         { name: "name", label: "Nama" },
                         { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
-                        {
-                            name: "category_id",
-                            label: "Sub-kategori",
-                            type: "select",
-                            placeholder: "Pilih sub-kategori",
-                            options: categories.map((c) => ({ value: c.id, label: c.name })),
-                        },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "location", label: "Lokasi (label)" },
                         {
@@ -90,7 +77,7 @@ export default function DestinasiIndex({ items, categories, filterCategoryId }) 
                                     )}
                                     <div>
                                         <p className="font-medium leading-tight">{row.name}</p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">{row.category_name}</p>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">{row.location ?? row.area ?? "Destinasi"}</p>
                                     </div>
                                 </div>
                             ),

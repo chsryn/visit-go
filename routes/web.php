@@ -3,15 +3,15 @@
 use App\Http\Controllers\Admin\AiApiKeyController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BudayaController as AdminBudayaController;
-use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
 use App\Http\Controllers\Admin\DestinationPriceController as AdminDestinationPriceController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\KerajinanController as AdminKerajinanController;
-use App\Http\Controllers\Admin\KulinerController as AdminKulinerController;
 use App\Http\Controllers\Admin\MapController as AdminMapController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
+use App\Http\Controllers\Admin\UmkmJenisController as AdminUmkmJenisController;
 use App\Http\Controllers\AiPlannerController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DestinasiController;
@@ -32,9 +32,8 @@ Route::get('/', [PortalController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/api/search', [SearchController::class, 'api'])->name('api.search');
 
-// Destination: overview kategori dinamis + list per kategori (sebelum detail {slug})
+// Destination: daftar flat (sebelum detail {slug})
 Route::get('/destinasi', [PortalController::class, 'destinationIndex'])->name('destinasi.index');
-Route::get('/destinasi/kategori/{slug}', [PortalController::class, 'destinationByCategory'])->name('destinasi.category');
 Route::get('/budaya', [PortalController::class, 'indexByCategory'])->defaults('category', 'budaya')->name('budaya.index');
 Route::get('/kuliner', [PortalController::class, 'indexByCategory'])->defaults('category', 'kuliner')->name('kuliner.index');
 Route::get('/kerajinan', [PortalController::class, 'indexByCategory'])->defaults('category', 'kerajinan')->name('kerajinan.index');
@@ -50,7 +49,6 @@ Route::get('/event/{slug}', [PortalController::class, 'showEvent'])->name('event
 // API publik berbiaya (AI berbayar per token) — throttle anti-abuse, tanpa ubah perilaku
 Route::post('/api/chat', [ChatbotController::class, 'handle'])->middleware('throttle:30,1')->name('api.chat');
 Route::post('/api/ai-planner', [AiPlannerController::class, 'generate'])->middleware('throttle:15,1')->name('api.ai-planner');
-Route::get('/api/destinasi/kategori/{slug}', [PortalController::class, 'destinationCategoryApi'])->name('api.destinasi.category');
 Route::get('/api/knowledge/search', [KnowledgeController::class, 'search'])->name('api.knowledge.search');
 
 // Admin CRUD (nanti bisa tambah middleware auth) — index destinasi sudah dipakai untuk public listing /destinasi
@@ -67,12 +65,11 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Destination grouped per category (accordion filter via ?category_id=)
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('destination-prices', AdminDestinationPriceController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::resource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::resource('kuliners', AdminKulinerController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('umkms', AdminUmkmController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('umkm-jenis', AdminUmkmJenisController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['umkm-jenis' => 'umkmJenis']);
     Route::resource('kerajinans', AdminKerajinanController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('events', AdminEventController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('ai-keys', AiApiKeyController::class)->only(['index', 'store', 'update', 'destroy']);

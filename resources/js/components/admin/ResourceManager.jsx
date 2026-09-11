@@ -131,7 +131,7 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
  * Generic admin CRUD manager (table + create/edit forms + delete).
  * Keeps the 5 content modules consistent without duplicating code.
  */
-export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null }) {
+export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null, allowCreate = true }) {
     const [showCreate, setShowCreate] = useState(false);
     const [editing, setEditing] = useState(null);
     const [busy, setBusy] = useState(false);
@@ -167,13 +167,15 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                 <p className="text-sm text-muted-foreground">
                     Total {items?.total ?? rows.length} data
                 </p>
-                <Button size="sm" onClick={() => { setEditing(null); setShowCreate((v) => !v); }}>
-                    {showCreate ? <X className="size-4" /> : <Plus className="size-4" />}
-                    {showCreate ? "Tutup" : "Tambah"}
-                </Button>
+                {allowCreate && (
+                    <Button size="sm" onClick={() => { setEditing(null); setShowCreate((v) => !v); }}>
+                        {showCreate ? <X className="size-4" /> : <Plus className="size-4" />}
+                        {showCreate ? "Tutup" : "Tambah"}
+                    </Button>
+                )}
             </div>
 
-            {showCreate && (
+            {allowCreate && showCreate && (
                 <ResourceForm
                     fields={fields}
                     initial={{ ...emptyFor(fields), ...defaults }}
@@ -258,7 +260,7 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                         {rows.length === 0 && (
                             <tr>
                                 <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                    Belum ada data — klik Tambah untuk membuat baru.
+                                    {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
                                 </td>
                             </tr>
                         )}

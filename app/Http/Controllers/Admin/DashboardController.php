@@ -8,7 +8,7 @@ use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
 use App\Models\Kerajinan;
-use App\Models\Kuliner;
+use App\Models\Umkm;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -19,7 +19,7 @@ class DashboardController extends Controller
             'stats' => [
                 'destinasi' => Destinasi::count(),
                 'budaya' => Budaya::count(),
-                'kuliner' => Kuliner::count(),
+                'kuliner' => Umkm::ofJenis('kuliner')->count(),
                 'kerajinan' => Kerajinan::count(),
                 'event' => Event::count(),
                 'categories' => Category::count(),

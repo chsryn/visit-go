@@ -28,7 +28,7 @@ export default function Dashboard({ stats, latest }) {
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                     <StatCard icon={MapPin} label="Destinasi" value={stats.destinasi} href="/admin/destinasis" />
                     <StatCard icon={Landmark} label="Budaya" value={stats.budaya} href="/admin/budayas" />
-                    <StatCard icon={UtensilsCrossed} label="Kuliner" value={stats.kuliner} href="/admin/kuliners" />
+                    <StatCard icon={UtensilsCrossed} label="Kuliner" value={stats.kuliner} href="/admin/umkms?tab=kuliner" />
                     <StatCard icon={Hammer} label="Kerajinan" value={stats.kerajinan} href="/admin/kerajinans" />
                     <StatCard icon={CalendarDays} label="Event" value={stats.event} href="/admin/events" />
                 </div>

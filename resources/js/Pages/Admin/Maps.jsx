@@ -21,6 +21,7 @@ const TYPE_COLORS = {
     kuliner: "#00923F",
     kerajinan: "#B45309",
     event: "#FF0000",
+    umkm: "#0EA5E9",
 };
 
 const TYPE_LABELS = {
@@ -29,6 +30,7 @@ const TYPE_LABELS = {
     kuliner: "Kuliner",
     kerajinan: "Kerajinan",
     event: "Event",
+    umkm: "UMKM",
 };
 
 function dotIcon(color) {
@@ -107,7 +109,7 @@ export default function Maps() {
             const marker = L.marker([p.latitude, p.longitude], {
                 icon: dotIcon(TYPE_COLORS[p.type] ?? "#715386"),
             }).addTo(map);
-            const sub = p.category_name ?? TYPE_LABELS[p.type] ?? p.type;
+            const sub = TYPE_LABELS[p.type] ?? p.type;
             marker.bindPopup(
                 `<strong>${p.name}</strong><br/><span style="color:#6B5A7A">${sub}</span>`
             );
@@ -123,7 +125,7 @@ export default function Maps() {
     return (
         <>
             <Head title="Maps — Admin" />
-            <AdminLayout title="Maps" subtitle="Overview semua lokasi — destinasi, budaya, kuliner, kerajinan, event.">
+                <AdminLayout title="Maps" subtitle="Overview semua lokasi — destinasi, budaya, kuliner, kerajinan, event, UMKM.">
                 <div className="mb-4 flex flex-wrap gap-2">
                     {Object.entries(TYPE_LABELS).map(([type, label]) => (
                         <span

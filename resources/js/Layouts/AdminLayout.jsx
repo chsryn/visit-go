@@ -4,12 +4,12 @@ import {
     LayoutDashboard,
     MapPin,
     Landmark,
-    UtensilsCrossed,
     Hammer,
     CalendarDays,
     KeyRound,
     User,
     Map as MapIcon,
+    Store,
     ChevronDown,
     LogOut,
     Globe,
@@ -25,11 +25,11 @@ function isActive(url, href) {
 
 export default function AdminLayout({ children, title, subtitle }) {
     const { url, props } = usePage();
-    const categories = props.adminCategories ?? [];
     const flash = props.flash ?? {};
     const user = props.auth?.user;
-    const [destOpen, setDestOpen] = useState(url.startsWith("/admin/destinasis"));
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [umkmOpen, setUmkmOpen] = useState(url.startsWith("/admin/umkms"));
+    const umkmJenis = props.adminUmkmJenis ?? [];
 
     const itemCls = (href) =>
         cn(
@@ -58,71 +58,73 @@ export default function AdminLayout({ children, title, subtitle }) {
                     <LayoutDashboard className="size-4 shrink-0" /> Dashboard
                 </Link>
 
-                {/* 1. Destination — accordion sub-kategori dinamis dari tabel categories */}
-                <button
-                    type="button"
-                    onClick={() => setDestOpen((v) => !v)}
-                    className={cn(
-                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                        url.startsWith("/admin/destinasis")
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                >
-                    <MapPin className="size-4 shrink-0" />
-                    <span className="flex-1 text-left">Destination</span>
-                    <ChevronDown className={cn("size-4 transition-transform", destOpen && "rotate-180")} />
-                </button>
-                {destOpen && (
-                    <div className="ml-4 space-y-1 border-l border-border pl-3">
-                        <Link
-                            href="/admin/destinasis"
-                            className={cn(
-                                "block rounded-lg px-3 py-2 text-sm transition-colors",
-                                url === "/admin/destinasis"
-                                    ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                            )}
-                        >
-                            Semua Destinasi
-                        </Link>
-                        {categories.map((c) => (
-                            <Link
-                                key={c.id}
-                                href={`/admin/destinasis?category_id=${c.id}`}
-                                className={cn(
-                                    "block rounded-lg px-3 py-2 text-sm transition-colors",
-                                    url === `/admin/destinasis?category_id=${c.id}`
-                                        ? "bg-primary/10 font-semibold text-primary"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                {c.name}
-                            </Link>
-                        ))}
-                        {categories.length === 0 && (
-                            <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada kategori.</p>
-                        )}
-                        <Link
-                            href="/admin/categories"
-                            className={cn(
-                                "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                                url.startsWith("/admin/categories")
-                                    ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-primary/80 hover:bg-muted hover:text-primary"
-                            )}
-                        >
-                            + Kelola Kategori
-                        </Link>
-                    </div>
-                )}
+                {/* Destinasi — daftar flat, tanpa sub-kategori */}
+                <Link href="/admin/destinasis" className={itemCls("/admin/destinasis")}>
+                    <MapPin className="size-4 shrink-0" /> Destinasi
+                </Link>
 
                 <Link href="/admin/budayas" className={itemCls("/admin/budayas")}>
                     <Landmark className="size-4 shrink-0" /> Budaya
                 </Link>
-                <Link href="/admin/kuliners" className={itemCls("/admin/kuliners")}>
-                    <UtensilsCrossed className="size-4 shrink-0" /> Kuliner
-                </Link>
+
+                {/* UMKM — anak accordion = jenis dinamis dari database */}
+                <button
+                    type="button"
+                    onClick={() => setUmkmOpen((v) => !v)}
+                    className={cn(
+                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                        url.startsWith("/admin/umkms")
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                >
+                    <Store className="size-4 shrink-0" />
+                    <span className="flex-1 text-left">UMKM</span>
+                    <ChevronDown className={cn("size-4 transition-transform", umkmOpen && "rotate-180")} />
+                </button>
+                {umkmOpen && (
+                    <div className="ml-4 space-y-1 border-l border-border pl-3">
+                        <Link
+                            href="/admin/umkms"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm transition-colors",
+                                url === "/admin/umkms"
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                        >
+                            Semua UMKM
+                        </Link>
+                        {umkmJenis.map((j) => (
+                            <Link
+                                key={j.slug}
+                                href={`/admin/umkms?jenis=${encodeURIComponent(j.slug)}`}
+                                className={cn(
+                                    "block rounded-lg px-3 py-2 text-sm capitalize transition-colors",
+                                    url === `/admin/umkms?jenis=${encodeURIComponent(j.slug)}`
+                                        ? "bg-primary/10 font-semibold text-primary"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                )}
+                            >
+                                {j.name}
+                            </Link>
+                        ))}
+                        {umkmJenis.length === 0 && (
+                            <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada jenis.</p>
+                        )}
+                        <Link
+                            href="/admin/umkm-jenis"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                url.startsWith("/admin/umkm-jenis")
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-primary/80 hover:bg-muted hover:text-primary"
+                            )}
+                        >
+                            + Kelola Jenis
+                        </Link>
+                    </div>
+                )}
                 <Link href="/admin/kerajinans" className={itemCls("/admin/kerajinans")}>
                     <Hammer className="size-4 shrink-0" /> Kerajinan
                 </Link>
