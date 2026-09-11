@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
 use App\Models\Kerajinan;
-use App\Models\Kuliner;
 use Illuminate\Database\Seeder;
 
 class PortalSeeder extends Seeder
@@ -108,8 +107,14 @@ class PortalSeeder extends Seeder
                 'alt' => 'Hidangan Milu Siram dan Ilabulo',
             ],
         ];
+        // Kuliner hidup sebagai baris UMKM berjenis kuliner (tanpa tabel kuliners)
+        $kulinerJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'kuliner'], ['name' => 'kuliner', 'is_active' => true])->id;
         foreach ($kuliners as $k) {
-            Kuliner::updateOrCreate(['slug' => $k['slug']], $k);
+            \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
+                'umkm_jenis_id' => $kulinerJenisId,
+                'skala_usaha' => 'mikro',
+                'is_active' => true,
+            ]));
         }
 
         $kerajinans = [

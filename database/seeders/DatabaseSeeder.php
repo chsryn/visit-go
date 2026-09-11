@@ -25,10 +25,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             PortalSeeder::class,
-            DestinationCategorySeeder::class,
             DestinationPriceSeeder::class,
             KnowledgeSeeder::class,
             WisataGorontaloSeeder::class,
+            UmkmSeeder::class,
         ]);
     }
 }
