@@ -73,6 +73,11 @@ class GroundingBuilder
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
+                            // plan.md §4: minat budaya–sejarah → kategori cagar budaya,
+                            // minat alam → kategori wisata alam.
+                            if ($scope = $this->destinasiScopeForInterest($interest)) {
+                                $q->whereHas('destinationCategory', fn ($qq) => $qq->where('slug', $scope));
+                            }
                         }
                         foreach ($q->get() as $r) {
                             if (! $this->rowAreaMatches($r, $area)) {
@@ -180,6 +185,10 @@ class GroundingBuilder
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
+                            // plan.md §4: scoping kategori baru (cagar budaya / wisata alam).
+                            if ($scope = $this->destinasiScopeForInterest($interest)) {
+                                $q->whereHas('destinationCategory', fn ($qq) => $qq->where('slug', $scope));
+                            }
                         }
                         foreach ($q->get() as $r) {
                             if (! $this->rowAreaMatches($r, $area)) {
@@ -557,7 +566,8 @@ class GroundingBuilder
     }
 
     /**
-     * Petakan satu minat ke tabel DB (destinasi flat, tanpa sub-kategori).
+     * Petakan satu minat ke tabel DB. Destinasi difilter kategori master-nya
+     * (cagar budaya / wisata alam) via destinasiScopeForInterest().
      * Array kosong = tidak ada padanan DB (AI mencari sendiri).
      */
     private function sourcesForInterest(string $interest): array
@@ -569,7 +579,9 @@ class GroundingBuilder
             return [[Destinasi::class]];
         }
         if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum')) {
-            return [[Budaya::class]];
+            // Baris cagar budaya kini tinggal di destinasis (pindah dari budayas),
+            // jadi minat budaya membaca kedua tabel — Destinasi di-scope cagar-budaya.
+            return [[Destinasi::class], [Budaya::class]];
         }
         if ($has('kuliner', 'makan', 'food', 'jajan', 'cafe', 'kafe', 'resto', 'seafood')) {
             return [[Umkm::class]];
@@ -589,5 +601,26 @@ class GroundingBuilder
 
         // Umum (tempat wisata, tur, hidden gems, dsb.): seluruh destinasi
         return [[Destinasi::class]];
+    }
+
+    /**
+     * plan.md §4: minat → slug kategori destinasi untuk scoping DB.
+     * Minat budaya–sejarah → `cagar budaya`, minat alam → `wisata alam`,
+     * null = tanpa filter kategori (menggantikan logika kategori lama).
+     */
+    private function destinasiScopeForInterest(string $interest): ?string
+    {
+        $in = strtolower($interest);
+        $has = fn (...$needles) => collect($needles)->contains(fn ($n) => str_contains($in, $n));
+
+
+        if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum', 'benteng', 'cagar', 'religi', 'makam', 'masjid', 'menara', 'monumen')) {
+            return 'cagar-budaya';
+        }
+        if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam', 'gunung', 'hiking', 'pendaki', 'air terjun', 'alam', 'petualangan', 'adventure', 'hutan', 'danau', 'pulau', 'air panas')) {
+            return 'wisata-alam';
+        }
+
+        return null;
     }
 }

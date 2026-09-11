@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Http\Controllers\PortalController;
 use App\Models\Budaya;
 use App\Models\Destinasi;
+use App\Models\DestinationCategory;
 use App\Models\Event;
 use App\Models\Kerajinan;
 use App\Models\Umkm;
@@ -55,6 +56,10 @@ class HandleInertiaRequests extends Middleware
             // Jenis UMKM dinamis dari tabel master untuk accordion sidebar
             'adminUmkmJenis' => fn () => $request->is('admin*')
                 ? UmkmJenis::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug'])
+                : [],
+            // Kategori destinasi dinamis dari tabel master untuk accordion sidebar
+            'adminDestinationCategories' => fn () => $request->is('admin*')
+                ? DestinationCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug'])
                 : [],
             'nav' => [
                 // Dropdown navbar: destinasi + tabel barunya (legacy rows sudah dimigrasi keluar dari destinasis)

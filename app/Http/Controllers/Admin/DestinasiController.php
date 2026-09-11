@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Destinasi;
+use App\Models\DestinationCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -15,7 +16,13 @@ class DestinasiController extends Controller
 
     public function index(Request $request)
     {
-        $items = Destinasi::latest()->paginate(12);
+        $kategori = $request->query('kategori');
+
+        $items = Destinasi::with('destinationCategory:id,name,slug')
+            ->when($kategori, fn ($q) => $q->whereHas('destinationCategory', fn ($qq) => $qq->where('slug', $kategori)))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
 
         $items->through(fn ($d) => array_merge($d->toArray(), [
             'image_url' => $this->resolveModelImageUrl($d->image),
@@ -23,6 +30,8 @@ class DestinasiController extends Controller
 
         return Inertia::render('Admin/Destinasi/Index', [
             'items' => $items,
+            'filterKategori' => $kategori,
+            'categoryOptions' => DestinationCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }
 
@@ -31,6 +40,7 @@ class DestinasiController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'nullable|string|max:150|unique:destinasis,slug',
+            'destination_category_id' => 'required|exists:destination_categories,id',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -56,6 +66,7 @@ class DestinasiController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'required|string|max:150|unique:destinasis,slug,'.$destinasi->id,
+            'destination_category_id' => 'required|exists:destination_categories,id',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'latitude' => 'nullable|numeric|between:-90,90',

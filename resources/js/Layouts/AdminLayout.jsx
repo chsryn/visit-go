@@ -30,6 +30,8 @@ export default function AdminLayout({ children, title, subtitle }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [umkmOpen, setUmkmOpen] = useState(url.startsWith("/admin/umkms"));
     const umkmJenis = props.adminUmkmJenis ?? [];
+    const [destinasiOpen, setDestinasiOpen] = useState(url.startsWith("/admin/destinasis"));
+    const destinasiCategories = props.adminDestinationCategories ?? [];
 
     const itemCls = (href) =>
         cn(
@@ -59,9 +61,64 @@ export default function AdminLayout({ children, title, subtitle }) {
                 </Link>
 
                 {/* Destinasi — daftar flat, tanpa sub-kategori */}
-                <Link href="/admin/destinasis" className={itemCls("/admin/destinasis")}>
-                    <MapPin className="size-4 shrink-0" /> Destinasi
-                </Link>
+                {/* Destinasi — anak accordion = kategori dinamis dari database */}
+                <button
+                    type="button"
+                    onClick={() => setDestinasiOpen((v) => !v)}
+                    className={cn(
+                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                        url.startsWith("/admin/destinasis")
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                >
+                    <MapPin className="size-4 shrink-0" />
+                    <span className="flex-1 text-left">Destinasi</span>
+                    <ChevronDown className={cn("size-4 transition-transform", destinasiOpen && "rotate-180")} />
+                </button>
+                {destinasiOpen && (
+                    <div className="ml-4 space-y-1 border-l border-border pl-3">
+                        <Link
+                            href="/admin/destinasis"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm transition-colors",
+                                url === "/admin/destinasis"
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                        >
+                            Semua Destinasi
+                        </Link>
+                        {destinasiCategories.map((c) => (
+                            <Link
+                                key={c.slug}
+                                href={`/admin/destinasis?kategori=${encodeURIComponent(c.slug)}`}
+                                className={cn(
+                                    "block rounded-lg px-3 py-2 text-sm capitalize transition-colors",
+                                    url === `/admin/destinasis?kategori=${encodeURIComponent(c.slug)}`
+                                        ? "bg-primary/10 font-semibold text-primary"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                )}
+                            >
+                                {c.name}
+                            </Link>
+                        ))}
+                        {destinasiCategories.length === 0 && (
+                            <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada kategori.</p>
+                        )}
+                        <Link
+                            href="/admin/destination-categories"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                                url.startsWith("/admin/destination-categories")
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-primary/80 hover:bg-muted hover:text-primary"
+                            )}
+                        >
+                            + Kelola Kategori
+                        </Link>
+                    </div>
+                )}
 
                 <Link href="/admin/budayas" className={itemCls("/admin/budayas")}>
                     <Landmark className="size-4 shrink-0" /> Budaya

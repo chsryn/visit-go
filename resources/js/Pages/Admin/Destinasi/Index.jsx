@@ -9,6 +9,15 @@ const statusBadge = (active) =>
         <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Nonaktif</span>
     );
 
+const categoryBadge = (row) =>
+    row.destination_category?.name ? (
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium capitalize text-primary">
+            {row.destination_category.name}
+        </span>
+    ) : (
+        <span className="text-xs text-muted-foreground">—</span>
+    );
+
 const coords = (row) =>
     row.latitude && row.longitude ? (
         <span className="font-mono text-xs">
@@ -18,13 +27,19 @@ const coords = (row) =>
         <span className="text-xs text-muted-foreground">—</span>
     );
 
-export default function DestinasiIndex({ items }) {
+export default function DestinasiIndex({ items, filterKategori, categoryOptions = [] }) {
+    const defaultCategoryId = categoryOptions.find((c) => c.slug === filterKategori)?.id ?? "";
+
     return (
         <>
             <Head title="Destinasi — Admin" />
             <AdminLayout
                 title="Destinasi"
-                subtitle="Semua destinasi wisata — tanpa sub-kategori."
+                subtitle={
+                    filterKategori
+                        ? `Kategori: ${filterKategori} — tambah baru untuk memperbanyak.`
+                        : "Semua destinasi wisata — tambah kategori baru lewat Kelola Kategori."
+                }
             >
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
@@ -36,13 +51,28 @@ export default function DestinasiIndex({ items }) {
                     >
                         Estimasi Harga
                     </Link>
+                    <Link
+                        href="/admin/destination-categories"
+                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                        Kelola Kategori
+                    </Link>
                 </div>
                 <ResourceManager
                     items={items}
                     basePath="/admin/destinasis"
+                    defaults={{ destination_category_id: defaultCategoryId }}
                     fields={[
                         { name: "name", label: "Nama" },
                         { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        {
+                            name: "destination_category_id",
+                            label: "Kategori",
+                            type: "select",
+                            placeholder: "Pilih kategori",
+                            hint: "Kategori baru ditambahkan lewat halaman Kelola Kategori.",
+                            options: categoryOptions.map((c) => ({ value: c.id, label: c.name })),
+                        },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "location", label: "Lokasi (label)" },
                         {
@@ -82,6 +112,7 @@ export default function DestinasiIndex({ items }) {
                                 </div>
                             ),
                         },
+                        { key: "destination_category_id", label: "Kategori", render: categoryBadge },
                         { key: "coords", label: "Koordinat", render: coords },
                         { key: "is_active", label: "Status", render: (row) => statusBadge(row.is_active) },
                     ]}

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             DestinationPriceSeeder::class,
             KnowledgeSeeder::class,
             WisataGorontaloSeeder::class,
+            DestinationCategorySeeder::class,
             UmkmSeeder::class,
         ]);
     }
