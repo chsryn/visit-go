@@ -7,7 +7,6 @@ use App\Models\Budaya;
 use App\Models\Destinasi;
 use App\Models\DestinationPriceEstimate;
 use App\Models\Event;
-use App\Models\Kerajinan;
 use App\Models\Knowledge;
 use App\Models\Umkm;
 use Illuminate\Support\Facades\Log;
@@ -50,8 +49,8 @@ class GroundingBuilder
                 if ($sweepLines) {
                     $totalRows += count($sweepLines);
                     $blocks[] = "[Minat: {$interest}]\n".implode("\n", $sweepLines);
-                    foreach ($this->sourcesForInterest($interest) as [$model]) {
-                        if ($model === Umkm::class) {
+                    foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
+                        if ($model === Umkm::class && $umkmJenis === 'kuliner') {
                             $kulinerIncluded = true;
                         }
                     }
@@ -59,17 +58,17 @@ class GroundingBuilder
                     continue;
                 }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model]) {
-                    if ($model === Umkm::class) {
+                foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
+                    if ($model === Umkm::class && $umkmJenis === 'kuliner') {
                         $kulinerIncluded = true;
                     }
                     // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini.
                     // Baris tanpa tags tetap ikut (tak bisa dinilai).
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm hanya dipakai untuk minat kuliner
+                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, karawo (kerajinan) untuk belanja
                         $q = $model === Umkm::class
-                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', 'kuliner'))->where('is_active', true)
+                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
@@ -175,13 +174,13 @@ class GroundingBuilder
                     continue;
                 }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model]) {
+                foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
                     // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm hanya dipakai untuk minat kuliner
+                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, karawo (kerajinan) untuk belanja
                         $q = $model === Umkm::class
-                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', 'kuliner'))->where('is_active', true)
+                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
@@ -239,20 +238,23 @@ class GroundingBuilder
     {
         return [
             'name' => $r->name,
-            'category' => $this->categoryOf(get_class($r)),
+            'category' => $this->categoryOf(get_class($r), $r),
             'location' => $r->location_name ?? $r->location ?? $r->area ?? null,
             'body' => $r->body,
             'entry_fee' => $this->entryFeeFor($r),
         ];
     }
 
-    private function categoryOf(string $model): string
+    private function categoryOf(string $model, $row = null): string
     {
+        // Baris UMKM bisa kuliner atau karawo (kerajinan) — bedakan dari jenisnya
+        if ($model === Umkm::class && $row) {
+            return ($row->jenisRef->slug ?? 'kuliner') === 'karawo' ? 'kerajinan' : 'kuliner';
+        }
+
         return match ($model) {
             Budaya::class => 'budaya',
-            Kerajinan::class => 'kerajinan',
             Event::class => 'event',
-            // Baris UMKM yang dibaca AI selalu berjenis kuliner
             Umkm::class => 'kuliner',
             default => 'destinasi',
         };
@@ -261,7 +263,7 @@ class GroundingBuilder
     private function entryFeeFor($row): ?int
     {
         try {
-            if (! isset($row->id) || $this->categoryOf(get_class($row)) !== 'destinasi') {
+            if (! isset($row->id) || $this->categoryOf(get_class($row), $row) !== 'destinasi') {
                 return null;
             }
             $min = DestinationPriceEstimate::where('destinasi_id', $row->id)
@@ -440,14 +442,13 @@ class GroundingBuilder
             Destinasi::class,
             Budaya::class,
             Umkm::class,
-            Kerajinan::class,
             Event::class,
         ];
         foreach ($tables as $model) {
             try {
-                // Umkm hanya relevan untuk minat kuliner
+                // Umkm relevan sebagai kuliner maupun karawo (kerajinan) — token yang memilah
                 $query = $model === Umkm::class
-                    ? $model::whereHas('jenisRef', fn ($q) => $q->where('slug', 'kuliner'))->where('is_active', true)
+                    ? $model::whereHas('jenisRef', fn ($q) => $q->whereIn('slug', ['kuliner', 'karawo']))->where('is_active', true)
                     : $model::where('is_active', true);
                 foreach ($query->get() as $r) {
                     $tags = strtolower($r->tags ?? '');
@@ -576,21 +577,22 @@ class GroundingBuilder
         $has = fn (...$needles) => collect($needles)->contains(fn ($n) => str_contains($in, $n));
 
         if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam', 'gunung', 'hiking', 'pendaki', 'air terjun', 'alam', 'petualangan', 'adventure', 'cagar', 'hutan')) {
-            return [[Destinasi::class]];
+            return [[Destinasi::class, null]];
         }
         if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum')) {
             // Baris cagar budaya kini tinggal di destinasis (pindah dari budayas),
             // jadi minat budaya membaca kedua tabel — Destinasi di-scope cagar-budaya.
-            return [[Destinasi::class], [Budaya::class]];
+            return [[Destinasi::class, null], [Budaya::class, null]];
         }
         if ($has('kuliner', 'makan', 'food', 'jajan', 'cafe', 'kafe', 'resto', 'seafood')) {
-            return [[Umkm::class]];
+            return [[Umkm::class, 'kuliner']];
         }
         if ($has('belanja', 'souvenir', 'oleh', 'karawo', 'pasar', 'shopping')) {
-            return [[Kerajinan::class]];
+            // Kerajinan = UMKM berjenis karawo (tanpa tabel kerajinans)
+            return [[Umkm::class, 'karawo']];
         }
         if ($has('festival', 'event', 'karnaval', 'acara', 'konser', 'pesta')) {
-            return [[Event::class]];
+            return [[Event::class, null]];
         }
         if ($has('spa', 'kesehatan', 'pijat', 'massage', 'refleksi')) {
             return [];
@@ -600,7 +602,7 @@ class GroundingBuilder
         }
 
         // Umum (tempat wisata, tur, hidden gems, dsb.): seluruh destinasi
-        return [[Destinasi::class]];
+        return [[Destinasi::class, null]];
     }
 
     /**
@@ -612,7 +614,6 @@ class GroundingBuilder
     {
         $in = strtolower($interest);
         $has = fn (...$needles) => collect($needles)->contains(fn ($n) => str_contains($in, $n));
-
 
         if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum', 'benteng', 'cagar', 'religi', 'makam', 'masjid', 'menara', 'monumen')) {
             return 'cagar-budaya';

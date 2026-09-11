@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\DestinasiController as AdminDestinasiController;
 use App\Http\Controllers\Admin\DestinationPriceController as AdminDestinationPriceController;
 use App\Http\Controllers\Admin\DestinationCategoryController as AdminDestinationCategoryController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
-use App\Http\Controllers\Admin\KerajinanController as AdminKerajinanController;
 use App\Http\Controllers\Admin\MapController as AdminMapController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
@@ -72,7 +71,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('umkms', AdminUmkmController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('umkm-jenis', AdminUmkmJenisController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['umkm-jenis' => 'umkmJenis']);
-    Route::resource('kerajinans', AdminKerajinanController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('events', AdminEventController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('ai-keys', AiApiKeyController::class)->only(['index', 'store', 'update', 'destroy']);
 

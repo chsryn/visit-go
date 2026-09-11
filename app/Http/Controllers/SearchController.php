@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Budaya;
 use App\Models\Destinasi;
 use App\Models\Event;
-use App\Models\Kerajinan;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -193,7 +192,8 @@ class SearchController extends Controller
 
     private function queryKerajinan(string $like, int $limit)
     {
-        return Kerajinan::where('is_active', true)
+        // Kerajinan hidup sebagai baris UMKM berjenis karawo (tanpa tabel kerajinans)
+        return Umkm::ofJenis('karawo')->where('is_active', true)
             ->where(function ($w) use ($like) {
                 $w->where('name', 'like', $like)
                     ->orWhere('slug', 'like', $like)

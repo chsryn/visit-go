@@ -4,7 +4,6 @@ import {
     LayoutDashboard,
     MapPin,
     Landmark,
-    Hammer,
     CalendarDays,
     KeyRound,
     User,
@@ -60,7 +59,6 @@ export default function AdminLayout({ children, title, subtitle }) {
                     <LayoutDashboard className="size-4 shrink-0" /> Dashboard
                 </Link>
 
-                {/* Destinasi — daftar flat, tanpa sub-kategori */}
                 {/* Destinasi — anak accordion = kategori dinamis dari database */}
                 <button
                     type="button"
@@ -182,9 +180,6 @@ export default function AdminLayout({ children, title, subtitle }) {
                         </Link>
                     </div>
                 )}
-                <Link href="/admin/kerajinans" className={itemCls("/admin/kerajinans")}>
-                    <Hammer className="size-4 shrink-0" /> Kerajinan
-                </Link>
                 <Link href="/admin/events" className={itemCls("/admin/events")}>
                     <CalendarDays className="size-4 shrink-0" /> Event
                 </Link>

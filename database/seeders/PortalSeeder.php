@@ -6,7 +6,6 @@ use App\Models\Budaya;
 use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
-use App\Models\Kerajinan;
 use Illuminate\Database\Seeder;
 
 class PortalSeeder extends Seeder
@@ -56,7 +55,7 @@ class PortalSeeder extends Seeder
             Destinasi::updateOrCreate(['slug' => $d['slug']], $d);
         }
 
-        // Budaya/kuliner/kerajinan hidup di tabelnya masing-masing (bukan destinasis)
+        // Budaya hidup di tabelnya sendiri; kuliner/kerajinan sebagai baris UMKM (bukan destinasis)
         $budayas = [
             [
                 'name' => 'Tari Saronde',
@@ -140,8 +139,14 @@ class PortalSeeder extends Seeder
                 'alt' => 'Kerajinan Daerah',
             ],
         ];
+        // Kerajinan hidup sebagai baris UMKM berjenis karawo (tanpa tabel kerajinans)
+        $karawoJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'karawo'], ['name' => 'karawo', 'is_active' => true])->id;
         foreach ($kerajinans as $k) {
-            Kerajinan::updateOrCreate(['slug' => $k['slug']], $k);
+            \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
+                'umkm_jenis_id' => $karawoJenisId,
+                'skala_usaha' => 'mikro',
+                'is_active' => true,
+            ]));
         }
 
         $events = [

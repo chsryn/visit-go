@@ -77,16 +77,16 @@ class PlaceResolver
     {
         $candidates = collect();
         $tables = [
-            [Destinasi::class, 'destinasi'],
-            [Budaya::class, 'budaya'],
-            [Umkm::class, 'kuliner'],
-            [Kerajinan::class, 'kerajinan'],
-            [Event::class, 'event'],
+            [Destinasi::class, 'destinasi', null],
+            [Budaya::class, 'budaya', null],
+            [Umkm::class, 'kuliner', 'kuliner'],
+            // Kerajinan = UMKM berjenis karawo
+            [Umkm::class, 'kerajinan', 'karawo'],
+            [Event::class, 'event', null],
         ];
-        foreach ($tables as [$model, $category]) {
-            // Umkm hanya relevan sebagai kuliner
+        foreach ($tables as [$model, $category, $jenis]) {
             $rows = $model === Umkm::class
-                ? $model::ofJenis('kuliner')->where('is_active', true)->get(self::COLUMNS)
+                ? $model::ofJenis($jenis)->where('is_active', true)->get(self::COLUMNS)
                 : $model::where('is_active', true)->get(self::COLUMNS);
             foreach ($rows as $r) {
                 if (mb_strlen($r->name) < self::MIN_NAME_LENGTH) {
@@ -135,16 +135,23 @@ class PlaceResolver
     {
         try {
             $out = [];
-            $tables = [Destinasi::class, Budaya::class, Umkm::class, Kerajinan::class, Event::class];
-            foreach ($tables as $model) {
+            // [model, jenis UMKM, punya kolom area?] — umkms tak punya kolom area
+            $specs = [
+                [Destinasi::class, null, true],
+                [Budaya::class, null, true],
+                [Umkm::class, 'kuliner', false],
+                [Umkm::class, 'karawo', false],
+                [Event::class, null, true],
+            ];
+            foreach ($specs as [$model, $jenis, $hasArea]) {
                 $rows = $model === Umkm::class
-                    ? $model::ofJenis('kuliner')->where('is_active', true)->get(['name', 'area'])
+                    ? $model::ofJenis($jenis)->where('is_active', true)->get(['name'])
                     : $model::where('is_active', true)->get(['name', 'area']);
                 foreach ($rows as $r) {
                     if (mb_strlen($r->name ?? '') < self::MIN_NAME_LENGTH) {
                         continue;
                     }
-                    $out[] = ['name' => $r->name, 'area' => $r->area ?? null];
+                    $out[] = ['name' => $r->name, 'area' => $hasArea ? ($r->area ?? null) : null];
                 }
             }
 

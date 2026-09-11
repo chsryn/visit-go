@@ -6,7 +6,6 @@ use App\Models\Budaya;
 use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
-use App\Models\Kerajinan;
 use App\Models\Umkm;
 use Inertia\Inertia;
 
@@ -32,13 +31,17 @@ class PortalController extends Controller
             // map to same shape as Destinasi for Category/Index reuse
             $items = $items->map(fn($e) => ['id'=>$e->id,'name'=>$e->name,'slug'=>$e->slug,'category'=>'event','body'=>$e->body,'image'=>$e->image,'alt'=>$e->alt,'date'=>$e->date,'month'=>$e->month,'location'=>$e->location]);
         } else {
-            // kuliner dibaca dari UMKM berjenis kuliner
-            if ($category === 'kuliner') {
-                $items = Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
+            // kuliner & kerajinan dibaca dari UMKM berjenis kuliner/karawo (tanpa tabel sendiri)
+            $umkmJenis = match ($category) {
+                'kuliner' => 'kuliner',
+                'kerajinan' => 'karawo',
+                default => null,
+            };
+            if ($umkmJenis) {
+                $items = Umkm::ofJenis($umkmJenis)->where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
             } else {
                 $model = match ($category) {
                     'budaya' => Budaya::class,
-                    'kerajinan' => Kerajinan::class,
                     default => Destinasi::class,
                 };
                 $items = $model::where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
@@ -59,13 +62,17 @@ class PortalController extends Controller
             $item = Event::where('slug', $slug)->where('is_active', true)->firstOrFail();
             $related = Event::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
         } else {
-            if ($category === 'kuliner') {
-                $item = Umkm::ofJenis('kuliner')->where('slug', $slug)->where('is_active', true)->firstOrFail();
-                $related = Umkm::ofJenis('kuliner')->where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            $umkmJenis = match ($category) {
+                'kuliner' => 'kuliner',
+                'kerajinan' => 'karawo',
+                default => null,
+            };
+            if ($umkmJenis) {
+                $item = Umkm::ofJenis($umkmJenis)->where('slug', $slug)->where('is_active', true)->firstOrFail();
+                $related = Umkm::ofJenis($umkmJenis)->where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
             } else {
                 $model = match ($category) {
                     'budaya' => Budaya::class,
-                    'kerajinan' => Kerajinan::class,
                     default => Destinasi::class,
                 };
                 $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
