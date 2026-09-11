@@ -6,6 +6,7 @@ import {
     Landmark,
     CalendarDays,
     Images,
+    Newspaper,
     KeyRound,
     User,
     Map as MapIcon,
@@ -186,6 +187,9 @@ export default function AdminLayout({ children, title, subtitle }) {
                 </Link>
                 <Link href="/admin/galleries" className={itemCls("/admin/galleries")}>
                     <Images className="size-4 shrink-0" /> Galeri
+                </Link>
+                <Link href="/admin/articles" className={itemCls("/admin/articles")}>
+                    <Newspaper className="size-4 shrink-0" /> Artikel
                 </Link>
                 <Link href="/admin/ai-keys" className={itemCls("/admin/ai-keys")}>
                     <KeyRound className="size-4 shrink-0" /> AI Usage

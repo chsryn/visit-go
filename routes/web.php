@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AiApiKeyController;
+use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BudayaController as AdminBudayaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -74,6 +75,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::resource('umkm-jenis', AdminUmkmJenisController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['umkm-jenis' => 'umkmJenis']);
     Route::resource('events', AdminEventController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('galleries', AdminGalleryController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('articles', AdminArticleController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('ai-keys', AiApiKeyController::class)->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile');
