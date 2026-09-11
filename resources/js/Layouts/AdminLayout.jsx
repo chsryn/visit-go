@@ -5,6 +5,7 @@ import {
     MapPin,
     Landmark,
     CalendarDays,
+    Images,
     KeyRound,
     User,
     Map as MapIcon,
@@ -182,6 +183,9 @@ export default function AdminLayout({ children, title, subtitle }) {
                 )}
                 <Link href="/admin/events" className={itemCls("/admin/events")}>
                     <CalendarDays className="size-4 shrink-0" /> Event
+                </Link>
+                <Link href="/admin/galleries" className={itemCls("/admin/galleries")}>
+                    <Images className="size-4 shrink-0" /> Galeri
                 </Link>
                 <Link href="/admin/ai-keys" className={itemCls("/admin/ai-keys")}>
                     <KeyRound className="size-4 shrink-0" /> AI Usage
