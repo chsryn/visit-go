@@ -44,6 +44,7 @@ ATURAN DAN FORMAT OUTPUT:
     - Penginapan: {$p['penginapan']} (Hotel & Resor / Villa / Hemat)
     - ATURAN AREA: semua aktivitas dan destinasi HARUS berada di area {$p['location']}. Jika area tidak punya data DB sama sekali, gunakan pengetahuanmu tentang Gorontalo namun tetap di area tersebut.
     - EKSKLUSIVITAS MINAT ({$p['interestText']}): tampilkan HANYA aktivitas yang sesuai minat terpilih. JANGAN menambahkan kategori minat lain yang tidak dipilih. Jika satu-satunya minat tidak ada di DB, susun SEMUA hari dari pengetahuanmu tentang minat itu di area {$p['location']}.
+    - ANTI-FIKSI: HANYA gunakan tempat yang tercantum di DATA DATABASE di atas. DILARANG mengarang nama tempat, hotel, desa, atau restoran baru. DILARANG memindahkan tempat terkenal ke area lain (contoh: Pulo Cinta hanya di Boalemo). Jika data kurang untuk mengisi hari, ulangi destinasi DB dengan sudut berbeda atau akui keterbatasan — JANGAN inventarisasi fiktif.
 
 2. JAWAB HARUS HANYA DALAM FORMAT JSON VALID tanpa teks pengantar atau markdown block (no ```json). Format JSON harus mengikuti skema berikut:
 {

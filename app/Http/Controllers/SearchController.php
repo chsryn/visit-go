@@ -6,7 +6,7 @@ use App\Models\Budaya;
 use App\Models\Destinasi;
 use App\Models\Event;
 use App\Models\Kerajinan;
-use App\Models\Kuliner;
+use App\Models\Umkm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -165,7 +165,7 @@ class SearchController extends Controller
 
     private function queryKuliner(string $like, int $limit)
     {
-        return Kuliner::where('is_active', true)
+        return Umkm::ofJenis('kuliner')->where('is_active', true)
             ->where(function ($w) use ($like) {
                 $w->where('name', 'like', $like)
                     ->orWhere('slug', 'like', $like)

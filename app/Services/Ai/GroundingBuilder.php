@@ -9,7 +9,7 @@ use App\Models\DestinationPriceEstimate;
 use App\Models\Event;
 use App\Models\Kerajinan;
 use App\Models\Knowledge;
-use App\Models\Kuliner;
+use App\Models\Umkm;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -33,19 +33,46 @@ class GroundingBuilder
             $kulinerIncluded = false;
 
             foreach ($interests as $interest) {
-                $tokens = $this->interestTokens($interest);
+                // Token minat + kosakata bucket-nya (mis. gunung → nantu/lombongo)
+                $tokens = InterestProfile::keywordsForInterest($interest);
+                // Sapu tags lintas tabel: bila ada yang cocok, HANYA itu yang dipakai
+                // (ketat sesuai tags admin). Bila kosong, lanjut ke logika tabel.
+                $sweepLines = [];
+                foreach ($this->sweepTags($tokens, $area, 12) as $hit) {
+                    $r = $hit['row'];
+                    $line = '- '.$r->name;
+                    if (! empty($r->body)) {
+                        $line .= ': '.substr(strip_tags($r->body), 0, 120);
+                    }
+                    $sweepLines[] = $line;
+                }
+                $sweepLines = array_values(array_unique($sweepLines));
+                if ($sweepLines) {
+                    $totalRows += count($sweepLines);
+                    $blocks[] = "[Minat: {$interest}]\n".implode("\n", $sweepLines);
+                    foreach ($this->sourcesForInterest($interest) as [$model]) {
+                        if ($model === Umkm::class) {
+                            $kulinerIncluded = true;
+                        }
+                    }
+
+                    continue;
+                }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model, $catSlug]) {
-                    if ($model === Kuliner::class) {
+                foreach ($this->sourcesForInterest($interest) as [$model]) {
+                    if ($model === Umkm::class) {
                         $kulinerIncluded = true;
                     }
+                    // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini.
+                    // Baris tanpa tags tetap ikut (tak bisa dinilai).
+                    $strict = $model !== Destinasi::class;
                     try {
-                        $q = $model::where('is_active', true);
+                        // Umkm hanya dipakai untuk minat kuliner
+                        $q = $model === Umkm::class
+                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', 'kuliner'))->where('is_active', true)
+                            : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
-                            if ($catSlug !== null) {
-                                $q->whereHas('categoryRef', fn ($qq) => $qq->where('slug', $catSlug));
-                            }
                         }
                         foreach ($q->get() as $r) {
                             if (! $this->rowAreaMatches($r, $area)) {
@@ -65,6 +92,9 @@ class GroundingBuilder
                                 } elseif (str_contains($rowName, $t)) {
                                     $score += 1;
                                 }
+                            }
+                            if ($strict && $rowTags !== '' && $score === 0) {
+                                continue;
                             }
                             $scored[] = ['score' => $score, 'line' => $line];
                         }
@@ -114,16 +144,42 @@ class GroundingBuilder
             $out = [];
             $seen = [];
             foreach ($interests as $interest) {
-                $tokens = $this->interestTokens($interest);
+                // Token minat + kosakata bucket-nya (mis. gunung → nantu/lombongo)
+                $tokens = InterestProfile::keywordsForInterest($interest);
+                // Jatah adil per minat agar minat pertama tak menghabiskan limit
+                $perInterest = max(1, (int) ceil($limit / max(1, count($interests))));
+                // Sapu tags lintas tabel: bila ada yang cocok, HANYA itu yang dipakai
+                $sweepRows = [];
+                foreach ($this->sweepTags($tokens, $area, $perInterest) as $hit) {
+                    $r = $hit['row'];
+                    $seenKey = $hit['model'].':'.$r->id;
+                    if (isset($seen[$seenKey])) {
+                        continue;
+                    }
+                    $seen[$seenKey] = true;
+                    $sweepRows[] = $r;
+                }
+                if ($sweepRows) {
+                    foreach ($sweepRows as $r) {
+                        $out[] = $this->rowShape($r);
+                    }
+                    if (count($out) >= $limit) {
+                        break;
+                    }
+
+                    continue;
+                }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model, $catSlug]) {
+                foreach ($this->sourcesForInterest($interest) as [$model]) {
+                    // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini
+                    $strict = $model !== Destinasi::class;
                     try {
-                        $q = $model::where('is_active', true);
+                        // Umkm hanya dipakai untuk minat kuliner
+                        $q = $model === Umkm::class
+                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', 'kuliner'))->where('is_active', true)
+                            : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
-                            if ($catSlug !== null) {
-                                $q->whereHas('categoryRef', fn ($qq) => $qq->where('slug', $catSlug));
-                            }
                         }
                         foreach ($q->get() as $r) {
                             if (! $this->rowAreaMatches($r, $area)) {
@@ -143,6 +199,9 @@ class GroundingBuilder
                                     $score += 1;
                                 }
                             }
+                            if ($strict && $rowTags !== '' && $score === 0) {
+                                continue;
+                            }
                             $seen[$key] = true;
                             $scored[] = ['score' => $score, 'row' => $r];
                         }
@@ -151,15 +210,8 @@ class GroundingBuilder
                     }
                 }
                 usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
-                foreach (array_slice($scored, 0, $limit) as $s) {
-                    $r = $s['row'];
-                    $out[] = [
-                        'name' => $r->name,
-                        'category' => $this->categoryOf(get_class($r)),
-                        'location' => $r->location_name ?? $r->location ?? $r->area ?? null,
-                        'body' => $r->body,
-                        'entry_fee' => $this->entryFeeFor($r),
-                    ];
+                foreach (array_slice($scored, 0, $perInterest) as $s) {
+                    $out[] = $this->rowShape($s['row']);
                 }
                 if (count($out) >= $limit) {
                     break;
@@ -174,13 +226,25 @@ class GroundingBuilder
         }
     }
 
+    private function rowShape($r): array
+    {
+        return [
+            'name' => $r->name,
+            'category' => $this->categoryOf(get_class($r)),
+            'location' => $r->location_name ?? $r->location ?? $r->area ?? null,
+            'body' => $r->body,
+            'entry_fee' => $this->entryFeeFor($r),
+        ];
+    }
+
     private function categoryOf(string $model): string
     {
         return match ($model) {
             Budaya::class => 'budaya',
-            Kuliner::class => 'kuliner',
             Kerajinan::class => 'kerajinan',
             Event::class => 'event',
+            // Baris UMKM yang dibaca AI selalu berjenis kuliner
+            Umkm::class => 'kuliner',
             default => 'destinasi',
         };
     }
@@ -298,25 +362,17 @@ class GroundingBuilder
 
     /**
      * Harga kuliner terurut relevansi preferensi (nama + harga).
+     * Sumber: UMKM berjenis kuliner.
      */
     public function foodPrices(string $foodPref, int $limit = 4): array
     {
         try {
             $foodTokens = $this->interestTokens($foodPref);
-            $rows = Kuliner::where('is_active', true)->limit(12)->get(['name', 'harga', 'tags']);
+            $rows = Umkm::where('is_active', true)->whereHas('jenisRef', fn ($q) => $q->where('slug', 'kuliner'))->limit(12)->get(['name', 'harga', 'tags']);
             $scored = [];
             foreach ($rows as $k) {
-                $score = 0;
-                $tags = strtolower($k->tags ?? '');
-                foreach ($foodTokens as $t) {
-                    if ($tags !== '' && str_contains($tags, $t)) {
-                        $score += 2;
-                    } elseif (str_contains(strtolower($k->name), $t)) {
-                        $score += 1;
-                    }
-                }
                 $scored[] = [
-                    'score' => $score,
+                    'score' => $this->foodScore($k->name, $k->tags ?? '', $foodTokens),
                     'name' => $k->name,
                     'harga' => $k->harga !== null ? (int) $k->harga : null,
                 ];
@@ -342,6 +398,74 @@ class GroundingBuilder
 
             return [];
         }
+    }
+
+    private function foodScore(string $name, ?string $tags, array $tokens): int
+    {
+        $score = 0;
+        $tags = strtolower($tags ?? '');
+        foreach ($tokens as $t) {
+            if ($tags !== '' && str_contains($tags, $t)) {
+                $score += 2;
+            } elseif (str_contains(strtolower($name), $t)) {
+                $score += 1;
+            }
+        }
+
+        return $score;
+    }
+
+    /**
+     * Sapu tags lintas tabel: baris aktif yang tags-nya cocok token,
+     * terlepas dari pemetaan minat→tabel. Intent eksplisit admin selalu menang.
+     *
+     * @return array [{score, model, row}]
+     */
+    public function sweepTags(array $tokens, ?string $area, int $limit = 20): array
+    {
+        if (! $tokens) {
+            return [];
+        }
+        $hits = [];
+        $tables = [
+            Destinasi::class,
+            Budaya::class,
+            Umkm::class,
+            Kerajinan::class,
+            Event::class,
+        ];
+        foreach ($tables as $model) {
+            try {
+                // Umkm hanya relevan untuk minat kuliner
+                $query = $model === Umkm::class
+                    ? $model::whereHas('jenisRef', fn ($q) => $q->where('slug', 'kuliner'))->where('is_active', true)
+                    : $model::where('is_active', true);
+                foreach ($query->get() as $r) {
+                    $tags = strtolower($r->tags ?? '');
+                    if ($tags === '') {
+                        continue;
+                    }
+                    $score = 0;
+                    foreach ($tokens as $t) {
+                        if (str_contains($tags, $t)) {
+                            $score += 2;
+                        }
+                    }
+                    if ($score <= 0) {
+                        continue;
+                    }
+                    if (! $this->rowAreaMatches($r, $area)) {
+                        continue;
+                    }
+                    $hits[] = ['score' => $score, 'model' => $model, 'row' => $r];
+                }
+            } catch (\Throwable $e) {
+                Log::warning('GroundingBuilder tag sweep failed: '.$e->getMessage());
+            }
+        }
+        usort($hits, fn ($a, $b) => $b['score'] <=> $a['score']);
+
+        return array_slice($hits, 0, $limit);
     }
 
     private function kulinerReferenceBlock(string $foodPref): string
@@ -401,8 +525,9 @@ class GroundingBuilder
     /**
      * Normalisasi nama area agar "BoneBolango" == "Bone Bolango".
      * Return null untuk se-Provinsi (tanpa filter area).
+     * Publik agar orkestrator bisa meneruskannya ke validator.
      */
-    private function normalizeArea(string $location): ?string
+    public function normalizeArea(string $location): ?string
     {
         $loc = strtolower(trim($location));
         if ($loc === '' || $loc === 'gorontalo' || $loc === 'provinsi gorontalo') {
@@ -432,7 +557,7 @@ class GroundingBuilder
     }
 
     /**
-     * Petakan satu minat ke sumber DB: [model, slug-kategori-destinasi|null].
+     * Petakan satu minat ke tabel DB (destinasi flat, tanpa sub-kategori).
      * Array kosong = tidak ada padanan DB (AI mencari sendiri).
      */
     private function sourcesForInterest(string $interest): array
@@ -440,23 +565,20 @@ class GroundingBuilder
         $in = strtolower($interest);
         $has = fn (...$needles) => collect($needles)->contains(fn ($n) => str_contains($in, $n));
 
-        if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam')) {
-            return [[Destinasi::class, 'laut']];
-        }
-        if ($has('gunung', 'hiking', 'pendaki', 'air terjun', 'alam', 'petualangan', 'adventure', 'cagar', 'hutan')) {
-            return [[Destinasi::class, 'pegunungan'], [Destinasi::class, 'laut']];
+        if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam', 'gunung', 'hiking', 'pendaki', 'air terjun', 'alam', 'petualangan', 'adventure', 'cagar', 'hutan')) {
+            return [[Destinasi::class]];
         }
         if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum')) {
-            return [[Budaya::class, null]];
+            return [[Budaya::class]];
         }
         if ($has('kuliner', 'makan', 'food', 'jajan', 'cafe', 'kafe', 'resto', 'seafood')) {
-            return [[Kuliner::class, null]];
+            return [[Umkm::class]];
         }
         if ($has('belanja', 'souvenir', 'oleh', 'karawo', 'pasar', 'shopping')) {
-            return [[Kerajinan::class, null]];
+            return [[Kerajinan::class]];
         }
         if ($has('festival', 'event', 'karnaval', 'acara', 'konser', 'pesta')) {
-            return [[Event::class, null]];
+            return [[Event::class]];
         }
         if ($has('spa', 'kesehatan', 'pijat', 'massage', 'refleksi')) {
             return [];
@@ -466,6 +588,6 @@ class GroundingBuilder
         }
 
         // Umum (tempat wisata, tur, hidden gems, dsb.): seluruh destinasi
-        return [[Destinasi::class, null]];
+        return [[Destinasi::class]];
     }
 }

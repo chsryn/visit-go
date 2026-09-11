@@ -2,7 +2,7 @@
 
 namespace App\Services\Ai;
 
-use App\Models\Kuliner;
+use App\Models\Umkm;
 
 /**
  * Generator itinerary lokal: dipakai saat Groq tak tersedia agar
@@ -224,9 +224,9 @@ class FallbackItineraryBuilder
             ],
         };
 
-        // Utamakan nama kuliner dari database (preferensi diambil dari tabel kuliners)
+        // Utamakan nama kuliner dari database (UMKM berjenis kuliner)
         try {
-            $dbFoods = Kuliner::where('is_active', true)->orderBy('name')->pluck('name')->all();
+            $dbFoods = Umkm::ofJenis('kuliner')->where('is_active', true)->orderBy('name')->pluck('name')->all();
         } catch (\Throwable $e) {
             $dbFoods = [];
         }
@@ -314,16 +314,11 @@ class FallbackItineraryBuilder
 
     /**
      * Kata kunci teks per bucket minat untuk filter aktivitas fallback.
+     * Sumber tunggal: InterestProfile (dipakai juga oleh GroundingBuilder).
      */
     private function interestBucketKeywords(): array
     {
-        return [
-            'belanja' => ['karawo', 'belanja', 'oleh-oleh', 'oleh oleh', 'pasar', 'pia ', 'kopi pinogu', 'souvenir', 'pusat kota'],
-            'kuliner' => ['kuliner', 'sarapan', 'makan ', 'siram', 'ilabulo', 'restoran', 'rumah makan', 'kafe', 'kopi', 'seafood', 'tuna', 'sagela', 'sate', 'street food', 'jajan'],
-            'budaya' => ['benteng', 'otanaha', 'karawo', 'adat', 'budaya', 'desa wisata', 'sidomukti', 'limboto', 'menara', 'air terjun', 'hiyaliyo'],
-            'gunung' => ['gunung', 'hiking', 'trekking', 'mendaki', 'nantu', 'lombongo', 'hutan', 'air panas', 'bird'],
-            'pantai' => ['pantai', 'laut', 'snorkeling', 'snorkling', 'diving', 'hiu paus', 'botubarani', 'olele', 'pulo cinta', 'island', 'resort', 'leato', 'teluk', 'underwater'],
-        ];
+        return InterestProfile::BUCKETS;
     }
 
     /**
@@ -332,45 +327,7 @@ class FallbackItineraryBuilder
      */
     private function strictInterestBucket(string $interest, string $customInterest = ''): ?string
     {
-        $bucketFor = function (string $text) {
-            $in = strtolower(trim($text));
-            if ($in === '') {
-                return null;
-            }
-            $has = fn (...$needles) => collect($needles)->contains(fn ($n) => str_contains($in, $n));
-            if ($has('belanja', 'souvenir', 'oleh', 'karawo', 'pasar', 'shopping')) {
-                return 'belanja';
-            }
-            if ($has('kuliner', 'makan', 'food', 'jajan', 'cafe', 'kafe', 'resto', 'seafood')) {
-                return 'kuliner';
-            }
-            if ($has('budaya', 'sejarah', 'adat', 'seni', 'saronde', 'dikili', 'museum')) {
-                return 'budaya';
-            }
-            if ($has('gunung', 'hiking', 'pendaki', 'trekking', 'mendaki')) {
-                return 'gunung';
-            }
-            if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam')) {
-                return 'pantai';
-            }
-
-            return null;
-        };
-
-        $buckets = [];
-        foreach (array_merge(explode(',', $interest), [$customInterest]) as $piece) {
-            if (trim($piece) === '') {
-                continue;
-            }
-            $b = $bucketFor($piece);
-            if ($b === null) {
-                return null; // ada bagian tak terpetakan → variasi
-            }
-            $buckets[] = $b;
-        }
-        $buckets = array_values(array_unique($buckets));
-
-        return count($buckets) === 1 ? $buckets[0] : null;
+        return InterestProfile::singleBucket($interest, $customInterest);
     }
 
     /**
@@ -378,7 +335,7 @@ class FallbackItineraryBuilder
      */
     private function filterPoolByBucket(array $pools, string $bucket): array
     {
-        $keywords = $this->interestBucketKeywords()[$bucket] ?? [];
+        $keywords = InterestProfile::keywordsForBucket($bucket);
         if (! $keywords) {
             return [];
         }

@@ -7,6 +7,7 @@ use App\Services\Ai\GroqClient;
 use App\Services\Ai\GroundingBuilder;
 use App\Services\Ai\ItineraryPrompt;
 use App\Services\Ai\PlaceResolver;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Orkestrator AI travel planner: normalisasi parameter → grounding DB →
@@ -50,6 +51,19 @@ class AiPlannerService
 
         $result = $this->groq->generateContent($systemPrompt, ItineraryPrompt::user($p));
         $source = 'groq';
+        if ($result !== null) {
+            // Strict DB-only: buang aktivitas fiktif/relokasi; bila habis → fallback
+            [$result, $removed] = $this->placeResolver->filterFabricated(
+                $result, $this->grounding->normalizeArea($p['location'])
+            );
+            if ($removed > 0) {
+                Log::info("AiPlanner strict filter removed {$removed} fabricated activities");
+            }
+            if (empty($result['days'])) {
+                Log::warning('AiPlanner all activities filtered, using fallback');
+                $result = null;
+            }
+        }
         if ($result === null) {
             $result = $this->fallbackBuilder->build(
                 $p['duration'], $p['interest'], $p['location'], $p['foodPref'],

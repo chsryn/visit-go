@@ -7,7 +7,7 @@ use App\Models\Category;
 use App\Models\Destinasi;
 use App\Models\Event;
 use App\Models\Kerajinan;
-use App\Models\Kuliner;
+use App\Models\Umkm;
 use Inertia\Inertia;
 
 class PortalController extends Controller
@@ -32,14 +32,17 @@ class PortalController extends Controller
             // map to same shape as Destinasi for Category/Index reuse
             $items = $items->map(fn($e) => ['id'=>$e->id,'name'=>$e->name,'slug'=>$e->slug,'category'=>'event','body'=>$e->body,'image'=>$e->image,'alt'=>$e->alt,'date'=>$e->date,'month'=>$e->month,'location'=>$e->location]);
         } else {
-            // budaya/kuliner/kerajinan dibaca dari tabelnya masing-masing (legacy rows sudah dimigrasi)
-            $model = match ($category) {
-                'budaya' => Budaya::class,
-                'kuliner' => Kuliner::class,
-                'kerajinan' => Kerajinan::class,
-                default => Destinasi::class,
-            };
-            $items = $model::where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
+            // kuliner dibaca dari UMKM berjenis kuliner
+            if ($category === 'kuliner') {
+                $items = Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
+            } else {
+                $model = match ($category) {
+                    'budaya' => Budaya::class,
+                    'kerajinan' => Kerajinan::class,
+                    default => Destinasi::class,
+                };
+                $items = $model::where('is_active', true)->latest()->get(['id','name','slug','body','image','alt']);
+            }
             $items = $items->map(fn($i) => array_merge($i->toArray(), ['category' => $category]));
         }
         $banner = Category::where('slug', $category)->where('is_active', true)->first();
@@ -56,14 +59,18 @@ class PortalController extends Controller
             $item = Event::where('slug', $slug)->where('is_active', true)->firstOrFail();
             $related = Event::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
         } else {
-            $model = match ($category) {
-                'budaya' => Budaya::class,
-                'kuliner' => Kuliner::class,
-                'kerajinan' => Kerajinan::class,
-                default => Destinasi::class,
-            };
-            $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
-            $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            if ($category === 'kuliner') {
+                $item = Umkm::ofJenis('kuliner')->where('slug', $slug)->where('is_active', true)->firstOrFail();
+                $related = Umkm::ofJenis('kuliner')->where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            } else {
+                $model = match ($category) {
+                    'budaya' => Budaya::class,
+                    'kerajinan' => Kerajinan::class,
+                    default => Destinasi::class,
+                };
+                $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
+                $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            }
         }
 
         return Inertia::render('Detail', [
@@ -73,75 +80,23 @@ class PortalController extends Controller
         ]);
     }
 
-    // ---- Dynamic Destination categories (issue.md: child of Destination) ----
-
     /**
-     * GET /destinasi — overview kartu kategori dinamis (Pegunungan, Laut, Buatan, ...).
+     * GET /destinasi — daftar flat semua destinasi aktif (tanpa sub-kategori).
      */
     public function destinationIndex()
     {
-        $categories = Category::destinationChildren()
-            ->where('is_active', true)
-            ->withCount(['destinasis' => fn ($q) => $q->where('is_active', true)])
-            ->orderBy('name')
+        $items = Destinasi::where('is_active', true)
+            ->whereNotIn('slug', self::PILLARS)
+            ->latest()
             ->get();
 
         $banner = Category::where('slug', 'destinasi')->where('is_active', true)->first();
 
-        return Inertia::render('Destination/Index', [
-            'categories' => $categories,
+        return Inertia::render('Category/Index', [
+            'category' => 'destinasi',
+            'items' => $items,
             'banner' => $banner,
         ]);
-    }
-
-    /**
-     * GET /destinasi/kategori/{slug} — daftar destinasi per kategori dinamis.
-     */
-    public function destinationByCategory(string $slug)
-    {
-        $category = Category::destinationChildren()
-            ->where('slug', $slug)
-            ->where('is_active', true)
-            ->firstOrFail();
-
-        return Inertia::render('Destination/Category', [
-            'category' => $category,
-            'categories' => $this->destinationCategories(),
-            'items' => $this->destinationItems($category->id),
-        ]);
-    }
-
-    /**
-     * GET /api/destinasi/kategori/{slug} — JSON untuk tab switching di FE.
-     */
-    public function destinationCategoryApi(string $slug)
-    {
-        $category = Category::destinationChildren()
-            ->where('slug', $slug)
-            ->where('is_active', true)
-            ->firstOrFail();
-
-        return response()->json([
-            'category' => $category,
-            'items' => $this->destinationItems($category->id),
-        ]);
-    }
-
-    private function destinationCategories()
-    {
-        return Category::destinationChildren()
-            ->where('is_active', true)
-            ->withCount(['destinasis' => fn ($q) => $q->where('is_active', true)])
-            ->orderBy('name')
-            ->get();
-    }
-
-    private function destinationItems(int $categoryId)
-    {
-        return Destinasi::where('category_id', $categoryId)
-            ->where('is_active', true)
-            ->latest()
-            ->get(['id', 'name', 'slug', 'body', 'image', 'alt', 'location']);
     }
 
     // explicit aliases for 5-route option
