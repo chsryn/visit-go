@@ -21,7 +21,7 @@ class PreviewDestinationCategorization extends Command
 
     protected $description = 'Cetak daftar pindah-vs-tetap kategorisasi destinasi (by rule, tanpa ubah data)';
 
-    private const PINDAH_KEYWORDS = ['benteng', 'museum', 'masjid', 'makam', 'rumah adat', 'desa wisata', 'monumen'];
+    private const PINDAH_KEYWORDS = ['benteng', 'museum', 'masjid', 'makam', 'rumah adat', 'desa wisata', 'monumen', 'religi', 'kampung', 'kawasan', 'batu jin'];
 
     // Sama dengan daftar keyword backfill migration 2026_09_23 (disetujui) +
     // keyword plan.md (menara, monumen).
