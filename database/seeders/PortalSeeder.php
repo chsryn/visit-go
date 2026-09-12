@@ -139,8 +139,8 @@ class PortalSeeder extends Seeder
                 'alt' => 'Kerajinan Daerah',
             ],
         ];
-        // Kerajinan hidup sebagai baris UMKM berjenis karawo (tanpa tabel kerajinans)
-        $karawoJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'karawo'], ['name' => 'karawo', 'is_active' => true])->id;
+        // Kerajinan hidup sebagai baris UMKM berjenis kerajinan (tanpa tabel kerajinans)
+        $karawoJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'kerajinan'], ['name' => 'kerajinan', 'is_active' => true])->id;
         foreach ($kerajinans as $k) {
             \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
                 'umkm_jenis_id' => $karawoJenisId,
