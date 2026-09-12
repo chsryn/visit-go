@@ -66,5 +66,23 @@ class DestinationCategorySeeder extends Seeder
                 ]
             );
         }
+
+        // Jaminan invarian: tak ada destinasi tanpa kategori. Baris dari seeder
+        // lain (mis. PortalSeeder) yang belum berkategori dipetakan by rule
+        // yang sama dengan backfill migration 2026_09_23.
+        $cagarId = DestinationCategory::where('slug', 'cagar-budaya')->value('id');
+        $alamId = DestinationCategory::where('slug', 'wisata-alam')->value('id');
+        $keywords = ['benteng', 'masjid', 'makam', 'keramat', 'aulia', 'museum', 'menara', 'tower', 'rumah adat', 'desa wisata', 'kampung', 'religi', 'tugu', 'monumen', 'budaya', 'walima', 'bubohu', 'integrasi'];
+        foreach (Destinasi::whereNull('destination_category_id')->get(['id', 'name']) as $row) {
+            $low = strtolower($row->name);
+            $isCagar = false;
+            foreach ($keywords as $kw) {
+                if (str_contains($low, $kw)) {
+                    $isCagar = true;
+                    break;
+                }
+            }
+            $row->update(['destination_category_id' => $isCagar ? $cagarId : $alamId]);
+        }
     }
 }
