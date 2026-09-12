@@ -10,16 +10,22 @@ return new class extends Migration
 {
     /**
      * Kerajinan menjadi bagian UMKM: pindahkan seluruh baris kerajinans
-     * menjadi baris umkms berjenis karawo, lalu drop tabel kerajinans.
-     * (Meniru merge kuliners 2026_09_22.)
+     * menjadi baris umkms berjenis kerajinan, lalu drop tabel kerajinans.
+     * (Meniru merge kuliners 2026_09_22.) Tanpa baris = tanpa jenis baru.
      */
     public function up(): void
     {
-        $jenisId = DB::table('umkm_jenis')->where('slug', 'karawo')->value('id');
+        if (! Schema::hasTable('kerajinans') || ! DB::table('kerajinans')->exists()) {
+            Schema::dropIfExists('kerajinans');
+
+            return;
+        }
+
+        $jenisId = DB::table('umkm_jenis')->where('slug', 'kerajinan')->value('id');
         if (! $jenisId) {
             $jenisId = DB::table('umkm_jenis')->insertGetId([
-                'name' => 'karawo',
-                'slug' => 'karawo',
+                'name' => 'kerajinan',
+                'slug' => 'kerajinan',
                 'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -50,7 +56,7 @@ return new class extends Migration
                     'created_at' => $k->created_at ?? now(),
                     'updated_at' => $k->updated_at ?? now(),
                 ]);
-                echo "  [karawo] {$k->name}\n";
+                echo "  [kerajinan] {$k->name}\n";
             }
 
             Schema::dropIfExists('kerajinans');
