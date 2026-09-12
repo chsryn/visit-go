@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
+import { resolveStorageUrl } from "@/lib/image";
 import karawoImage from "@/assets/event-karawo.jpg";
 import dikiliImage from "@/assets/event-dikili.jpg";
 import fesbujatonImage from "@/assets/event-fesbujaton.jpg";
@@ -99,7 +100,6 @@ export function Events({ items }) {
                             className="!pb-6 !pt-2 [&_.swiper-wrapper]:!items-stretch"
                         >
                             {data.map((event, i) => {
-                                const raw = event.image;
                                 const fallbackMap = {
                                     "karnaval-karawo-2026": karawoImage,
                                     "tradisi-dikili": dikiliImage,
@@ -108,14 +108,8 @@ export function Events({ items }) {
                                         karawoImage,
                                 };
                                 const src =
-                                    typeof raw === "string" && raw.trim() !== ""
-                                        ? raw.startsWith("/") ||
-                                          raw.startsWith("http") ||
-                                          raw.includes("/build/")
-                                            ? raw
-                                            : `/${raw}`
-                                        : (fallbackMap[event.slug] ??
-                                          karawoImage);
+                                    resolveStorageUrl(event.image) ??
+                                    (fallbackMap[event.slug] ?? karawoImage);
                                 return (
                                     <SwiperSlide
                                         key={event.slug ?? event.name}
