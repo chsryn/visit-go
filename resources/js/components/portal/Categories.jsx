@@ -53,7 +53,8 @@ export function Categories() {
                 {/* fallback img untuk preload + a11y, hidden tapi bantu Vite preload */}
                 <img src={gorontalo} alt="" className="hidden" aria-hidden />
                 <div className="absolute inset-0 bg-[#1a1020]/30" />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/25" />
+                <div className="absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-black/70 to-transparent" />
             </div>
 
             <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-center px-6 pb-4 md:pb-6 lg:px-8">

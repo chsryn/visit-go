@@ -2,7 +2,8 @@ import { Head, Link } from "@inertiajs/react";
 import { Navbar } from "@/components/portal/Navbar";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
-import { MapPin, Calendar, ArrowLeft, Clock } from "lucide-react";
+import { DestinationCard } from "@/components/portal/DestinationCard";
+import { MapPin, Calendar, Clock } from "lucide-react";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -53,139 +54,64 @@ export default function Detail({ item, category, related }) {
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
                 <main>
-                    {/* Hero */}
-                    <div className="relative h-[56vh] min-h-[380px] w-full overflow-hidden bg-black">
-                        {image ? (
-                            <img
-                                src={image.startsWith("/") || image.startsWith("http") ? image : `/${image}`}
-                                alt={alt}
-                                className="absolute inset-0 size-full object-cover"
-                            />
-                        ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#715386] via-[#00923F]/40 to-[#D4A017]/20" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/20" />
-                        <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-6 pb-10 pt-24 lg:px-8">
-                            <Link
-                                href="/"
-                                className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/25"
-                            >
-                                <ArrowLeft className="size-3.5" /> Kembali ke Beranda
-                            </Link>
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                                <span className="rounded-full bg-accent px-3 py-1 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-accent-foreground">
-                                    {category}
-                                </span>
-                                {isEvent && item.month && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                                        <Calendar className="size-3.5" /> {item.date} {item.month}
-                                    </span>
-                                )}
-                                {(item.location || item.category) && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                                        <MapPin className="size-3.5" /> {item.location ?? item.category}
-                                    </span>
-                                )}
-                            </div>
-                            <h1 className="mt-4 max-w-3xl font-display text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
-                                {title}
-                            </h1>
+                    <div className="relative overflow-hidden bg-warm pt-28 pb-14">
+                        {image && <img src={image.startsWith("/") || image.startsWith("http") ? image : `/${image}`} alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.26] blur-[8px] scale-105" />}
+                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-warm/75" />
+                        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
+                        <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
+                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-foreground md:text-[40px]">{title}</h1>
                         </div>
                     </div>
 
-                    {/* Body */}
-                    <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+                    <div className="mx-auto max-w-[1280px] px-6 py-12 lg:px-8">
                         <div className="grid gap-10 lg:grid-cols-[1fr_340px]">
-                            <article className="min-w-0">
-                                <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm md:p-8">
+                            <article className="min-w-0 space-y-6">
+                                {image && (
+                                    <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
+                                        <img src={image} alt={alt} className="aspect-[16/9] w-full rounded-xl object-cover" loading="eager" />
+                                        <p className="px-2 pt-2 text-xs text-muted-foreground">{alt} • {category}</p>
+                                    </div>
+                                )}
+                                <div className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
                                     <h2 className="font-display text-xl font-semibold text-foreground">Tentang</h2>
-                                    <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                                        {body}
-                                    </p>
-                                    {item.created_at && (
-                                        <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/70">
-                                            <Clock className="size-3.5" /> Diperbarui {new Date(item.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}
-                                        </p>
-                                    )}
+                                    <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-muted-foreground">{body}</p>
+                                    {item.created_at && <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/70"><Clock className="size-3.5" /> Diperbarui {new Date(item.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</p>}
                                 </div>
-
-                                {/* Related */}
                                 {related?.length > 0 && (
-                                    <section className="mt-10">
-                                        <h3 className="font-display text-xl font-semibold text-foreground">Jelajahi juga</h3>
+                                    <section>
+                                        <h3 className="font-display text-xl font-semibold text-foreground">Lokasi serupa di {category}</h3>
                                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                            {related.map((r) => (
-                                                <Link
-                                                    key={r.slug ?? r.id}
-                                                    href={`/${category}/${r.slug}`}
-                                                    className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
-                                                >
-                                                    <div className="h-36 overflow-hidden bg-muted">
-                                                        {(() => {
-                                                            const rImg = resolveImage(r, category);
-                                                            return rImg ? (
-                                                                <img
-                                                                    src={rImg}
-                                                                    alt={r.alt ?? r.name}
-                                                                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                                    loading="lazy"
-                                                                />
-                                                            ) : null;
-                                                        })()}
-                                                    </div>
-                                                    <div className="p-4">
-                                                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
-                                                            {r.name}
-                                                        </p>
-                                                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                                                            {r.body?.slice(0, 90)}
-                                                        </p>
-                                                    </div>
-                                                </Link>
-                                            ))}
+                                            {related.map((r) => {
+                                                const rImg = resolveImage(r, category);
+                                                return <DestinationCard key={r.slug ?? r.id} href={`/${category}/${r.slug}`} image={rImg ?? fallbackByCategory[category]} title={r.name} description={r.body?.slice(0, 90)} />;
+                                            })}
                                         </div>
                                     </section>
                                 )}
                             </article>
 
-                            {/* Sidebar info */}
-                            <aside className="space-y-6">
-                                <div className="rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
-                                    <h3 className="text-sm font-semibold text-foreground">Informasi</h3>
-                                    <dl className="mt-4 space-y-3 text-sm">
-                                        <div className="flex justify-between gap-4">
-                                            <dt className="text-muted-foreground">Kategori</dt>
-                                            <dd className="font-medium capitalize text-foreground">{category}</dd>
+                            <aside className="space-y-6 lg:sticky lg:top-24 self-start">
+                                <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+                                    {item.latitude && item.longitude ? (
+                                        <div className="h-[220px] bg-muted">
+                                            <iframe title="Peta lokasi" width="100%" height="220" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(item.longitude) - 0.01}%2C${Number(item.latitude) - 0.01}%2C${Number(item.longitude) + 0.01}%2C${Number(item.latitude) + 0.01}&layer=mapnik&marker=${item.latitude}%2C${item.longitude}`} style={{ border: 0 }} />
                                         </div>
-                                        {item.location && (
-                                            <div className="flex justify-between gap-4">
-                                                <dt className="text-muted-foreground">Lokasi</dt>
-                                                <dd className="font-medium text-foreground text-right">{item.location}</dd>
-                                            </div>
-                                        )}
-                                        {isEvent && item.date && (
-                                            <div className="flex justify-between gap-4">
-                                                <dt className="text-muted-foreground">Tanggal</dt>
-                                                <dd className="font-medium text-foreground">{item.date} {item.month}</dd>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between gap-4">
-                                            <dt className="text-muted-foreground">Slug</dt>
-                                            <dd className="font-mono text-xs text-foreground">{item.slug}</dd>
-                                        </div>
-                                    </dl>
-                                    <Link
-                                        href="/#ai-planner"
-                                        className="mt-6 flex w-full items-center justify-center rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#B8941F]"
-                                    >
-                                        Rencanakan Kunjungan
-                                    </Link>
+                                    ) : (
+                                        <div className="flex h-[220px] items-center justify-center bg-muted p-6 text-center text-sm text-muted-foreground">Peta belum tersedia — koordinat belum diisi admin.</div>
+                                    )}
+                                    <div className="p-5">
+                                        <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground"><MapPin className="size-4 text-primary" /> Lokasi</h3>
+                                        <p className="mt-2 text-sm font-medium leading-relaxed text-foreground">{item.location ?? item.area ?? "Gorontalo"}</p>
+                                        {item.area && item.location && item.area !== item.location && <p className="text-xs text-muted-foreground">Area: {item.area}</p>}
+                                        {(item.latitude && item.longitude) && <p className="mt-1 text-xs text-muted-foreground">{Number(item.latitude).toFixed(5)}, {Number(item.longitude).toFixed(5)}</p>}
+                                        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{item.location ? `Alamat sekitar ${item.location}` : item.area ? `Wilayah ${item.area}, Provinsi Gorontalo` : "Alamat detail belum tersedia."}</p>
+                                        <a href={item.latitude && item.longitude ? `https://www.openstreetmap.org/?mlat=${item.latitude}&mlon=${item.longitude}#map=15/${item.latitude}/${item.longitude}` : `https://www.google.com/maps/search/${encodeURIComponent(item.location ?? item.area ?? title)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">Buka di peta →</a>
+                                    </div>
                                 </div>
-                                <div className="rounded-2xl bg-[#5B436C] p-6 text-primary-foreground">
+                                <div className="rounded-2xl bg-charcoal p-6 text-white">
                                     <h3 className="font-display text-lg">Butuh bantuan?</h3>
-                                    <p className="mt-2 text-sm leading-relaxed text-primary-foreground/70">
-                                        Tanya Si Munggi untuk rekomendasi rute, kuliner, dan penginapan di sekitar {title}.
-                                    </p>
+                                    <p className="mt-2 text-sm leading-relaxed text-white/70">Tanya Si Munggi untuk rekomendasi rute, kuliner, dan penginapan di sekitar {title}.</p>
                                 </div>
                             </aside>
                         </div>
