@@ -17,8 +17,13 @@ class PortalController extends Controller
     {
         $events = Event::where('is_active', true)->orderBy('month')->take(6)->get();
 
+        $kulinerSpotlight = Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->take(3)->get(['id','name','slug','body','image','alt']);
+        $kerajinanSpotlight = Umkm::ofJenis('kerajinan')->where('is_active', true)->latest()->take(2)->get(['id','name','slug','body','image','alt']);
+
         return Inertia::render('Welcome', [
             'events' => $events,
+            'kulinerSpotlight' => $kulinerSpotlight,
+            'kerajinanSpotlight' => $kerajinanSpotlight,
         ]);
     }
 
@@ -31,10 +36,10 @@ class PortalController extends Controller
             // map to same shape as Destinasi for Category/Index reuse
             $items = $items->map(fn($e) => ['id'=>$e->id,'name'=>$e->name,'slug'=>$e->slug,'category'=>'event','body'=>$e->body,'image'=>$e->image,'alt'=>$e->alt,'date'=>$e->date,'month'=>$e->month,'location'=>$e->location]);
         } else {
-            // kuliner & kerajinan dibaca dari UMKM berjenis kuliner/karawo (tanpa tabel sendiri)
+            // kuliner & kerajinan dibaca dari UMKM berjenis kuliner/kerajinan (tanpa tabel sendiri)
             $umkmJenis = match ($category) {
                 'kuliner' => 'kuliner',
-                'kerajinan' => 'karawo',
+                'kerajinan' => 'kerajinan',
                 default => null,
             };
             if ($umkmJenis) {
@@ -64,7 +69,7 @@ class PortalController extends Controller
         } else {
             $umkmJenis = match ($category) {
                 'kuliner' => 'kuliner',
-                'kerajinan' => 'karawo',
+                'kerajinan' => 'kerajinan',
                 default => null,
             };
             if ($umkmJenis) {
@@ -78,8 +83,9 @@ class PortalController extends Controller
                 $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
                 $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
                 if ($category === 'destinasi') {
-                    // Galeri foto tambahan (foto sampul tetap di `image`)
-                    $item->setAttribute('images', $item->images->map(fn ($img) => [
+                    // Galeri foto tambahan (foto sampul tetap di `image`).
+                    // setRelation agar dipakai saat serialisasi (relasi menimpa atribut).
+                    $item->setRelation('images', $item->images->map(fn ($img) => [
                         'id' => $img->id,
                         'image_url' => $this->resolveImageUrl($img->image),
                         'alt' => $img->alt,
