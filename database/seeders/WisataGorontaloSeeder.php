@@ -106,7 +106,7 @@ class WisataGorontaloSeeder extends Seeder
 
         if ($table === 'destinasis') {
             $data['category'] = 'destinasi';
-            $data['category_id'] = $categoryId;
+            $data['destination_category_id'] = $categoryId;
             $data['location'] = $address;
             $data['area'] = $area;
         } else {

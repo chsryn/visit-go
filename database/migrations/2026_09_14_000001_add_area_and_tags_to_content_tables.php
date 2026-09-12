@@ -13,25 +13,41 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // destinasis: lengkapi kolom yang hilang dari migrasi awal (category_id/location/lat/lng) agar seeder & model sinkron
         Schema::table('destinasis', function (Blueprint $table) {
+            if (! Schema::hasColumn('destinasis', 'category_id')) {
+                $table->foreignId('category_id')->nullable()->after('slug')->constrained('categories')->nullOnDelete();
+            }
+            if (! Schema::hasColumn('destinasis', 'location')) {
+                $table->string('location')->nullable()->after('body');
+            }
+            if (! Schema::hasColumn('destinasis', 'latitude')) {
+                $table->decimal('latitude', 10, 7)->nullable();
+            }
+            if (! Schema::hasColumn('destinasis', 'longitude')) {
+                $table->decimal('longitude', 10, 7)->nullable();
+            }
             if (! Schema::hasColumn('destinasis', 'area')) {
-                $table->string('area', 100)->nullable()->after('location')->index();
+                $table->string('area', 100)->nullable()->index();
             }
             if (! Schema::hasColumn('destinasis', 'tags')) {
-                $table->text('tags')->nullable()->after('area');
+                $table->text('tags')->nullable();
             }
         });
 
         Schema::table('events', function (Blueprint $table) {
             if (! Schema::hasColumn('events', 'area')) {
-                $table->string('area', 100)->nullable()->after('location_name')->index();
+                $table->string('area', 100)->nullable()->index();
             }
             if (! Schema::hasColumn('events', 'tags')) {
-                $table->text('tags')->nullable()->after('area');
+                $table->text('tags')->nullable();
             }
         });
 
         foreach (['budayas', 'kuliners', 'kerajinans'] as $table) {
+            if (! Schema::hasTable($table)) {
+                continue;
+            }
             Schema::table($table, function (Blueprint $table) {
                 if (! Schema::hasColumn($table->getTable(), 'tags')) {
                     $table->text('tags')->nullable();
@@ -46,6 +62,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('destinasis', function (Blueprint $table) {
+            if (Schema::hasColumn('destinasis', 'location')) {
+                $table->dropColumn('location');
+            }
+            if (Schema::hasColumn('destinasis', 'latitude')) {
+                $table->dropColumn('latitude');
+            }
+            if (Schema::hasColumn('destinasis', 'longitude')) {
+                $table->dropColumn('longitude');
+            }
             if (Schema::hasColumn('destinasis', 'area')) {
                 $table->dropColumn('area');
             }
@@ -91,7 +116,10 @@ return new class extends Migration
         ];
 
         foreach (['destinasis' => 'location', 'events' => 'location_name'] as $table => $col) {
-            if (! Schema::hasColumn($table, 'area')) {
+            if (! Schema::hasColumn($table, 'area') || ! Schema::hasColumn($table, $col)) {
+                continue;
+            }
+            if (! Schema::hasTable($table)) {
                 continue;
             }
             $rows = DB::table($table)->whereNull('area')->get(['id', $col]);
@@ -123,7 +151,10 @@ return new class extends Migration
         ];
 
         foreach (['destinasis', 'events', 'budayas', 'kuliners', 'kerajinans'] as $table) {
-            if (! Schema::hasColumn($table, 'tags')) {
+            if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'tags')) {
+                continue;
+            }
+            if (! Schema::hasColumn($table, 'name') || ! Schema::hasColumn($table, 'body')) {
                 continue;
             }
             $rows = DB::table($table)->whereNull('tags')->get(['id', 'name', 'body']);

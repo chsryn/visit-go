@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Destinasi extends Model
@@ -17,12 +18,17 @@ class Destinasi extends Model
         'Gorontalo Utara',
     ];
 
-    protected $fillable = ['name', 'slug', 'category', 'body', 'image', 'alt', 'latitude', 'longitude', 'location', 'area', 'tags', 'is_active'];
+    protected $fillable = ['name', 'slug', 'category', 'destination_category_id', 'body', 'image', 'alt', 'latitude', 'longitude', 'location', 'area', 'tags', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean', 'latitude' => 'decimal:7', 'longitude' => 'decimal:7'];
 
     public function priceEstimates(): HasMany
     {
         return $this->hasMany(DestinationPriceEstimate::class);
+    }
+
+    public function destinationCategory(): BelongsTo
+    {
+        return $this->belongsTo(DestinationCategory::class, 'destination_category_id');
     }
 }
