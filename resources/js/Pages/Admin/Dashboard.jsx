@@ -29,7 +29,7 @@ export default function Dashboard({ stats, latest }) {
                     <StatCard icon={MapPin} label="Destinasi" value={stats.destinasi} href="/admin/destinasis" />
                     <StatCard icon={Landmark} label="Budaya" value={stats.budaya} href="/admin/budayas" />
                     <StatCard icon={UtensilsCrossed} label="Kuliner" value={stats.kuliner} href="/admin/umkms?tab=kuliner" />
-                    <StatCard icon={Hammer} label="Kerajinan" value={stats.kerajinan} href="/admin/umkms?jenis=karawo" />
+                    <StatCard icon={Hammer} label="Kerajinan" value={stats.kerajinan} href="/admin/umkms?jenis=kerajinan" />
                     <StatCard icon={CalendarDays} label="Event" value={stats.event} href="/admin/events" />
                 </div>
 
