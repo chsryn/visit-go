@@ -3,29 +3,46 @@
 namespace Database\Seeders;
 
 use App\Models\Budaya;
-use App\Models\Category;
 use App\Models\Destinasi;
+use App\Models\DestinationCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
  * Data wisata se-Provinsi Gorontalo per wilayah (nama, alamat, jarak dari
- * Pusat Kota Gorontalo). Bahari/Alam/Buatan → destinasis dengan
- * category_id dinamis; Budaya/Religius & Sejarah → budayas.
+ * Pusat Kota Gorontalo). Bahari/Alam/Buatan → destinasis wisata alam;
+ * baris Budaya/Sejarah yang sebenarnya destinasi (benteng, museum, masjid,
+ * makam, rumah adat, desa wisata, monumen — plan.md §2) → destinasis
+ * cagar budaya; sisanya (tari, tradisi, ...) → budayas.
  *
- * Idempotent (firstOrCreate per slug): aman dijalankan ulang dan tidak
- * akan menimpa data yang sudah diedit admin.
+ * Idempotent (per slug, self-healing area/tags): aman dijalankan ulang dan
+ * tidak akan menimpa data yang sudah diedit admin.
  */
 class WisataGorontaloSeeder extends Seeder
 {
-    /** Seksi → [tabel, slug-kategori-destinasi|budaya, label, tags dasar]. */
+    /** Seksi → [tabel, slug-kategori-destinasi, label, tags dasar]. */
     private const SECTION_MAP = [
-        'Bahari' => ['destinasis', 'laut', 'bahari', ['pantai', 'laut']],
-        'Alam' => ['destinasis', 'pegunungan', 'alam', ['alam']],
-        'Buatan' => ['destinasis', 'buatan', 'buatan', ['buatan']],
+        'Bahari' => ['destinasis', 'wisata-alam', 'bahari', ['pantai', 'laut']],
+        'Alam' => ['destinasis', 'wisata-alam', 'alam', ['alam']],
+        'Buatan' => ['destinasis', 'wisata-alam', 'buatan', ['buatan']],
         'Budaya' => ['budayas', null, 'budaya dan religi', ['budaya', 'religi']],
         'Sejarah' => ['budayas', null, 'sejarah', ['sejarah']],
     ];
+
+    /** plan.md §2: nama budaya yang sebenarnya destinasi → pindah ke destinasis. */
+    private const PINDAH_KEYWORDS = ['benteng', 'museum', 'masjid', 'makam', 'rumah adat', 'desa wisata', 'monumen', 'religi', 'kampung', 'kawasan', 'batu jin'];
+
+    private static function isDestinasiRow(string $name): bool
+    {
+        $low = strtolower($name);
+        foreach (self::PINDAH_KEYWORDS as $kw) {
+            if (str_contains($low, $kw)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /** Kata kunci nama → tags tambahan. */
     private const NAME_TAGS = [
@@ -47,13 +64,25 @@ class WisataGorontaloSeeder extends Seeder
 
     public function run(): void
     {
-        $catIds = Category::whereIn('slug', ['pegunungan', 'laut', 'buatan'])->pluck('id', 'slug');
+        $cagarId = DestinationCategory::firstOrCreate(
+            ['slug' => 'cagar-budaya'],
+            ['name' => 'cagar budaya', 'is_active' => true]
+        )->id;
+        $alamId = DestinationCategory::firstOrCreate(
+            ['slug' => 'wisata-alam'],
+            ['name' => 'wisata alam', 'is_active' => true]
+        )->id;
 
         foreach ($this->data() as $area => $sections) {
             foreach ($sections as $section => $places) {
-                [$table, $catSlug, $label, $baseTags] = self::SECTION_MAP[$section];
+                [$table, $destCatSlug, $label, $baseTags] = self::SECTION_MAP[$section];
+                $destCatId = $destCatSlug === 'cagar-budaya' ? $cagarId : $alamId;
                 foreach ($places as [$name, $address, $jarak]) {
-                    $this->seedPlace($table, $catIds[$catSlug] ?? null, $area, $label, $baseTags, $name, $address, $jarak);
+                    if ($table === 'budayas' && self::isDestinasiRow($name)) {
+                        $this->seedPlace('destinasis', $cagarId, $area, $label, $baseTags, $name, $address, $jarak);
+                    } else {
+                        $this->seedPlace($table, $table === 'destinasis' ? $destCatId : null, $area, $label, $baseTags, $name, $address, $jarak);
+                    }
                 }
             }
         }
@@ -61,7 +90,7 @@ class WisataGorontaloSeeder extends Seeder
 
     private function seedPlace(
         string $table,
-        ?int $categoryId,
+        ?int $destCatId,
         string $area,
         string $label,
         array $baseTags,
@@ -106,7 +135,7 @@ class WisataGorontaloSeeder extends Seeder
 
         if ($table === 'destinasis') {
             $data['category'] = 'destinasi';
-            $data['category_id'] = $categoryId;
+            $data['destination_category_id'] = $destCatId;
             $data['location'] = $address;
             $data['area'] = $area;
         } else {
