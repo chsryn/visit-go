@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin } from "lucide-react";
+import { MapPin, CalendarDays, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fallbackImage from "@/assets/kategori-destinasi.jpg";
+
+function dayRangeLabel(schedule) {
+    const days = [...new Set((schedule ?? []).map((s) => s.day_number).filter(Number.isFinite))].sort((a, b) => a - b);
+    if (days.length === 0) return null;
+    if (days.length === 1) return `Hari ${days[0]}`;
+    return `Hari ${days[0]}–${days[days.length - 1]}`;
+}
 
 function placeImage(p) {
     const raw = p?.image;
@@ -130,8 +137,8 @@ export default function AiResultPlaces({ places }) {
                                 ref={(el) => (cardRefs.current[p.key] = el)}
                                 onClick={() => selectPlace(p.key)}
                                 className={cn(
-                                    "cursor-pointer overflow-hidden rounded-[15px] border bg-white/80 p-[10px] shadow-soft backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-card",
-                                    isSel ? "border-[#D4A017] ring-2 ring-[#D4A017]/40" : "border-white/30"
+                                    "cursor-pointer overflow-hidden rounded-[15px] border bg-white/80 p-[10px] shadow-soft backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-card"
+                                    // , isSel ? "border-[#D4A017] ring-2 ring-[#D4A017]/40" : "border-white/30"
                                 )}
                             >
                                 <div className="flex gap-4">
@@ -160,10 +167,33 @@ export default function AiResultPlaces({ places }) {
                                                     : ""}
                                             </span>
                                         </p>
-                                        {!hasCoords && (
-                                            <span className="mt-1.5 inline-block rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                                                Koordinat belum tersedia
-                                            </span>
+                                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                            {dayRangeLabel(p.schedule) && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                                    <CalendarDays className="size-3" />
+                                                    {dayRangeLabel(p.schedule)}
+                                                </span>
+                                            )}
+                                            {!hasCoords && (
+                                                <span className="inline-block rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                                                    Koordinat belum tersedia
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(p.schedule ?? []).length > 0 && (
+                                            <ul className="mt-1.5 space-y-1">
+                                                {p.schedule.map((s, si) => (
+                                                    <li key={si} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                                                        <span className="font-semibold text-foreground">H{s.day_number}</span>
+                                                        {s.time && (
+                                                            <span className="inline-flex items-center gap-1 font-mono">
+                                                                <Clock className="size-3" />{s.time}
+                                                            </span>
+                                                        )}
+                                                        {s.food && <span>· 🍽 {s.food}</span>}
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         )}
                                         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                                             {detail.slice(0, 110)}
