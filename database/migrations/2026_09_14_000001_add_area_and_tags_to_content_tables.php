@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::table('destinasis', function (Blueprint $table) {
             if (! Schema::hasColumn('destinasis', 'area')) {
-                $table->string('area', 100)->nullable()->after('location')->index();
+                $table->string('area', 100)->nullable()->index();
             }
             if (! Schema::hasColumn('destinasis', 'tags')) {
-                $table->text('tags')->nullable()->after('area');
+                $table->text('tags')->nullable();
             }
         });
 
