@@ -14,7 +14,7 @@ class UmkmSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['kuliner', 'karawo'] as $jenis) {
+        foreach (['kuliner', 'kerajinan'] as $jenis) {
             UmkmJenis::firstOrCreate(
                 ['slug' => Str::slug($jenis)],
                 ['name' => $jenis, 'is_active' => true]
@@ -43,7 +43,7 @@ class UmkmSeeder extends Seeder
             [
                 'name' => 'Karawo Sulaman Gorontalo',
                 'slug' => 'karawo-sulaman-gorontalo',
-                'jenis' => 'karawo',
+                'jenis' => 'kerajinan',
                 'skala_usaha' => 'menengah',
                 'body' => 'UMKM kerajinan sulaman Karawo bermotif flora khas Gorontalo.',
                 'produk' => 'Kain Karawo, Baju Karawo, Masker Karawo',
