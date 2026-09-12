@@ -19,7 +19,7 @@ class DashboardController extends Controller
                 'destinasi' => Destinasi::count(),
                 'budaya' => Budaya::count(),
                 'kuliner' => Umkm::ofJenis('kuliner')->count(),
-                'kerajinan' => Umkm::ofJenis('karawo')->count(),
+                'kerajinan' => Umkm::ofJenis('kerajinan')->count(),
                 'event' => Event::count(),
                 'categories' => Category::count(),
             ],
