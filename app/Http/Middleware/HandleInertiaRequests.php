@@ -68,7 +68,7 @@ class HandleInertiaRequests extends Middleware
                     return $tag(Destinasi::where('is_active', true)->whereNotIn('slug', PortalController::PILLARS)->latest()->take(10)->get(['name', 'slug']), 'destinasi')
                         ->merge($tag(Budaya::where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'budaya'))
                         ->merge($tag(Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kuliner'))
-                        ->merge($tag(Umkm::ofJenis('karawo')->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kerajinan'))
+                        ->merge($tag(Umkm::ofJenis('kerajinan')->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kerajinan'))
                         ->values();
                 },
                 'events' => fn () => Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location']),
