@@ -2,9 +2,8 @@ import { Check, Copy, Printer, CheckCircle2, Lightbulb, UtensilsCrossed } from "
 import { Reveal } from "@/components/ui/Reveal";
 import AiResultPlaces from "@/components/portal/AiResultPlaces";
 import CostEstimate from "./CostEstimate";
-import WizardItinerary from "./WizardItinerary";
 
-/** Blok hasil: ringkasan, estimasi biaya, peta destinasi, planning harian, kuliner/tips, catatan ketersediaan. */
+/** Blok hasil: ringkasan, estimasi biaya, peta destinasi, kuliner/tips, catatan ketersediaan. */
 export default function WizardResult({ result, durationDays, copied, onCopy }) {
     return (
         <div id="ai-result" className="mt-12 space-y-8">
@@ -26,7 +25,6 @@ export default function WizardResult({ result, durationDays, copied, onCopy }) {
             </div></Reveal>
             {result.cost_estimate && <CostEstimate estimate={result.cost_estimate} />}
             {result.places && <AiResultPlaces places={result.places} />}
-            {result.days && <WizardItinerary days={result.days} />}
             {(result.food_highlights?.length>0 || result.travel_tips?.length>0) && (
                 <div className="grid gap-6 md:grid-cols-2">
                     {result.food_highlights?.length>0 && <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6"><h4 className="flex items-center gap-2 font-display font-bold"><UtensilsCrossed className="size-4 text-emerald-500"/>Kuliner</h4><ul className="mt-4 space-y-2 text-xs text-muted-foreground">{result.food_highlights.map((f,i)=><li key={i} className="flex gap-2"><span className="text-emerald-500">•</span>{f}</li>)}</ul></div>}
