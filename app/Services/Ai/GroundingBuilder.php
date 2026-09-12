@@ -66,7 +66,7 @@ class GroundingBuilder
                     // Baris tanpa tags tetap ikut (tak bisa dinilai).
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, karawo (kerajinan) untuk belanja
+                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, kerajinan untuk belanja
                         $q = $model === Umkm::class
                             ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
                             : $model::where('is_active', true);
@@ -178,7 +178,7 @@ class GroundingBuilder
                     // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, karawo (kerajinan) untuk belanja
+                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, kerajinan untuk belanja
                         $q = $model === Umkm::class
                             ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
                             : $model::where('is_active', true);
@@ -247,9 +247,9 @@ class GroundingBuilder
 
     private function categoryOf(string $model, $row = null): string
     {
-        // Baris UMKM bisa kuliner atau karawo (kerajinan) — bedakan dari jenisnya
+        // Baris UMKM bisa kuliner atau kerajinan — bedakan dari jenisnya
         if ($model === Umkm::class && $row) {
-            return ($row->jenisRef->slug ?? 'kuliner') === 'karawo' ? 'kerajinan' : 'kuliner';
+            return ($row->jenisRef->slug ?? 'kuliner') === 'kerajinan' ? 'kerajinan' : 'kuliner';
         }
 
         return match ($model) {
@@ -446,9 +446,9 @@ class GroundingBuilder
         ];
         foreach ($tables as $model) {
             try {
-                // Umkm relevan sebagai kuliner maupun karawo (kerajinan) — token yang memilah
+                // Umkm relevan sebagai kuliner maupun kerajinan — token yang memilah
                 $query = $model === Umkm::class
-                    ? $model::whereHas('jenisRef', fn ($q) => $q->whereIn('slug', ['kuliner', 'karawo']))->where('is_active', true)
+                    ? $model::whereHas('jenisRef', fn ($q) => $q->whereIn('slug', ['kuliner', 'kerajinan']))->where('is_active', true)
                     : $model::where('is_active', true);
                 foreach ($query->get() as $r) {
                     $tags = strtolower($r->tags ?? '');
@@ -588,8 +588,8 @@ class GroundingBuilder
             return [[Umkm::class, 'kuliner']];
         }
         if ($has('belanja', 'souvenir', 'oleh', 'karawo', 'pasar', 'shopping')) {
-            // Kerajinan = UMKM berjenis karawo (tanpa tabel kerajinans)
-            return [[Umkm::class, 'karawo']];
+            // Kerajinan = UMKM berjenis kerajinan (tanpa tabel kerajinans)
+            return [[Umkm::class, 'kerajinan']];
         }
         if ($has('festival', 'event', 'karnaval', 'acara', 'konser', 'pesta')) {
             return [[Event::class, null]];
