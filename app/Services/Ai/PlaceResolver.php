@@ -5,7 +5,6 @@ namespace App\Services\Ai;
 use App\Models\Budaya;
 use App\Models\Destinasi;
 use App\Models\Event;
-use App\Models\Kerajinan;
 use App\Models\Umkm;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -34,34 +33,42 @@ class PlaceResolver
     ];
 
     /**
-     * @return array [{key,name,location,category,slug,image,latitude,longitude,body}]
+     * @return array [{key,name,location,category,slug,image,latitude,longitude,body,schedule[]}]
+     * schedule = [{day_number, day_title, time, activity, food}] per kunjungan.
      */
     public function resolve(array $itinerary): array
     {
         try {
-            $locations = collect($itinerary['days'] ?? [])
-                ->flatMap(fn ($day) => $day['activities'] ?? [])
-                ->pluck('location')
-                ->filter(fn ($l) => is_string($l) && trim($l) !== '')
-                ->map(fn ($l) => trim($l))
-                ->unique()
-                ->values();
-
-            if ($locations->isEmpty()) {
-                return [];
-            }
-
             $candidates = $this->candidates();
             $places = [];
-            $seen = [];
-            foreach ($locations as $loc) {
-                if (count($places) >= self::MAX_PLACES) {
-                    break;
-                }
-                $match = $this->matchLocation($loc, $candidates, $seen);
-                if ($match !== null) {
-                    $seen[$match['key']] = true;
-                    $places[] = array_merge($match, ['location' => $loc]);
+            $byKey = [];
+            foreach ($itinerary['days'] ?? [] as $day) {
+                foreach ($day['activities'] ?? [] as $act) {
+                    $loc = is_string($act['location'] ?? null) ? trim($act['location']) : '';
+                    if ($loc === '') {
+                        continue;
+                    }
+                    // Samakan tiap aktivitas (tanpa skip seen) agar jadwal lengkap;
+                    // dedup tempat ditangani $byKey di bawah.
+                    $match = $this->matchLocation($loc, $candidates, []);
+                    if ($match === null) {
+                        continue;
+                    }
+                    $key = $match['key'];
+                    if (! isset($byKey[$key])) {
+                        if (count($places) >= self::MAX_PLACES) {
+                            break 2;
+                        }
+                        $byKey[$key] = count($places);
+                        $places[] = array_merge($match, ['location' => $loc, 'schedule' => []]);
+                    }
+                    $places[$byKey[$key]]['schedule'][] = [
+                        'day_number' => $day['day_number'] ?? null,
+                        'day_title' => $day['title'] ?? null,
+                        'time' => $act['time'] ?? null,
+                        'activity' => $act['activity'] ?? null,
+                        'food' => $act['food_recommendation'] ?? null,
+                    ];
                 }
             }
 
@@ -80,8 +87,8 @@ class PlaceResolver
             [Destinasi::class, 'destinasi', null],
             [Budaya::class, 'budaya', null],
             [Umkm::class, 'kuliner', 'kuliner'],
-            // Kerajinan = UMKM berjenis karawo
-            [Umkm::class, 'kerajinan', 'karawo'],
+            // Kerajinan = UMKM berjenis kerajinan
+            [Umkm::class, 'kerajinan', 'kerajinan'],
             [Event::class, 'event', null],
         ];
         foreach ($tables as [$model, $category, $jenis]) {
@@ -140,7 +147,7 @@ class PlaceResolver
                 [Destinasi::class, null, true],
                 [Budaya::class, null, true],
                 [Umkm::class, 'kuliner', false],
-                [Umkm::class, 'karawo', false],
+                [Umkm::class, 'kerajinan', false],
                 [Event::class, null, true],
             ];
             foreach ($specs as [$model, $jenis, $hasArea]) {
