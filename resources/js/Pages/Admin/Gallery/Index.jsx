@@ -20,6 +20,13 @@ export default function GalleryIndex({ items }) {
                     fields={[
                         { name: "name", label: "Nama" },
                         { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "category", label: "Kategori", type: "select", placeholder: "Semua / tanpa filter", options: [
+                            { value: "destinasi", label: "Destinasi" },
+                            { value: "budaya", label: "Budaya" },
+                            { value: "kuliner", label: "Kuliner" },
+                            { value: "kerajinan", label: "Kerajinan" },
+                            { value: "event", label: "Event" },
+                        ] },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "alt", label: "Alt teks gambar" },
                         { name: "is_active", label: "Status", type: "checkbox" },
@@ -40,6 +47,7 @@ export default function GalleryIndex({ items }) {
                                 </div>
                             ),
                         },
+                        { key: "category", label: "Kategori", render: (row) => row.category ? <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">{row.category}</span> : <span className="text-xs text-muted-foreground">—</span> },
                         { key: "is_active", label: "Status", render: (row) => statusBadge(row.is_active) },
                     ]}
                 />

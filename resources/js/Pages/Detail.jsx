@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { DestinationCard } from "@/components/portal/DestinationCard";
 import { MapPin, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { ViewCounter } from "@/components/portal/ViewCounter";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -69,7 +70,7 @@ export default function Detail({ item, category, related }) {
 
     return (
         <>
-            <Head title={`${title} — Visit Gorontalo`}>
+            <Head title={`${title} — Dulohupa AI`}>
                 <meta name="description" content={body.slice(0, 160)} />
             </Head>
             <div className="min-h-screen bg-background font-sans antialiased">
@@ -82,6 +83,14 @@ export default function Detail({ item, category, related }) {
                         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
                             <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-foreground md:text-[40px]">{title}</h1>
+                            <ViewCounter className="mt-3" />
+                            {(item.jenis || item.skala_usaha || item.harga) && (
+                                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                                    {item.jenis && <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold capitalize text-primary">{item.jenis}</span>}
+                                    {item.skala_usaha && <span className="rounded-full bg-white px-3 py-1 font-medium capitalize text-muted-foreground border border-border">{item.skala_usaha}</span>}
+                                    {item.harga && <span className="rounded-full bg-foreground px-3 py-1 font-semibold text-white">Rp {Number(item.harga).toLocaleString('id-ID')}</span>}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -147,15 +156,23 @@ export default function Detail({ item, category, related }) {
                                 <div className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-8">
                                     <h2 className="font-display text-xl font-semibold text-foreground">Tentang</h2>
                                     <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-muted-foreground">{body}</p>
+                                    {(item.produk || item.kontak || item.tags) && (
+                                        <div className="mt-6 space-y-2 border-t border-border pt-4 text-sm">
+                                            {item.produk && <p><span className="font-semibold text-foreground">Produk:</span> <span className="text-muted-foreground">{item.produk}</span></p>}
+                                            {item.kontak && <p><span className="font-semibold text-foreground">Kontak:</span> <span className="text-muted-foreground">{item.kontak}</span></p>}
+                                            {item.tags && <p><span className="font-semibold text-foreground">Tags:</span> <span className="text-muted-foreground">{item.tags}</span></p>}
+                                        </div>
+                                    )}
                                     {item.created_at && <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground/70"><Clock className="size-3.5" /> Diperbarui {new Date(item.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}</p>}
                                 </div>
                                 {related?.length > 0 && (
                                     <section>
-                                        <h3 className="font-display text-xl font-semibold text-foreground">Lokasi serupa di {category}</h3>
+                                        <h3 className="font-display text-xl font-semibold text-foreground">{(category === 'kuliner' || category === 'kerajinan') ? `Rekomendasi UMKM ${item.jenis ? `— ${item.jenis}` : 'terkait'}` : `Lokasi serupa di ${category}`}</h3>
                                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                             {related.map((r) => {
                                                 const rImg = resolveImage(r, category);
-                                                return <DestinationCard key={r.slug ?? r.id} href={`/${category}/${r.slug}`} image={rImg ?? fallbackByCategory[category]} title={r.name} description={r.body?.slice(0, 90)} />;
+                                                const hargaLabel = r.harga ? `Rp ${Number(r.harga).toLocaleString('id-ID')}` : null;
+                                                return <DestinationCard key={r.slug ?? r.id} href={`/${category}/${r.slug}`} image={rImg ?? fallbackByCategory[category]} title={r.name} location={r.jenis ? `${r.jenis} · ${r.skala_usaha ?? ''}`.trim() : undefined} description={r.body?.slice(0, 90)} harga={hargaLabel} />;
                                             })}
                                         </div>
                                     </section>

@@ -11,7 +11,7 @@ import { Events } from "@/components/portal/Events";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 
-export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, faqs }) {
+export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, faqs, galleries }) {
     useEffect(() => {
         if (window.location.hash === "#ai-planner") {
             setTimeout(() => document.getElementById("ai-planner")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
@@ -19,10 +19,10 @@ export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, 
     }, []);
     return (
         <>
-            <Head title="Portal Wisata & Budaya Gorontalo — Discover the Wonders">
-                <meta name="description" content="Jelajahi destinasi, ensiklopedia budaya, kuliner khas, dan kerajinan Gorontalo — dari hiu paus Botubarani hingga sulaman Karawo di jantung Teluk Tomini." />
-                <meta property="og:title" content="Portal Wisata & Budaya Gorontalo — Discover the Wonders" />
-                <meta property="og:description" content="Jelajahi destinasi, ensiklopedia budaya, kuliner khas, dan kerajinan Gorontalo — dari hiu paus Botubarani hingga sulaman Karawo di jantung Teluk Tomini." />
+            <Head title="Dulohupa AI — Portal Wisata & Budaya Gorontalo">
+                <meta name="description" content="Jelajahi destinasi, ensiklopedia budaya, kuliner khas, dan kerajinan Gorontalo bersama Dulohupa AI — dari hiu paus Botubarani hingga sulaman Karawo di jantung Teluk Tomini." />
+                <meta property="og:title" content="Dulohupa AI — Portal Wisata & Budaya Gorontalo" />
+                <meta property="og:description" content="Jelajahi destinasi, ensiklopedia budaya, kuliner khas, dan kerajinan Gorontalo bersama Dulohupa AI — dari hiu paus Botubarani hingga sulaman Karawo di jantung Teluk Tomini." />
             </Head>
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />

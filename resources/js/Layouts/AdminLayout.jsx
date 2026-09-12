@@ -17,6 +17,7 @@ import {
     Menu,
     X,
 } from "lucide-react";
+import dulohupaLogo from "@/assets/dulohupa-ai.png";
 import { cn } from "@/lib/utils";
 
 function isActive(url, href) {
@@ -45,11 +46,9 @@ export default function AdminLayout({ children, title, subtitle }) {
     const sidebar = (
         <div className="flex h-full flex-col">
             <Link href="/admin" className="flex items-center gap-2.5 px-3 py-5">
-                <span className="flex size-9 items-center justify-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
-                    V
-                </span>
+                <img src={dulohupaLogo} alt="Dulohupa AI" className="h-9 w-auto object-contain" />
                 <span className="leading-tight">
-                    <span className="block font-display text-base font-bold">Visit Gorontalo</span>
+                    <span className="block font-display text-base font-bold">Dulohupa AI</span>
                     <span className="block text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
                         Admin Panel
                     </span>
@@ -210,7 +209,7 @@ export default function AdminLayout({ children, title, subtitle }) {
                     <Globe className="size-4 shrink-0" /> Lihat Situs
                 </Link>
                 <Link
-                    href="/admin/logout"
+                    href="/logout"
                     method="post"
                     as="button"
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10"

@@ -30,6 +30,8 @@ class UmkmSeeder extends Seeder
                 'body' => 'UMKM kuliner spesialis Milu Siram (Binte Biluhuta) khas Gorontalo.',
                 'produk' => 'Milu Siram, Es Kelapa Muda',
                 'kontak' => 'Kota Gorontalo',
+                'image' => '/storage/portal/kategori-kuliner.jpg',
+                'alt' => 'Milu Siram Barokah',
             ],
             [
                 'name' => 'Ilabulo Hj. Fatma',
@@ -39,6 +41,8 @@ class UmkmSeeder extends Seeder
                 'body' => 'UMKM kuliner spesialis Ilabulo pepes sagu ayam.',
                 'produk' => 'Ilabulo Ayam, Ilabulo Sapi',
                 'kontak' => 'Kota Gorontalo',
+                'image' => '/storage/portal/kategori-kuliner.jpg',
+                'alt' => 'Ilabulo Hj. Fatma',
             ],
             [
                 'name' => 'Karawo Sulaman Gorontalo',
@@ -48,6 +52,8 @@ class UmkmSeeder extends Seeder
                 'body' => 'UMKM kerajinan sulaman Karawo bermotif flora khas Gorontalo.',
                 'produk' => 'Kain Karawo, Baju Karawo, Masker Karawo',
                 'kontak' => 'Kabupaten Gorontalo',
+                'image' => '/storage/portal/kategori-kerajinan.jpg',
+                'alt' => 'Karawo Sulaman Gorontalo',
             ],
         ];
 
@@ -62,6 +68,8 @@ class UmkmSeeder extends Seeder
                     'body' => $u['body'],
                     'produk' => $u['produk'],
                     'kontak' => $u['kontak'],
+                    'image' => $u['image'] ?? null,
+                    'alt' => $u['alt'] ?? $u['name'],
                     'is_active' => true,
                 ]
             );

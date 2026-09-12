@@ -48,7 +48,7 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
 
     return (
         <>
-            <Head title={initialQ ? `Cari "${initialQ}" — Visit Gorontalo` : "Cari — Visit Gorontalo"} />
+            <Head title={initialQ ? `Cari "${initialQ}" — Dulohupa AI` : "Cari — Dulohupa AI"} />
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
                 <main>

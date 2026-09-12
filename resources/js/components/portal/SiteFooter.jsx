@@ -1,3 +1,4 @@
+import { TotalViewCounter } from "@/components/portal/ViewCounter";
 export function SiteFooter() {
     return (<footer className="bg-ocean-deep py-16 text-primary-foreground">
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8">
@@ -21,6 +22,7 @@ export function SiteFooter() {
           <p className="mt-4">
             info@pariwisata.gorontaloprov.go.id &middot; +62 (435) 821-456
           </p>
+          <TotalViewCounter className="mt-3 text-primary-foreground/60" />
         </div>
       </div>
     </footer>);

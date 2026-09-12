@@ -85,6 +85,8 @@ class UmkmController extends Controller
             'skala_usaha' => ['required', Rule::in(Umkm::SKALA_USAHA)],
             'body' => 'nullable|string',
             'produk' => 'nullable|string',
+            'kontak' => 'nullable|string|max:200',
+            'harga' => 'nullable|integer|min:0|max:1000000000',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'tags' => 'nullable|string|max:500',

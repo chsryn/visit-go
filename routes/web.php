@@ -40,6 +40,8 @@ Route::get('/budaya', [PortalController::class, 'indexByCategory'])->defaults('c
 Route::get('/kuliner', [PortalController::class, 'indexByCategory'])->defaults('category', 'kuliner')->name('kuliner.index');
 Route::get('/kerajinan', [PortalController::class, 'indexByCategory'])->defaults('category', 'kerajinan')->name('kerajinan.index');
 Route::get('/event', [PortalController::class, 'indexByCategory'])->defaults('category', 'event')->name('event.index');
+Route::get('/galeri', [PortalController::class, 'galleryIndex'])->name('galeri.index');
+Route::get('/artikel', [PortalController::class, 'articleIndex'])->name('artikel.index');
 
 // Dynamic detail routes: /destinasi/{slug}, /budaya/{slug}, /kuliner/{slug}, /kerajinan/{slug}, /event/{slug}
 Route::get('/destinasi/{slug}', [PortalController::class, 'showDestinasi'])->name('destinasi.show');
@@ -47,6 +49,25 @@ Route::get('/budaya/{slug}', [PortalController::class, 'showBudaya'])->name('bud
 Route::get('/kuliner/{slug}', [PortalController::class, 'showKuliner'])->name('kuliner.show');
 Route::get('/kerajinan/{slug}', [PortalController::class, 'showKerajinan'])->name('kerajinan.show');
 Route::get('/event/{slug}', [PortalController::class, 'showEvent'])->name('event.show');
+Route::get('/artikel/{slug}', [PortalController::class, 'showArticle'])->name('artikel.show');
+
+// Viewers counter — ponytail: cache increment, upgrade to DB when perlu analytics
+Route::post('/api/view', function (\Illuminate\Http\Request $request) {
+    $path = trim($request->input('path') ?: $request->header('referer') ?: '/', '/');
+    $path = $path ? '/'.$path : '/';
+    // batasi panjang & sanitasi
+    $path = substr($path, 0, 200);
+    $key = 'views:'.md5($path);
+    $count = \Illuminate\Support\Facades\Cache::increment($key);
+    if ($count === false) { \Illuminate\Support\Facades\Cache::put($key, 1); $count = 1; }
+    \Illuminate\Support\Facades\Cache::increment('views:total');
+    return response()->json(['path' => $path, 'views' => $count, 'total' => \Illuminate\Support\Facades\Cache::get('views:total')]);
+})->middleware('throttle:60,1')->name('api.view.hit');
+Route::get('/api/views', function (\Illuminate\Http\Request $request) {
+    $path = substr(trim($request->query('path', '/'), '/') ? '/'.trim($request->query('path'), '/') : '/', 0, 200);
+    $key = 'views:'.md5($path);
+    return response()->json(['path' => $path, 'views' => (int) \Illuminate\Support\Facades\Cache::get($key, 0), 'total' => (int) \Illuminate\Support\Facades\Cache::get('views:total', 0)]);
+})->name('api.view.show');
 
 // API publik berbiaya (AI berbayar per token) — throttle anti-abuse, tanpa ubah perilaku
 Route::post('/api/chat', [ChatbotController::class, 'handle'])->middleware('throttle:30,1')->name('api.chat');
@@ -59,9 +80,11 @@ Route::resource('destinasi', DestinasiController::class)->only(['store', 'update
 Route::resource('events', EventController::class)->only(['index', 'store', 'update', 'destroy']);
 
 // ---- Admin panel  ----
-Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
-Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->middleware('guest')->name('admin.login');
-Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('guest')->name('admin.login.store');
+Route::get('/login', [AdminAuthController::class, 'showLogin'])->middleware('guest')->name('login');
+Route::post('/login', [AdminAuthController::class, 'login'])->middleware('guest')->name('login.store');
+Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login');
+Route::post('/admin/login', fn () => redirect()->route('login'))->name('admin.login.store');
+Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {

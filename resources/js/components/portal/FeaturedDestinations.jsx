@@ -12,7 +12,7 @@ const featured = [
     {
         title: "Botubarani Whale Shark",
         location: "Bone Bolango",
-        category: "Wisata Bahari",
+        // category: "Wisata Bahari",
         href: "/destinasi/hiu-paus-botubarani",
         image: heroWhale,
         desc: "Berenang bersama hiu paus di pagi hari — pertemuan istimewa di Teluk Tomini.",
@@ -20,7 +20,7 @@ const featured = [
     {
         title: "Pulo Cinta",
         location: "Boalemo",
-        category: "Pulau",
+        // category: "Pulau",
         href: "/destinasi/pulo-cinta",
         image: puloCinta,
         desc: "Pulau berbentuk hati dengan lanskap laut yang tenang.",
@@ -28,7 +28,7 @@ const featured = [
     {
         title: "Taman Laut Olele",
         location: "Bone Bolango",
-        category: "Wisata Bahari",
+        // category: "Wisata Bahari",
         href: "/destinasi/taman-laut-olele",
         image: olele,
         desc: "Menyelami keindahan bawah laut Teluk Tomini.",
@@ -36,10 +36,17 @@ const featured = [
     {
         title: "Benteng Otanaha",
         location: "Kota Gorontalo",
-        category: "Sejarah",
+        // category: "Sejarah",
         href: "/destinasi/benteng-otanaha",
         image: benteng,
         desc: "Jejak sejarah Gorontalo di atas bukit dengan panorama kota.",
+    },
+    {
+        title: "Pulau Saronde",
+        location: "Gorontalo Utara",
+        href: "/destinasi/pulau-saronde",
+        image: puloCinta,
+        desc: "Pulau pasir putih dengan air jernih kebiruan.",
     },
 ];
 
@@ -170,99 +177,95 @@ export function FeaturedDestinations({
             />
 
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-                {/* =====================================================
-                    HEADER
-                ====================================================== */}
-                <Reveal y={16}>
-                    <div className="max-w-2Lxl">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-gray">Wisata Gorontalo</span>
+                <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
+                    {/* 1. Header Text (Col 1-7, Row 1) */}
+                    <div className="lg:col-span-7 flex flex-col justify-center py-2">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Wisata Gorontalo</span>
                         <h2 className="font-display text-[32px] font-bold leading-[1.04] tracking-tight text-foreground md:text-[42px]">
                             Tempat yang layak
                             <br />
-                            <span className="font-normal italic text-ocean">kamu datangi.</span>
+                            <span className="font-normal italic text-ocean">kamu kunjungi</span>
                         </h2>
                         <p className="mt-4 max-w-[52ch] text-[15px] leading-[1.7] text-muted-foreground">
                             Dari laut dan pulau hingga jejak sejarah, temukan beberapa tempat yang mewakili wajah Gorontalo.
                         </p>
                     </div>
-                </Reveal>
 
-                {/* =====================================================
-                    FEATURED DESTINATIONS
-                ====================================================== */}
-                <div className="mt-10 grid gap-4 lg:grid-cols-12">
-                    {/* Main */}
-                    <Link
-                        href={featured[0].href}
-                        className="group relative overflow-hidden rounded-[18px] lg:col-span-7"
-                    >
-                        <div className="relative min-h-107.5">
+                    {/* 2. Top-Right Card / Pulau Saronde (Col 8-12, Row 1) */}
+                    <Link className="group relative overflow-hidden rounded-3xl lg:col-span-5" href={featured[4].href}>
+                        <div className="relative h-full min-h-[170px] lg:min-h-[185px]">
+                            <img
+                                src={featured[4].image}
+                                alt={featured[4].title}
+                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+                                loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                            <div className="absolute inset-x-0 bottom-0 p-5">
+                                <h3 className="font-display text-lg font-semibold leading-tight text-white">
+                                    {featured[4].title}
+                                </h3>
+                                <p className="mt-1 text-xs text-white/65">
+                                    {featured[4].location}
+                                </p>
+                            </div>
+                        </div>
+                    </Link>
+
+                    {/* 3. Main Left Card / Whale Shark (Col 1-7, Row 2) */}
+                    <Link className="group relative overflow-hidden rounded-3xl lg:col-span-7" href={featured[0].href}>
+                        <div className="relative min-h-[420px]">
                             <img
                                 src={featured[0].image}
                                 alt={featured[0].title}
                                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                                 loading="lazy"
                             />
-
-                            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
-
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
                             <div className="absolute inset-x-0 bottom-0 p-6 md:p-7">
                                 <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.12em] text-white/60">
                                     {featured[0].category}
                                 </p>
-
                                 <div className="flex items-end justify-between gap-5">
                                     <div>
                                         <h3 className="font-display text-[25px] font-semibold leading-tight text-white md:text-[30px]">
                                             {featured[0].title}
                                         </h3>
-
                                         <p className="mt-2 max-w-[46ch] text-sm leading-6 text-white/70">
-                                            {featured[0].location} ·{" "}
-                                            {featured[0].desc}
+                                            {featured[0].location} · {featured[0].desc}
                                         </p>
                                     </div>
-
                                     <ArrowUpRight className="hidden size-4 shrink-0 text-white/80 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:block" />
                                 </div>
                             </div>
                         </div>
                     </Link>
 
-                    {/* Supporting destinations */}
+                    {/* 4. Supporting Cards Right / Pulo Cinta & Olele (Col 8-12, Row 2 stack) */}
                     <div className="grid gap-4 lg:col-span-5">
                         {featured.slice(1, 3).map((item) => (
-                            <Link
-                                key={item.title}
-                                href={item.href}
-                                className="group relative overflow-hidden rounded-[18px]"
-                            >
-                                <div className="relative min-h-51.75">
+                            <Link className="group relative overflow-hidden rounded-3xl" href={item.href} key={item.title}>
+                                <div className="relative min-h-[200px]">
                                     <img
                                         src={item.image}
                                         alt={item.title}
                                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                                         loading="lazy"
                                     />
-
-                                    <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent" />
-
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                                     <div className="absolute inset-x-0 bottom-0 p-5">
                                         <p className="text-[10px] uppercase tracking-widest text-white/55">
                                             {item.category}
                                         </p>
-
                                         <div className="mt-1 flex items-end justify-between gap-3">
                                             <div>
                                                 <h3 className="font-display text-lg font-semibold leading-tight text-white">
                                                     {item.title}
                                                 </h3>
-
                                                 <p className="mt-1 text-xs text-white/65">
                                                     {item.location}
                                                 </p>
                                             </div>
-
                                             <ArrowUpRight className="size-4 shrink-0 text-white/75 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                         </div>
                                     </div>
@@ -271,34 +274,26 @@ export function FeaturedDestinations({
                         ))}
                     </div>
 
-                    {/* Historical destination */}
-                    <Link
-                        href={featured[3].href}
-                        className="group relative overflow-hidden rounded-[18px] lg:col-span-12"
-                    >
-                        <div className="relative min-h-52.5">
+                    {/* 5. Historical destination / Benteng Otanaha (Col 1-12, Row 3) */}
+                    <Link className="group relative overflow-hidden rounded-3xl lg:col-span-12" href={featured[3].href}>
+                        <div className="relative min-h-[210px]">
                             <img
                                 src={featured[3].image}
                                 alt={featured[3].title}
                                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                                 loading="lazy"
                             />
-
-                            <div className="absolute inset-0 bg-linear-to-r from-black/75 via-black/30 to-transparent" />
-
+                            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
                             <div className="absolute inset-y-0 left-0 flex max-w-2xl items-end p-6 md:p-7">
                                 <div>
                                     <p className="text-[10px] uppercase tracking-[0.12em] text-white/55">
                                         {featured[3].category}
                                     </p>
-
                                     <h3 className="mt-1 font-display text-2xl font-semibold text-white md:text-3xl">
                                         {featured[3].title}
                                     </h3>
-
                                     <p className="mt-2 text-sm leading-6 text-white/70">
-                                        {featured[3].location} ·{" "}
-                                        {featured[3].desc}
+                                        {featured[3].location} · {featured[3].desc}
                                     </p>
                                 </div>
                             </div>

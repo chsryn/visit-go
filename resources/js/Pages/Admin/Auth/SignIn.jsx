@@ -1,5 +1,6 @@
 import { Head, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import dulohupaLogo from "@/assets/dulohupa-ai.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +16,12 @@ export default function SignIn() {
 
     const submit = (e) => {
         e.preventDefault();
-        post("/admin/login");
+        post("/login");
     };
 
     return (
         <>
-            <Head title="Admin Login — Visit Gorontalo" />
+            <Head title="Admin Login — Dulohupa AI" />
             <div className="grid min-h-screen font-sans lg:grid-cols-2">
                 {/* Brand panel */}
                 <div className="relative hidden overflow-hidden bg-primary lg:block">
@@ -34,10 +35,8 @@ export default function SignIn() {
                     />
                     <div className="relative flex h-full flex-col justify-between p-12 text-primary-foreground">
                         <div className="flex items-center gap-2.5">
-                            <span className="flex size-10 items-center justify-center rounded-xl bg-white/15 font-display text-xl font-bold backdrop-blur-sm">
-                                V
-                            </span>
-                            <span className="font-display text-xl font-bold">Visit Gorontalo</span>
+                            <img src={dulohupaLogo} alt="Dulohupa AI" className="h-10 w-auto object-contain brightness-0 invert" />
+                            <span className="font-display text-xl font-bold">Dulohupa AI</span>
                         </div>
                         <div>
                             <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
@@ -51,9 +50,7 @@ export default function SignIn() {
                                 paus Botubarani hingga Karnaval Karawo.
                             </p>
                         </div>
-                        <p className="text-xs text-primary-foreground/60">
-                            © 2026 Visit Gorontalo — Dinas Pariwisata
-                        </p>
+                        <p className="text-xs text-primary-foreground/60">© 2026 Dulohupa AI</p>
                     </div>
                 </div>
 
@@ -61,14 +58,10 @@ export default function SignIn() {
                 <div className="flex items-center justify-center bg-background p-6 sm:p-12">
                     <div className="w-full max-w-sm">
                         <div className="mb-8 lg:hidden">
-                            <span className="flex size-10 items-center justify-center rounded-xl bg-primary font-display text-xl font-bold text-primary-foreground">
-                                V
-                            </span>
+                            <img src={dulohupaLogo} alt="Dulohupa AI" className="h-10 w-auto object-contain" />
                         </div>
                         <h1 className="font-display text-2xl font-bold">Selamat datang kembali</h1>
-                        <p className="mt-1.5 text-sm text-muted-foreground">
-                            Masuk ke panel admin Visit Gorontalo.
-                        </p>
+                        <p className="mt-1.5 text-sm text-muted-foreground">Masuk ke panel admin Dulohupa AI.</p>
 
                         <form onSubmit={submit} className="mt-8 space-y-5">
                             <div className="space-y-2">

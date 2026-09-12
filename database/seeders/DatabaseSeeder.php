@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             DestinationCategorySeeder::class,
             DestinationPriceSeeder::class,
             UmkmSeeder::class,
+            GallerySeeder::class,
         ]);
     }
 }

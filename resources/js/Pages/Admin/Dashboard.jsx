@@ -23,7 +23,7 @@ function StatCard({ icon: Icon, label, value, href }) {
 export default function Dashboard({ stats, latest }) {
     return (
         <>
-            <Head title="Dashboard — Admin Visit Gorontalo" />
+            <Head title="Dashboard — Admin Dulohupa AI" />
             <AdminLayout title="Dashboard" subtitle="Ringkasan konten portal pariwisata Gorontalo.">
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                     <StatCard icon={MapPin} label="Destinasi" value={stats.destinasi} href="/admin/destinasis" />

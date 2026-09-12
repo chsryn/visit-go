@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import { Menu, X, ChevronDown, Check } from "lucide-react";
+import { Menu, X, ChevronDown, Check, Sparkles } from "lucide-react";
 import { AudioPlayer } from "@/components/portal/AudioPlayer";
+import dulohupaLogo from "@/assets/dulohupa-ai.png";
 
 const langs = [
     { code: "id", label: "Indonesia", short: "ID" },
@@ -34,6 +35,7 @@ function triggerGoogleTranslate(code) {
 }
 
 // Fallback jika props.nav belum terisi — cegah crash, tampilkan 6 slug MVP
+// Grouped fallback ala InJourney (mega menu)
 const fallbackNav = {
     destinasi: [
         {
@@ -48,6 +50,29 @@ const fallbackNav = {
         },
         { label: "Pulo Cinta", href: "/destinasi/pulo-cinta", desc: "Boalemo" },
     ],
+    destinasiGrouped: [
+        {
+            heading: "Cagar Budaya",
+            viewAll: { label: "Lihat semua Cagar Budaya", href: "/destinasi?kategori=cagar-budaya" },
+            items: [
+                { label: "Benteng Otanaha", href: "/destinasi/benteng-otanaha" },
+                { label: "Museum Pendarata", href: "/destinasi/museum-pendarata" },
+                { label: "Rumah Adat Dulohupa", href: "/destinasi/rumah-adat-dulohupa" },
+                { label: "Masjid Huntu", href: "/destinasi/masjid-huntu" },
+            ],
+        },
+        {
+            heading: "Destinasi Alam",
+            viewAll: { label: "Lihat semua Destinasi Alam", href: "/destinasi?kategori=destinasi-alam" },
+            items: [
+                { label: "Hiu Paus Botubarani", href: "/destinasi/hiu-paus-botubarani" },
+                { label: "Taman Laut Olele", href: "/destinasi/taman-laut-olele" },
+                { label: "Pulo Cinta", href: "/destinasi/pulo-cinta" },
+                { label: "Pulau Diyonumo", href: "/destinasi/pulau-diyonumo" },
+                { label: "Pantai Taludaa", href: "/destinasi/pantai-taludaa" },
+            ],
+        },
+    ],
     budaya: [
         {
             label: "Tari Saronde",
@@ -58,6 +83,40 @@ const fallbackNav = {
             label: "Tradisi Dikili",
             href: "/budaya/tradisi-dikili",
             desc: "Maulid Nabi",
+        },
+    ],
+    budayaGrouped: [
+        {
+            heading: "Sejarah",
+            desc: "Tarian, tradisi & warisan Hulondalo",
+            viewAll: { label: "Lihat semua Sejarah", href: "/budaya?sub=sejarah" },
+            items: [
+                { label: "Tari Saronde", href: "/budaya/tari-saronde" },
+                { label: "Tradisi Dikili", href: "/budaya/tradisi-dikili" },
+                { label: "Upacara Moloopu", href: "/budaya/moloopu" },
+                { label: "Pohutu Limo Lo Pohalaa", href: "/budaya/pohutu-limo" },
+            ],
+        },
+        {
+            heading: "Kuliner",
+            desc: "Rasa pesisir Teluk Tomini",
+            viewAll: { label: "Lihat semua Kuliner", href: "/kuliner" },
+            items: [
+                { label: "Milu Siram", href: "/kuliner/milu-siram" },
+                { label: "Ilabulo", href: "/kuliner/ilabulo" },
+                { label: "Ayam Iloni", href: "/kuliner/ayam-iloni" },
+                { label: "Sagela", href: "/kuliner/sagela" },
+            ],
+        },
+        {
+            heading: "Kerajinan",
+            desc: "Karya tangan Gorontalo",
+            viewAll: { label: "Lihat semua Kerajinan", href: "/kerajinan" },
+            items: [
+                { label: "Sulaman Karawo", href: "/kerajinan/sulaman-karawo" },
+                { label: "Anyaman Rotan", href: "/kerajinan/anyaman-rotan" },
+                { label: "Upiya Karanji", href: "/kerajinan/upiya-karanji" },
+            ],
         },
     ],
     kuliner: [
@@ -101,20 +160,67 @@ const fallbackNav = {
 
 function DropdownPanel({ items }) {
     return (
-        <div className="invisible absolute left-1/2 top-full z-50 mt-3 min-w-[240px] -translate-x-1/2 translate-y-1 rounded-lg border border-border bg-white p-2 opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-            <div className="grid max-h-[320px] gap-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {items.map((it) => (
-                    <Link
-                        key={it.href}
-                        href={it.href}
-                        className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                    >
-                        {it.label}
-                    </Link>
+        <div className="invisible absolute left-0 top-full z-50 -translate-y-1 pt-2 opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="min-w-[240px] rounded-sm border border-border bg-white p-2 shadow-lg">
+                <div className="grid max-h-[320px] gap-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {items.map((it) => (
+                        <Link
+                            key={it.href}
+                            href={it.href}
+                            className="rounded-sm px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground"
+                        >
+                            {it.label}
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+// Mega / dropright ala InJourney — kiri kategori (Cagar Budaya | Destinasi Alam), kanan list dropright saat hover
+function CaretIcon({ className = "" }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256" className={className} aria-hidden>
+            <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z" />
+        </svg>
+    );
+}
+function DroprightPanel({ sections }) {
+    return (
+        <div className="invisible absolute left-0 top-full z-50 -translate-y-1 pt-2 opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+            <div className="w-[220px] rounded-sm border border-border bg-white shadow-xl">
+                {sections.map((sec) => (
+                    <div key={sec.heading} className="group/item relative">
+                        <div className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground">
+                            <Link href={sec.viewAll?.href ?? sec.items[0]?.href} className="flex-1 text-left">
+                                {sec.heading}
+                            </Link>
+                            <CaretIcon className="size-3 shrink-0 -rotate-90 text-muted-foreground" />
+                        </div>
+                        {/* list dropright — solid, compact, menyatu -ml-[1px] */}
+                        <div className="invisible absolute left-full top-0 z-10 -ml-[1px] w-[240px] -translate-x-1 rounded-sm rounded-l-none border border-border bg-white p-3 opacity-0 shadow-xl transition-[opacity,transform] duration-150 ease-out group-hover/item:visible group-hover/item:translate-x-0 group-hover/item:opacity-100">
+                            <div className="flex flex-col gap-0.5">
+                                {sec.items.map((it) => (
+                                    <Link key={it.href} href={it.href} className="rounded-sm px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground">
+                                        {it.label}
+                                    </Link>
+                                ))}
+                            </div>
+                            {sec.viewAll && (
+                                <Link href={sec.viewAll.href} className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">
+                                    {sec.viewAll.label} →
+                                </Link>
+                            )}
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>
     );
+}
+function MegaDropdownPanel({ sections }) {
+    // alias untuk kompatibilitas — sekarang dropright untuk destinasi/budaya
+    return <DroprightPanel sections={sections} />;
 }
 
 export function Navbar() {
@@ -152,10 +258,21 @@ export function Navbar() {
             ) ?? fallbackNav.kerajinan,
         event: toItems(nav?.events, "event") ?? fallbackNav.event,
     };
+    // Grouped sections untuk mega menu (InJourney style)
+    const groupedNav = {
+        destinasi: fallbackNav.destinasiGrouped,
+        budaya: fallbackNav.budayaGrouped,
+    };
+    // Jika backend sudah kirim nav.destinasiGrouped / nav.budayaGrouped, pakai itu (fallback sudah di atas)
+    const sectionsByKey = {
+        destinasi: nav?.destinasiGrouped ?? groupedNav.destinasi,
+        budaya: nav?.budayaGrouped ?? groupedNav.budaya,
+    };
 
     const [scrolled, setScrolled] = useState(false);
     const [open, setOpen] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(null);
+    const [mobileSubOpen, setMobileSubOpen] = useState(null);
     const [locale, setLocale] = useState(() => {
         try {
             const m = document.cookie.match(/(?:^|;)\s*googtrans=([^;]+)/);
@@ -171,6 +288,7 @@ export function Navbar() {
     });
     const [langOpen, setLangOpen] = useState(false);
     const langRef = useRef(null);
+    const [isAiOpen, setIsAiOpen] = useState(false);
     const t = { plan: "AI Guide Plan", lang: locale === "en" ? "EN" : "ID" };
 
     useEffect(() => {
@@ -187,13 +305,25 @@ export function Navbar() {
         document.addEventListener("mousedown", h);
         return () => document.removeEventListener("mousedown", h);
     }, []);
+    useEffect(() => {
+        if (open) {
+            const prev = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+            return () => { document.body.style.overflow = prev; };
+        }
+    }, [open]);
+    useEffect(() => {
+        const h = (e) => setIsAiOpen(!!e.detail);
+        window.addEventListener("ai:state", h);
+        return () => window.removeEventListener("ai:state", h);
+    }, []);
 
     const menu = [
-        { key: "destinasi", label: "Destinasi", items: itemsByCat.destinasi },
-        { key: "budaya", label: "Budaya", items: itemsByCat.budaya },
-        { key: "kuliner", label: "Kuliner", items: itemsByCat.kuliner },
-        { key: "kerajinan", label: "Kerajinan", items: itemsByCat.kerajinan },
+        { key: "destinasi", label: "Destinasi", sections: sectionsByKey.destinasi, mega: true },
+        { key: "budaya", label: "Budaya", sections: sectionsByKey.budaya, mega: true },
         { key: "event", label: "Event", items: itemsByCat.event },
+        { key: "galeri", label: "Galeri", href: "/galeri", direct: true },
+        { key: "artikel", label: "Artikel", href: "/artikel", direct: true },
     ];
 
     return (
@@ -201,29 +331,17 @@ export function Navbar() {
             className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${scrolled ? "bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 border-white/20 shadow-soft" : "bg-transparent border-transparent"}`}
         >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
-                <Link
-                    href="/"
-                    className="flex flex-col items-start leading-none notranslate"
-                    translate="no"
-                >
-                    <span
-                        className={`font-display text-[24px] font-bold leading-none tracking-tight md:text-[28px] lg:text-[30px] ${scrolled ? "text-black" : "text-primary-foreground"}`}
-                    >
-                        Visit
-                    </span>
-                    <span
-                        className={`text-[11px] font-semibold uppercase tracking-[0.14em] leading-none md:text-[13px] ${scrolled ? "text-black/60" : "text-primary-foreground/70"}`}
-                    >
-                        Gorontalo
-                    </span>
+                <Link href="/" className="flex items-center gap-2.5 notranslate" translate="no">
+                    <img src={dulohupaLogo} alt="Dulohupa AI" className={`h-10 w-auto object-contain -translate-y-[1.5px] ${scrolled ? "" : "brightness-0 invert"}`} />
+                    <span className={`font-display text-[18px] font-bold leading-none tracking-tight md:text-[20px] ${scrolled ? "text-black" : "text-white"}`}>Dulohupa AI</span>
                 </Link>
 
                 <nav className="hidden items-center gap-4 md:flex lg:gap-5">
                     {menu.map((m) =>
-                        m.key === "event" ? (
+                        m.direct ? (
                             <Link
                                 key={m.key}
-                                href="/event"
+                                href={m.href}
                                 className={`relative inline-flex items-center pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-primary-foreground"}`}
                             >
                                 {m.label}
@@ -245,10 +363,20 @@ export function Navbar() {
                                         className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`}
                                     />
                                 </span>
-                                <DropdownPanel items={m.items} />
+                                {m.mega ? <MegaDropdownPanel sections={m.sections} /> : <DropdownPanel items={m.items} />}
                             </div>
                         ),
                     )}
+                    <button
+                        type="button"
+                        onClick={() => window.dispatchEvent(new CustomEvent("ai:toggle"))}
+                        aria-pressed={isAiOpen}
+                        className={`hidden md:inline-flex w-[138px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-colors duration-300 ${scrolled ? "bg-black/5 border-black/10 text-black hover:bg-black/10" : "bg-white/10 border-white/20 text-white hover:bg-white/15"} ${isAiOpen ? (scrolled ? "ring-1 ring-black/15" : "ring-1 ring-white/20") : ""}`}
+                    >
+                        {isAiOpen ? <X className="size-4 shrink-0" /> : <Sparkles className="size-4 shrink-0" />}
+                        <span className="tabular-nums">{isAiOpen ? "Tutup Chat" : "Tanya Munggi"}</span>
+                    </button>
+                    <AudioPlayer scrolled={scrolled} />
                     <div className="relative" ref={langRef}>
                         <button
                             type="button"
@@ -285,7 +413,6 @@ export function Navbar() {
                             </div>
                         )}
                     </div>
-                    <AudioPlayer scrolled={scrolled} />
                 </nav>
 
                 <button
@@ -303,13 +430,13 @@ export function Navbar() {
             </div>
 
             {open && (
-                <div className="border-t border-border bg-card px-6 py-6 md:hidden">
+                <div className="max-h-[calc(100dvh-72px)] overflow-y-auto overscroll-contain border-t border-border bg-card px-6 py-6 md:hidden">
                     <nav className="flex flex-col gap-1">
                         {menu.map((m) =>
-                            m.key === "event" ? (
+                            m.direct ? (
                                 <Link
                                     key={m.key}
-                                    href="/event"
+                                    href={m.href}
                                     onClick={() => setOpen(false)}
                                     className="block border-b border-border/60 py-3 text-[16px] font-semibold tracking-normal text-foreground hover:text-primary last:border-0"
                                 >
@@ -347,20 +474,51 @@ export function Navbar() {
                                         className={`grid transition-all duration-300 ${mobileOpen === m.key ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                                     >
                                         <div className="overflow-hidden pb-3">
-                                            <div className="grid gap-0.5 rounded-lg border border-border bg-white p-2 shadow-lg">
-                                                {m.items.map((it) => (
-                                                    <Link
-                                                        key={it.href}
-                                                        href={it.href}
-                                                        onClick={() =>
-                                                            setOpen(false)
-                                                        }
-                                                        className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                                                    >
-                                                        {it.label}
-                                                    </Link>
-                                                ))}
-                                            </div>
+                                            {m.mega ? (
+                                                <div className="space-y-2 rounded-sm border border-border bg-white p-2 shadow-lg">
+                                                    {m.sections.map((sec) => (
+                                                        <div key={sec.heading} className="rounded-sm border border-transparent has-[button[aria-expanded=true]]:border-border has-[button[aria-expanded=true]]:bg-black/5">
+                                                            <button type="button" aria-expanded={mobileSubOpen === sec.heading} onClick={() => setMobileSubOpen((v) => v === sec.heading ? null : sec.heading)} className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-medium text-foreground">
+                                                                <span>{sec.heading}</span>
+                                                                <CaretIcon className={`size-3 shrink-0 transition-transform ${mobileSubOpen === sec.heading ? "rotate-180" : "-rotate-90 opacity-60"}`} />
+                                                            </button>
+                                                            <div className={`grid transition-all ${mobileSubOpen === sec.heading ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                                                                <div className="overflow-hidden">
+                                                                    <div className="px-2 pb-2 pt-1">
+                                                                        <div className="grid gap-0.5">
+                                                                            {sec.items.map((it) => (
+                                                                                <Link key={it.href} href={it.href} onClick={() => setOpen(false)} className="block rounded-sm px-3 py-2 text-sm text-foreground/80 hover:bg-black/5 hover:text-foreground">
+                                                                                    {it.label}
+                                                                                </Link>
+                                                                            ))}
+                                                                        </div>
+                                                                        {sec.viewAll && (
+                                                                            <Link href={sec.viewAll.href} onClick={() => setOpen(false)} className="mt-2 inline-flex px-3 text-xs font-semibold text-primary hover:underline">
+                                                                                {sec.viewAll.label} →
+                                                                            </Link>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="grid gap-0.5 rounded-sm border border-border bg-white p-2 shadow-lg">
+                                                    {m.items.map((it) => (
+                                                        <Link
+                                                            key={it.href}
+                                                            href={it.href}
+                                                            onClick={() =>
+                                                                setOpen(false)
+                                                            }
+                                                            className="rounded-sm px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground"
+                                                        >
+                                                            {it.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

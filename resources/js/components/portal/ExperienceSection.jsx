@@ -14,7 +14,7 @@ const gallery = [
 export function ExperienceSection() {
     const [lightbox, setLightbox] = useState(null);
     return (
-        <section className="bg-[#FCFBFC] py-16 lg:py-20">
+        <section className="bg-[#FCFBFC] pt-4 pb-16 lg:pt-8 lg:pb-20">
             <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                 <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                     <Reveal y={14} className="max-w-xl">
@@ -43,11 +43,6 @@ export function ExperienceSection() {
                     {lightbox && (
                         <div>
                             <img src={lightbox.img} alt={lightbox.title} className="h-[420px] w-full object-cover" />
-                            <div className="p-5">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-sand">{lightbox.category}</p>
-                                <h3 className="font-display text-lg font-bold text-foreground">{lightbox.title}</h3>
-                                <p className="text-sm text-muted-foreground">{lightbox.desc}</p>
-                            </div>
                         </div>
                     )}
                 </DialogContent>
