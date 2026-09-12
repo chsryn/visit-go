@@ -62,9 +62,21 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                     items={items}
                     basePath="/admin/destinasis"
                     defaults={{ destination_category_id: defaultCategoryId }}
+                    withImageUpload={false}
                     fields={[
                         { name: "name", label: "Nama" },
                         { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        {
+                            name: "gallery",
+                            label: "Foto",
+                            type: "gallery",
+                            full: true,
+                            hint: "Paling kiri = sampul. Seret foto untuk menyusun ulang; tambah beberapa sekaligus.",
+                            initial: (row) => [
+                                ...(row.image_url ? [{ kind: "cover", url: row.image_url }] : []),
+                                ...((row.gallery ?? []).map((g) => ({ kind: "gallery", id: g.id, url: g.image_url }))),
+                            ],
+                        },
                         {
                             name: "destination_category_id",
                             label: "Kategori",
@@ -113,6 +125,18 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                             ),
                         },
                         { key: "destination_category_id", label: "Kategori", render: categoryBadge },
+                        {
+                            key: "images_count",
+                            label: "Foto",
+                            render: (row) => (
+                                <Link
+                                    href={`/admin/destinasis/${row.id}/images`}
+                                    className="whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                                >
+                                    {row.images_count ?? 0} foto →
+                                </Link>
+                            ),
+                        },
                         { key: "coords", label: "Koordinat", render: coords },
                         { key: "is_active", label: "Status", render: (row) => statusBadge(row.is_active) },
                     ]}

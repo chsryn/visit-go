@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUpload from "@/components/admin/ImageUpload";
+import GalleryField from "@/components/admin/GalleryField";
 import LocationPicker from "@/components/admin/LocationPicker";
 import { cn } from "@/lib/utils";
 
 const emptyFor = (fields) => {
     const o = {};
     for (const f of fields) {
-        o[f.name] = f.default ?? (f.type === "checkbox" ? true : "");
+        o[f.name] = f.default ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : "");
     }
     o.image = null;
     return o;
@@ -58,6 +59,9 @@ function FieldInput({ field, value, onChange, error }) {
             </label>
         );
     }
+    if (field.type === "gallery") {
+        return <GalleryField value={value ?? []} onChange={onChange} hint={field.hint} />;
+    }
     return (
         <Input
             type={field.type ?? "text"}
@@ -84,7 +88,7 @@ function LocationField({ field, values, onChange }) {
     );
 }
 
-function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy }) {
+function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy, withImageUpload = true }) {
     const [values, setValues] = useState(initial);
     const [file, setFile] = useState(null);
     const set = (name, v) => setValues((s) => ({ ...s, [name]: v }));
@@ -106,11 +110,11 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
                         ) : (
                             <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} />
                         )}
-                        {f.hint && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
+                        {f.hint && f.type !== "gallery" && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
                     </div>
                 ))}
                 <div className="space-y-2 sm:col-span-2">
-                    <ImageUpload existingUrl={existingImageUrl} onFile={setFile} />
+                    {withImageUpload && <ImageUpload existingUrl={existingImageUrl} onFile={setFile} />}
                 </div>
             </div>
             <div className="flex items-center gap-2">
@@ -131,7 +135,7 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
  * Generic admin CRUD manager (table + create/edit forms + delete).
  * Keeps the 5 content modules consistent without duplicating code.
  */
-export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null, allowCreate = true }) {
+export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null, allowCreate = true, withImageUpload = true }) {
     const [showCreate, setShowCreate] = useState(false);
     const [editing, setEditing] = useState(null);
     const [busy, setBusy] = useState(false);
@@ -142,6 +146,24 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
         setBusy(true);
         const formData = new FormData();
         for (const [k, v] of Object.entries(payload)) {
+            const field = fields.find((f) => f.name === k);
+            if (field?.type === "gallery") {
+                // Kirim file baru + urutan (termasuk posisi sampul di index 0)
+                const order = [];
+                let newIdx = 0;
+                for (const it of v ?? []) {
+                    if (it.kind === "new" && it.file instanceof File) {
+                        formData.append("images[]", it.file);
+                        order.push({ kind: "new", index: newIdx++ });
+                    } else if (it.kind === "cover") {
+                        order.push({ kind: "cover" });
+                    } else if (it.kind === "gallery" && it.id) {
+                        order.push({ kind: "gallery", id: it.id });
+                    }
+                }
+                formData.append("gallery_order", JSON.stringify(order));
+                continue;
+            }
             if (v === null || v === undefined || v === "") continue;
             if (k === imageField && !(v instanceof File)) continue;
             if (typeof v === "boolean") {
@@ -181,6 +203,7 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     initial={{ ...emptyFor(fields), ...defaults }}
                     busy={busy}
                     imageField={imageField}
+                    withImageUpload={withImageUpload}
                     submitLabel="Simpan"
                     onCancel={() => setShowCreate(false)}
                     onSubmit={(payload) =>
@@ -241,10 +264,11 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                             <ResourceForm
                                                 fields={fields}
                                                 initial={Object.fromEntries(
-                                                    fields.map((f) => [f.name, row[f.name] ?? (f.type === "checkbox" ? true : "")])
+                                                    fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
                                                 )}
                                                 existingImageUrl={row[urlKey]}
                                                 imageField={imageField}
+                                                withImageUpload={withImageUpload}
                                                 busy={busy}
                                                 submitLabel="Simpan perubahan"
                                                 onCancel={() => setEditing(null)}

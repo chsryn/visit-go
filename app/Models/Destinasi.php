@@ -21,6 +21,12 @@ class Destinasi extends Model
 
     protected $casts = ['is_active' => 'boolean', 'latitude' => 'decimal:7', 'longitude' => 'decimal:7'];
 
+    /** Galeri foto tambahan (selain foto sampul `image`), urut tampil. */
+    public function images(): HasMany
+    {
+        return $this->hasMany(DestinationImage::class, 'destinasi_id')->orderBy('sort_order')->orderBy('id');
+    }
+
     public function priceEstimates(): HasMany
     {
         return $this->hasMany(DestinationPriceEstimate::class);

@@ -109,9 +109,27 @@ export default function Detail({ item, category, related }) {
                                     )}
                                 </div>
 
-                                {/* Related */}
-                                {related?.length > 0 && (
+                                {/* Galeri Foto */}
+                                {item.images?.length > 0 && (
                                     <section className="mt-10">
+                                        <h3 className="font-display text-xl font-semibold text-foreground">Galeri Foto</h3>
+                                        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                                            {item.images.map((g) => (
+                                                <div key={g.id} className="overflow-hidden rounded-2xl border border-border/70 bg-card">
+                                                    <img
+                                                        src={g.image_url}
+                                                        alt={g.alt ?? title}
+                                                        className="aspect-[4/3] w-full object-cover"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* Related */}
+                                {related?.length > 0 && (                                    <section className="mt-10">
                                         <h3 className="font-display text-xl font-semibold text-foreground">Jelajahi juga</h3>
                                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                             {related.map((r) => (

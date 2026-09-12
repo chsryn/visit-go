@@ -77,6 +77,14 @@ class PortalController extends Controller
                 };
                 $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
                 $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+                if ($category === 'destinasi') {
+                    // Galeri foto tambahan (foto sampul tetap di `image`)
+                    $item->setAttribute('images', $item->images->map(fn ($img) => [
+                        'id' => $img->id,
+                        'image_url' => $this->resolveImageUrl($img->image),
+                        'alt' => $img->alt,
+                    ])->values());
+                }
             }
         }
 
@@ -108,6 +116,19 @@ class PortalController extends Controller
 
     // explicit aliases for 5-route option
     public function showDestinasi(string $slug) { return $this->show('destinasi', $slug); }
+
+    /** Samakan format URL gambar upload dengan halaman admin. */
+    private function resolveImageUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http') || str_starts_with($path, '/storage') || str_starts_with($path, '/build')) {
+            return $path;
+        }
+
+        return '/storage/'.ltrim($path, '/');
+    }
     public function showBudaya(string $slug) { return $this->show('budaya', $slug); }
     public function showKuliner(string $slug) { return $this->show('kuliner', $slug); }
     public function showKerajinan(string $slug) { return $this->show('kerajinan', $slug); }

@@ -68,6 +68,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::get('destinasis/{destinasi}/images', [AdminDestinasiController::class, 'images'])->name('destinasis.images');
+    Route::post('destinasis/{destinasi}/images', [AdminDestinasiController::class, 'storeImages'])->name('destinasis.images.store');
+    Route::delete('destination-images/{destinationImage}', [AdminDestinasiController::class, 'destroyImage'])->name('destination-images.destroy');
     Route::resource('destination-categories', AdminDestinationCategoryController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['destination-categories' => 'destinationCategory']);
     Route::resource('destination-prices', AdminDestinationPriceController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
