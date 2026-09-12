@@ -18,7 +18,7 @@ class PortalController extends Controller
         $events = Event::where('is_active', true)->orderBy('month')->take(6)->get();
 
         $kulinerSpotlight = Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->take(3)->get(['id','name','slug','body','image','alt']);
-        $kerajinanSpotlight = Kerajinan::where('is_active', true)->latest()->take(2)->get(['id','name','slug','body','image','alt']);
+        $kerajinanSpotlight = Umkm::ofJenis('karawo')->where('is_active', true)->latest()->take(2)->get(['id','name','slug','body','image','alt']);
 
         return Inertia::render('Welcome', [
             'events' => $events,
