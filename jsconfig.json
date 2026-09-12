@@ -7,9 +7,8 @@
         "allowImportingTsExtensions": false,
         "jsx": "react-jsx",
         "paths": {
-            "@/*": ["resources/js/*"]
-        },
-        "baseUrl": "."
+            "@/*": ["./resources/js/*"]
+        }
     },
     "include": ["resources/js/**/*", "vite.config.js"]
 }
