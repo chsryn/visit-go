@@ -295,16 +295,13 @@ export default function LocationPicker({ latitude, longitude, onChange }) {
         const valid = initLat !== null && initLng !== null;
 
         const bases = baseLayers();
-        const map = L.map(el).setView(
+        const map = L.map(el, { attributionControl: false }).setView(
             valid ? [initLat, initLng] : GORONTALO_CENTER,
             valid ? DETAIL_ZOOM : GORONTALO_ZOOM
         );
         bases.Street.addTo(map);
         L.control.layers(bases, null, { position: "topright" }).addTo(map);
         L.control.scale({ imperial: false }).addTo(map);
-        map.attributionControl.addAttribution(
-            'Data POI &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        );
         map.on("baselayerchange", (e) => {
             const max = e.layer?.options?.maxZoom;
             if (max && map.getZoom() > max) map.setZoom(max);

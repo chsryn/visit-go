@@ -73,6 +73,29 @@ function FieldInput({ field, value, onChange, error }) {
     );
 }
 
+function RowActions({ onEdit, onDelete, align = "justify-end" }) {
+    return (
+        <div className={cn("flex items-center gap-1.5", align)}>
+            <button
+                type="button"
+                aria-label="Edit"
+                onClick={onEdit}
+                className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+                <Pencil className="size-4" />
+            </button>
+            <button
+                type="button"
+                aria-label="Hapus"
+                onClick={onDelete}
+                className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            >
+                <Trash2 className="size-4" />
+            </button>
+        </div>
+    );
+}
+
 function LocationField({ field, values, onChange }) {
     const latField = field.latField ?? "latitude";
     const lngField = field.lngField ?? "longitude";
@@ -233,85 +256,119 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                 />
             )}
 
-            <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-                <table className="w-full min-w-[720px] text-left text-sm">
-                    <thead>
-                        <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
-                            {columns.map((c) => (
-                                <th key={c.key} className="px-4 py-3 font-medium">
-                                    {c.label}
-                                </th>
-                            ))}
-                            <th className="px-4 py-3 text-right font-medium">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map((row) => (
-                            <Fragment key={row.id}>
-                                <tr className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                                    {columns.map((c) => (
-                                        <td key={c.key} className="px-4 py-3 align-top">
-                                            {c.render ? c.render(row) : row[c.key]}
-                                        </td>
-                                    ))}
-                                    <td className="px-4 py-3">
-                                        <div className="flex justify-end gap-1.5">
-                                            <button
-                                                type="button"
-                                                aria-label="Edit"
-                                                onClick={() => { setShowCreate(false); setEditing(editing?.id === row.id ? null : row); }}
-                                                className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                            >
-                                                <Pencil className="size-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                aria-label="Hapus"
-                                                onClick={() => {
-                                                    if (confirm(`Hapus "${row.name}"?`)) {
-                                                        router.delete(`${basePath}/${row.id}`, { preserveScroll: true });
-                                                    }
-                                                }}
-                                                className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {editing?.id === row.id && (
-                                    <tr key={`${row.id}-edit`} className="bg-muted/30">
-                                        <td colSpan={columns.length + 1} className="px-4 py-4">
-                                            <ResourceForm
-                                                fields={fields}
-                                                initial={Object.fromEntries(
-                                                    fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
-                                                )}
-                                                existingImageUrl={row[urlKey]}
-                                                imageField={imageField}
-                                                withImageUpload={withImageUpload}
-                                                errors={errors}
-                                                busy={busy}
-                                                submitLabel="Simpan perubahan"
-                                                onCancel={() => setEditing(null)}
-                                                onSubmit={(payload) =>
-                                                    submit(payload, "put", `${basePath}/${row.id}`, () => setEditing(null))
-                                                }
+            <div className="rounded-2xl border border-border bg-card">
+                <div className="hidden overflow-x-auto sm:block">
+                    <table className="w-full min-w-[720px] text-left text-sm">
+                        <thead>
+                            <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
+                                {columns.map((c) => (
+                                    <th key={c.key} className="px-4 py-3 font-medium">
+                                        {c.label}
+                                    </th>
+                                ))}
+                                <th className="px-4 py-3 text-right font-medium">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map((row) => (
+                                <Fragment key={row.id}>
+                                    <tr className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                                        {columns.map((c) => (
+                                            <td key={c.key} className="px-4 py-3 align-top">
+                                                {c.render ? c.render(row) : row[c.key]}
+                                            </td>
+                                        ))}
+                                        <td className="px-4 py-3">
+                                            <RowActions
+                                                onEdit={() => { setShowCreate(false); setEditing(editing?.id === row.id ? null : row); }}
+                                                onDelete={() => { if (confirm(`Hapus "${row.name}"?`)) router.delete(`${basePath}/${row.id}`, { preserveScroll: true }); }}
                                             />
                                         </td>
                                     </tr>
-                                )}
-                            </Fragment>
-                        ))}
-                        {rows.length === 0 && (
-                            <tr>
-                                <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                    {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                                    {editing?.id === row.id && (
+                                        <tr key={`${row.id}-edit`} className="bg-muted/30">
+                                            <td colSpan={columns.length + 1} className="px-4 py-4">
+                                                <ResourceForm
+                                                    fields={fields}
+                                                    initial={Object.fromEntries(
+                                                        fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
+                                                    )}
+                                                    existingImageUrl={row[urlKey]}
+                                                    imageField={imageField}
+                                                    withImageUpload={withImageUpload}
+                                                    errors={errors}
+                                                    busy={busy}
+                                                    submitLabel="Simpan perubahan"
+                                                    onCancel={() => setEditing(null)}
+                                                    onSubmit={(payload) =>
+                                                        submit(payload, "put", `${basePath}/${row.id}`, () => setEditing(null))
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </Fragment>
+                            ))}
+                            {rows.length === 0 && (
+                                <tr>
+                                    <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                                        {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="space-y-3 p-3 sm:hidden">
+                    {rows.map((row) => (
+                        <div key={row.id}>
+                            <div className="rounded-xl border border-border/80 bg-card p-3">
+                                <div className="space-y-2.5">
+                                    {columns.map((c) => (
+                                        <div key={c.key}>
+                                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{c.label}</p>
+                                            <div className="mt-0.5 text-sm">
+                                                {c.render ? c.render(row) : (row[c.key] ?? "—")}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-3 border-t border-border/60 pt-2">
+                                    <RowActions
+                                        align="justify-start"
+                                        onEdit={() => { setShowCreate(false); setEditing(editing?.id === row.id ? null : row); }}
+                                        onDelete={() => { if (confirm(`Hapus "${row.name}"?`)) router.delete(`${basePath}/${row.id}`, { preserveScroll: true }); }}
+                                    />
+                                </div>
+                            </div>
+                            {editing?.id === row.id && (
+                                <div className="mt-2 rounded-xl border border-border/80 bg-muted/20 p-3">
+                                    <ResourceForm
+                                        fields={fields}
+                                        initial={Object.fromEntries(
+                                            fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
+                                        )}
+                                        existingImageUrl={row[urlKey]}
+                                        imageField={imageField}
+                                        withImageUpload={withImageUpload}
+                                        errors={errors}
+                                        busy={busy}
+                                        submitLabel="Simpan perubahan"
+                                        onCancel={() => setEditing(null)}
+                                        onSubmit={(payload) =>
+                                            submit(payload, "put", `${basePath}/${row.id}`, () => setEditing(null))
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    {rows.length === 0 && (
+                        <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center text-sm text-muted-foreground">
+                            {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {items?.links && (
