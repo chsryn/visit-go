@@ -4,19 +4,13 @@ import {
     Mountain,
     Landmark,
     Heart,
-    Fish as FishIcon,
-    Leaf,
-    Coffee,
-    Salad,
     ShoppingBag,
     PartyPopper,
     Compass,
-    Gem as GemIcon,
     Palette,
     Accessibility,
     Baby,
     UtensilsCrossed,
-    Sparkles,
 } from "lucide-react";
 
 /** Opsi statis wizard AI travel (diekstrak dari AiTravelWizard agar mudah dirawat). */
@@ -42,23 +36,12 @@ export const interests = [
     { value: "Kesehatan & Spa", label: "Kesehatan & Spa", icon: Heart },
     { value: "Kuliner", label: "Kuliner", icon: UtensilsCrossed },
     { value: "Tempat wisata", label: "Tempat wisata", icon: MapPin },
-    { value: "Kuliner mewah", label: "Kuliner mewah", icon: GemIcon },
     { value: "Belanja", label: "Belanja", icon: ShoppingBag },
     { value: "Festival", label: "Festival", icon: PartyPopper },
     { value: "Tur Wisata", label: "Tur Wisata", icon: Compass },
-    { value: "Hidden Gems", label: "Hidden Gems", icon: Sparkles },
     { value: "Seni & Budaya", label: "Seni & Budaya", icon: Palette },
     { value: "Akses Difabel", label: "Akses Difabel", icon: Accessibility },
     { value: "Ramah Anak", label: "Ramah Anak", icon: Baby },
-];
-
-export const foods = [
-    { value: "Kuliner Khas Gorontalo", label: "Kuliner Khas Gorontalo", sub: "Milu siram", icon: UtensilsCrossed },
-    { value: "Seafood Segar", label: "Seafood Segar", sub: "Ikan bakar", icon: FishIcon },
-    { value: "Halal Food", label: "Halal Food", sub: "100% Halal", icon: Leaf },
-    { value: "Western/Cafe", label: "Western / Cafe", sub: "Kopi & pastry", icon: Coffee },
-    { value: "Vegan/Vegetarian", label: "Bebas Alergi", sub: "Vegan / Veg", icon: Salad },
-    { value: "Tidak ada preferensi khusus", label: "Tidak ada preferensi", sub: "Bebas", icon: Leaf },
 ];
 
 export const steps = [

@@ -9,7 +9,6 @@ import {
     destinasiList,
     destinasiUnggulan,
     interests,
-    foods,
     steps,
     MAX_INTERESTS,
     MAX_TRIP_DAYS,
@@ -20,7 +19,7 @@ import WizardResult from "./wizard/WizardResult";
 export function AiTravelWizard() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
-    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "", food: [] });
+    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "" });
     const [range, setRange] = useState({ from: undefined, to: undefined });
     const [destSearch, setDestSearch] = useState("");
     const [showDestDropdown, setShowDestDropdown] = useState(false);
@@ -75,13 +74,6 @@ export function AiTravelWizard() {
             return { ...f, interests: [...f.interests, val] };
         });
     };
-    const toggleFood = (val) => {
-        setForm(f => {
-            const has = f.food.includes(val);
-            if (has) return { ...f, food: f.food.filter(v => v !== val) };
-            return { ...f, food: [...f.food, val] };
-        });
-    };
     const patchForm = (patch) => setForm(f => ({ ...f, ...patch }));
     const selectDestinasi = (d) => {
         setForm(f => ({ ...f, destinasi: d.value }));
@@ -90,7 +82,7 @@ export function AiTravelWizard() {
     };
 
     const handleSubmit = async () => {
-        if (!isValid()) return toast.error("Lengkapi minat & kuliner");
+        if (!isValid()) return toast.error("Lengkapi minat ya!");
         setLoading(true);
         setResult(null);
         try {
@@ -107,7 +99,6 @@ export function AiTravelWizard() {
                     duration: durationLabel,
                     duration_days: finalDays,
                     interest: allInterests.join(", ") || "Pantai",
-                    food_preference: form.food.join(", ") || "Kuliner Khas Gorontalo",
                     custom_interest: form.customInterest.trim(),
                 }),
             });
@@ -206,9 +197,7 @@ export function AiTravelWizard() {
                                 durationDays={durationDays}
                                 form={form}
                                 interests={interests}
-                                foods={foods}
                                 onToggleInterest={toggleInterest}
-                                onToggleFood={toggleFood}
                                 onChange={patchForm}
                             />
                         </motion.div>

@@ -104,7 +104,7 @@ function StepDate({ range, onSelectRange, month, onMonthChange, today, disabledA
     );
 }
 
-function StepPreferences({ form, interests, foods, onToggleInterest, onToggleFood, onChange }) {
+function StepPreferences({ form, interests, onToggleInterest, onChange }) {
     return (
         <div className="max-h-[520px] overflow-y-auto pr-1">
             <h3 className="font-display text-xl font-bold text-foreground">Ceritakan <span className="text-primary">minatmu!</span></h3>
@@ -125,18 +125,6 @@ function StepPreferences({ form, interests, foods, onToggleInterest, onToggleFoo
                 <button type="button" onClick={() => { if (form.customInterest.trim()) { onToggleInterest(form.customInterest.trim()); onChange({ customInterest: "" }); } }} className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90">Tambah</button>
             </div>
             {form.interests.length>0 && <div className="mt-3 flex flex-wrap gap-1.5">{form.interests.map(v => <span key={v} className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{v} <button type="button" onClick={() => onToggleInterest(v)}><X className="size-3" /></button></span>)}</div>}
-            <p className="mt-6 text-xs font-semibold text-foreground">Preferensi makanan?</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-                {foods.map(o => {
-                    const active = form.food.includes(o.value);
-                    const Icon = o.icon;
-                    return (
-                        <button key={o.value} type="button" onClick={() => onToggleFood(o.value)} className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${active ? "border-primary bg-primary text-white" : "border-border bg-card hover:bg-secondary"}`}>
-                            <Icon className="size-3" /> {o.label} {active && <Check className="size-3" />}
-                        </button>
-                    );
-                })}
-            </div>
         </div>
     );
 }
