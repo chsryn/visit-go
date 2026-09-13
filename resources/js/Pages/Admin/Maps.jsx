@@ -21,7 +21,6 @@ const TYPE_COLORS = {
     kuliner: "#00923F",
     kerajinan: "#B45309",
     event: "#FF0000",
-    umkm: "#0EA5E9",
 };
 
 const TYPE_LABELS = {
@@ -30,7 +29,6 @@ const TYPE_LABELS = {
     kuliner: "Kuliner",
     kerajinan: "Kerajinan",
     event: "Event",
-    umkm: "UMKM",
 };
 
 function dotIcon(color) {
@@ -47,6 +45,7 @@ export default function Maps() {
     const mapRef = useRef(null);
     const [points, setPoints] = useState([]);
     const [counts, setCounts] = useState({});
+    const [totals, setTotals] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -60,6 +59,7 @@ export default function Maps() {
                 const c = {};
                 for (const p of pts) c[p.type] = (c[p.type] ?? 0) + 1;
                 setCounts(c);
+                setTotals(json.totals ?? {});
                 setLoading(false);
             })
             .catch(() => !cancelled && setLoading(false));
@@ -125,21 +125,28 @@ export default function Maps() {
     return (
         <>
             <Head title="Maps — Admin" />
-                <AdminLayout title="Maps" subtitle="Overview semua lokasi — destinasi, budaya, kuliner, kerajinan, event, UMKM.">
+                <AdminLayout title="Maps" subtitle="Overview semua lokasi — destinasi, budaya, kuliner, kerajinan, event.">
                 <div className="mb-4 flex flex-wrap gap-2">
-                    {Object.entries(TYPE_LABELS).map(([type, label]) => (
-                        <span
-                            key={type}
-                            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium"
-                        >
+                    {Object.entries(TYPE_LABELS).map(([type, label]) => {
+                        const shown = counts[type] ?? 0;
+                        const total = totals[type] ?? shown;
+                        const missing = total - shown;
+                        return (
                             <span
-                                className="inline-block size-3 rounded-full"
-                                style={{ background: TYPE_COLORS[type] }}
-                            />
-                            {label}: {counts[type] ?? 0}
-                        </span>
-                    ))}
+                                key={type}
+                                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium"
+                            >
+                                <span
+                                    className="inline-block size-3 rounded-full"
+                                    style={{ background: TYPE_COLORS[type] }}
+                                />
+                                {label}: {shown}/{total}
+                                {missing > 0 && <span className="text-amber-600">· {missing} tanpa koordinat</span>}
+                            </span>
+                        );
+                    })}
                 </div>
+
                 <div className="overflow-hidden rounded-2xl border border-border bg-card">
                     <div ref={mapRef} className="z-0 h-[540px] w-full" />
                 </div>

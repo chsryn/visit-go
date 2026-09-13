@@ -22,8 +22,11 @@ class MapController extends Controller
     public function points()
     {
         $points = collect();
+        $totals = [];
 
-        $push = function ($rows, string $type) use ($points) {
+        $push = function ($rows, string $type) use ($points, &$totals) {
+            $rows = $rows->get(['id', 'name', 'slug', 'latitude', 'longitude']);
+            $totals[$type] = $rows->count();
             foreach ($rows as $r) {
                 if ($r->latitude === null || $r->longitude === null) {
                     continue;
@@ -39,14 +42,16 @@ class MapController extends Controller
             }
         };
 
-        $push(Destinasi::where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'destinasi');
-        $push(Budaya::where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'budaya');
-        $push(Umkm::ofJenis('kuliner')->where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'kuliner');
-        // Kerajinan = UMKM berjenis kerajinan
-        $push(Umkm::ofJenis('kerajinan')->where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'kerajinan');
-        $push(Event::where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'event');
-        $push(Umkm::whereDoesntHave('jenisRef', fn ($q) => $q->whereIn('slug', ['kuliner', 'kerajinan']))->where('is_active', true)->get(['id', 'name', 'slug', 'latitude', 'longitude']), 'umkm');
+        $push(Destinasi::where('is_active', true), 'destinasi');
+        $push(Budaya::where('is_active', true), 'budaya');
+        // Kuliner & kerajinan = UMKM berjenis kuliner/kerajinan
+        $push(Umkm::ofJenis('kuliner')->where('is_active', true), 'kuliner');
+        $push(Umkm::ofJenis('kerajinan')->where('is_active', true), 'kerajinan');
+        $push(Event::where('is_active', true), 'event');
 
-        return response()->json(['points' => $points->values()]);
+        return response()->json([
+            'points' => $points->values(),
+            'totals' => $totals,
+        ]);
     }
 }
