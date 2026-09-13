@@ -1,5 +1,6 @@
-import { Link, usePage } from "@inertiajs/react";
-import { useState } from "react";
+import { Link, router, usePage } from "@inertiajs/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
     LayoutDashboard,
     MapPin,
@@ -30,6 +31,14 @@ export default function AdminLayout({ children, title, subtitle }) {
     const flash = props.flash ?? {};
     const user = props.auth?.user;
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    useEffect(() => {
+        if (!user) {
+            toast.warning("Maaf, anda tidak punya akses.");
+            router.visit("/login", { replace: true });
+        }
+    }, [user]);
+
     const [umkmOpen, setUmkmOpen] = useState(url.startsWith("/admin/umkms"));
     const umkmJenis = props.adminUmkmJenis ?? [];
     const [destinasiOpen, setDestinasiOpen] = useState(url.startsWith("/admin/destinasis"));

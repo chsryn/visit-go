@@ -1,5 +1,6 @@
-import { Head, useForm } from "@inertiajs/react";
-import { useState } from "react";
+import { Head, useForm, usePage } from "@inertiajs/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import dulohupaLogo from "@/assets/dulohupa-ai.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,12 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, MapPin } from "lucide-react";
 
 export default function SignIn() {
+    const { props } = usePage();
+    const warning = props.flash?.warning;
     const { data, setData, post, processing, errors } = useForm({
         email: "",
         password: "",
         remember: false,
     });
     const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (warning) toast.warning(warning, { duration: 5000 });
+    }, [warning]);
 
     const submit = (e) => {
         e.preventDefault();

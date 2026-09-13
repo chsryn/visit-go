@@ -87,7 +87,7 @@ Route::post('/admin/login', fn () => redirect()->route('login'))->name('admin.lo
 Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
