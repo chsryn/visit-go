@@ -188,7 +188,8 @@ export default function CategoryIndex({ category, items, banner }) {
                                                         href={`/${category}/${it.slug}`}
                                                         image={img}
                                                         title={it.name}
-                                                        location={it.location ?? it.category}
+                                                        // location={it.location || it.category}
+                                                        location={it.location || undefined}
                                                         category={category}
                                                         description={it.body?.slice(0, 110)}
                                                     />
