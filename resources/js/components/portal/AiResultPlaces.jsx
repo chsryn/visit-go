@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { MapPin, CalendarDays, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fallbackImage from "@/assets/kategori-destinasi.jpg";
+import CostDetailModal from "./wizard/CostDetailModal";
 
 function dayRangeLabel(schedule) {
     const days = [...new Set((schedule ?? []).map((s) => s.day_number).filter(Number.isFinite))].sort((a, b) => a - b);
@@ -35,7 +36,7 @@ function numberIcon(n, active) {
  * - Klik kartu → peta terbang ke lokasi + popup terbuka + deskripsi tampil.
  * - Klik marker → kartu ter-highlight + ter-scroll ke tampilan.
  */
-export default function AiResultPlaces({ places }) {
+export default function AiResultPlaces({ places, costEstimate }) {
     const mapEl = useRef(null);
     const mapObj = useRef(null);
     const markers = useRef({});
@@ -131,6 +132,9 @@ export default function AiResultPlaces({ places }) {
                             Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude));
                         const isSel = selected === p.key;
                         const detail = p.body ?? "";
+                        const dest = (costEstimate?.destinations ?? []).find(
+                            (d) => (d.slug && p.slug && d.slug === p.slug) || d.name === p.name
+                        );
                         return (
                             <div
                                 key={p.key}
@@ -168,6 +172,7 @@ export default function AiResultPlaces({ places }) {
                                             </span>
                                         </p>
                                         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                            {dest && <CostDetailModal dest={dest} />}
                                             {dayRangeLabel(p.schedule) && (
                                                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                                                     <CalendarDays className="size-3" />

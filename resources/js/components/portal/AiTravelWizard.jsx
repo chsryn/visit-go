@@ -42,7 +42,6 @@ export function AiTravelWizard() {
     };
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
-    const [copied, setCopied] = useState(false);
 
     const totalSteps = 3;
     const progress = (step / totalSteps) * 100;
@@ -112,28 +111,6 @@ export function AiTravelWizard() {
             } else toast.error(json.message || "Gagal mendapatkan rekomendasi AI.");
         } catch (e) { toast.error("Gagal terhubung ke AI."); console.error(e); }
         finally { setLoading(false); }
-    };
-
-    const copyToClipboard = async () => {
-        if (!result) return;
-        let t = `🌟 ${result.title} 🌟\n\n📌 ${result.summary}\n\n`;
-        (result.days || []).forEach(d => {
-            t += `📅 HARI ${d.day_number}: ${d.title}\n`;
-            (d.activities || []).forEach(a => {
-                t += `  • [${a.time}] ${a.activity} @ ${a.location}\n`;
-                if (a.food_recommendation) t += `    🍽 ${a.food_recommendation}\n`;
-            });
-            t += "\n";
-        });
-        if (result.budget_breakdown) t += `💰 Total: ${result.budget_breakdown.total_estimated}\n`;
-        try {
-            if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(t);
-            else throw new Error('no clipboard');
-        } catch {
-            const ta = document.createElement('textarea'); ta.value = t; ta.style.position='fixed'; ta.style.opacity='0';
-            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-        }
-        setCopied(true); toast.success("Tersalin!"); setTimeout(() => setCopied(false), 2000);
     };
 
     const slideVariants = {
@@ -232,7 +209,7 @@ export function AiTravelWizard() {
 
                 {/* Result */}
                 {result && !loading && (
-                    <WizardResult result={result} durationDays={form.durationDays} copied={copied} onCopy={copyToClipboard} />
+                    <WizardResult result={result} />
                 )}
             </div>
         </section>
