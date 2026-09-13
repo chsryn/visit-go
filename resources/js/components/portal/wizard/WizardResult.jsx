@@ -49,7 +49,7 @@ export default function WizardResult({ result }) {
                                 ))}
                             </div>
                             <p className="mt-2 text-xs text-muted-foreground">
-                                Rekomendasi minat ini belum bisa dibuat karena datanya belum tersedia. Hubungi admin untuk info terkini.
+                                Wisata untuk minat ini belum tersedia di daerah tersebut. Hubungi admin untuk info terkini.
                             </p>
                         </>
                     )}

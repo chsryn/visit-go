@@ -139,7 +139,7 @@ class AiPlannerService
     {
         return [
             'title' => "Minat belum tersedia di {$p['location']}",
-            'summary' => 'Database belum memuat data untuk minat: '.implode(', ', $unavailable)." di area {$p['location']}. Rekomendasi tidak dibuat agar tidak menyesatkan — lengkapi data via admin untuk hasil yang valid.",
+            'summary' => 'Wisata untuk minat: '.implode(', ', $unavailable)." belum tersedia di area {$p['location']}. Rekomendasi tidak dibuat agar tidak menyesatkan — hubungi admin untuk info terkini.",
             'highlights' => [],
             'days' => [],
             'budget_breakdown' => null,
