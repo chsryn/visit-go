@@ -122,7 +122,7 @@ export function AiTravelWizard() {
     const filteredDestinasi = destinasiList.filter(d => !destSearch || d.label.toLowerCase().includes(destSearch.toLowerCase()));
 
     return (
-        <section id="ai-planner" className="relative overflow-hidden bg-transparent py-[30px] md:py-[50px] scroll-mt-12">
+        <section id="ai-planner" className="relative overflow-x-clip bg-transparent py-[30px] md:py-[50px] scroll-mt-12">
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
                 <Reveal y={30} className="max-w-xl">
                     <span className="text-[0.7rem] uppercase tracking-[0.15em] text-primary">AI Travel Assistant</span>
