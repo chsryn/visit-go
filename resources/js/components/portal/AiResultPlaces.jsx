@@ -51,9 +51,17 @@ export default function AiResultPlaces({ places, costEstimate }) {
     useEffect(() => {
         if (!mapEl.current || mapObj.current) return;
         const map = L.map(mapEl.current, { attributionControl: false }).setView([0.55, 123.06], 9);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-        }).addTo(map);
+        const baseMaps = {
+            Satelit: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }),
+            Street: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }),
+            Terrain: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", { maxZoom: 17 }),
+        };
+        baseMaps.Satelit.addTo(map);
+        L.control.layers(baseMaps, null, { position: "topright" }).addTo(map);
+        map.on("baselayerchange", (e) => {
+            const max = e.layer?.options?.maxZoom;
+            if (max && map.getZoom() > max) map.setZoom(max);
+        });
         mapObj.current = map;
         const t = setTimeout(() => map.invalidateSize(), 200);
         return () => {

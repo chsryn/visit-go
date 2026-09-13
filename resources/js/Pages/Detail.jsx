@@ -4,6 +4,7 @@ import { Navbar } from "@/components/portal/Navbar";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { DestinationCard } from "@/components/portal/DestinationCard";
+import DetailMap from "@/components/portal/DetailMap";
 import { MapPin, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { ViewCounter } from "@/components/portal/ViewCounter";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
@@ -182,9 +183,12 @@ export default function Detail({ item, category, related }) {
                             <aside className="space-y-6 lg:sticky lg:top-24 self-start">
                                 <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
                                     {item.latitude && item.longitude ? (
-                                        <div className="h-[220px] bg-muted">
-                                            <iframe title="Peta lokasi" width="100%" height="220" loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(item.longitude) - 0.01}%2C${Number(item.latitude) - 0.01}%2C${Number(item.longitude) + 0.01}%2C${Number(item.latitude) + 0.01}&layer=mapnik&marker=${item.latitude}%2C${item.longitude}`} style={{ border: 0 }} />
-                                        </div>
+                                        <DetailMap
+                                            latitude={item.latitude}
+                                            longitude={item.longitude}
+                                            name={item.name}
+                                            location={item.location}
+                                        />
                                     ) : (
                                         <div className="flex h-[220px] items-center justify-center bg-muted p-6 text-center text-sm text-muted-foreground">Peta belum tersedia — koordinat belum diisi admin.</div>
                                     )}
@@ -194,7 +198,7 @@ export default function Detail({ item, category, related }) {
                                         {item.area && item.location && item.area !== item.location && <p className="text-xs text-muted-foreground">Area: {item.area}</p>}
                                         {(item.latitude && item.longitude) && <p className="mt-1 text-xs text-muted-foreground">{Number(item.latitude).toFixed(5)}, {Number(item.longitude).toFixed(5)}</p>}
                                         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{item.location ? `Alamat sekitar ${item.location}` : item.area ? `Wilayah ${item.area}, Provinsi Gorontalo` : "Alamat detail belum tersedia."}</p>
-                                        <a href={item.latitude && item.longitude ? `https://www.openstreetmap.org/?mlat=${item.latitude}&mlon=${item.longitude}#map=15/${item.latitude}/${item.longitude}` : `https://www.google.com/maps/search/${encodeURIComponent(item.location ?? item.area ?? title)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">Buka di peta →</a>
+                                        <a href={item.latitude && item.longitude ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` : `https://www.google.com/maps/search/${encodeURIComponent(item.location ?? item.area ?? title)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">Buka di Google Maps →</a>
                                     </div>
                                 </div>
                                 <div className="rounded-2xl bg-charcoal p-6 text-white">
