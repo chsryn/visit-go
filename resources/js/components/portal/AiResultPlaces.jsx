@@ -189,7 +189,6 @@ export default function AiResultPlaces({ places, costEstimate }) {
                                             <ul className="mt-1.5 space-y-1">
                                                 {p.schedule.map((s, si) => (
                                                     <li key={si} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                                                        <span className="font-semibold text-foreground">H{s.day_number}</span>
                                                         {s.time && (
                                                             <span className="inline-flex items-center gap-1 font-mono">
                                                                 <Clock className="size-3" />{s.time}
