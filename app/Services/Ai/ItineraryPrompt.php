@@ -10,7 +10,7 @@ final class ItineraryPrompt
 {
     /**
      * @param  array  $p  keys: location, duration, interest, customInterest, foodPref,
-     *                    budget, companion, penginapan, interestText, scopedContext, unmatchedText,
+     *                    budget, companion, interestText, scopedContext, unmatchedText,
      *                    knowContext, priceSection
      */
     public static function system(array $p): string
@@ -25,7 +25,10 @@ DATA DATABASE AREA {$p['location']} (UTAMAKAN — JANGAN tampilkan tempat di lua
 
 MINAT TANPA DATA DB:
 {$p['unmatchedText']}
-(Untuk minat di atas, buat rekomendasi dari pengetahuanmu tentang Gorontalo, tetap di area {$p['location']}.)
+ATURAN MINAT TANPA DATA:
+- JANGAN mengganti minat tersebut dengan kategori lain. Contoh TIDAK BOLEH: minat "Akses Difabel" dijawab dengan snorkeling, pantai, hiking, atau resort di tengah laut.
+- Jika tidak ada konten yang benar-benar relevan dan aman untuk minat itu di area {$p['location']}, akui keterbatasannya dengan jujur (mis. tulis di summary/travel_tips: "data untuk minat ini belum tersedia di area"). JANGAN memaksakan aktivitas dari minat lain.
+- Frontend otomatis menampilkan notifikasi "tidak tersedia di area ini", jadi kamu TIDAK perlu mengarang pengganti untuk minat tanpa data.
 
 KNOWLEDGE PARIWISATA:
 {$p['knowContext']}
@@ -33,7 +36,7 @@ KNOWLEDGE PARIWISATA:
 ESTIMASI HARGA (data database, acuan utama biaya):
 {$p['priceSection']}
 ATURAN DAN FORMAT OUTPUT:
-1. Rekomendasi HARUS mematuhi tujuh parameter input dari pengguna:
+1. Rekomendasi HARUS mematuhi enam parameter input dari pengguna:
     - Durasi: {$p['duration']}
     - Minat: {$p['interest']}
     - Minat Tambahan (free text): {$p['customInterest']}
@@ -41,9 +44,8 @@ ATURAN DAN FORMAT OUTPUT:
     - Preferensi Makanan: {$p['foodPref']} (Pastikan SEMUA rekomendasi makanan mematuhi preferensi ini secara ketat!)
     - Budget: {$p['budget']} (Sesuaikan SEMUA estimasi biaya dengan gaya budget ini: Hemat/Backpacker = tekan biaya, Premium/Sultan = longgarkan)
     - Teman Perjalanan: {$p['companion']}
-    - Penginapan: {$p['penginapan']} (Hotel & Resor / Villa / Hemat)
     - ATURAN AREA: semua aktivitas dan destinasi HARUS berada di area {$p['location']}. Jika area tidak punya data DB sama sekali, gunakan pengetahuanmu tentang Gorontalo namun tetap di area tersebut.
-    - EKSKLUSIVITAS MINAT ({$p['interestText']}): tampilkan HANYA aktivitas yang sesuai minat terpilih. JANGAN menambahkan kategori minat lain yang tidak dipilih. Jika satu-satunya minat tidak ada di DB, susun SEMUA hari dari pengetahuanmu tentang minat itu di area {$p['location']}.
+    - EKSKLUSIVITAS MINAT ({$p['interestText']}): tampilkan HANYA aktivitas yang sesuai minat terpilih. JANGAN menambahkan kategori minat lain yang tidak dipilih. Jika sebuah minat tidak ada di DB dan tidak ada aktivitas yang benar-benar relevan & aman di area {$p['location']}, akui keterbatasannya (catatan jujur di summary/travel_tips) dan JANGAN mengarang aktivitas dari kategori berbeda.
     - ANTI-FIKSI: HANYA gunakan tempat yang tercantum di DATA DATABASE di atas. DILARANG mengarang nama tempat, hotel, desa, atau restoran baru. DILARANG memindahkan tempat terkenal ke area lain (contoh: Pulo Cinta hanya di Boalemo). Jika data kurang untuk mengisi hari, ulangi destinasi DB dengan sudut berbeda atau akui keterbatasan — JANGAN inventarisasi fiktif.
 
 2. JAWAB HARUS HANYA DALAM FORMAT JSON VALID tanpa teks pengantar atau markdown block (no ```json). Format JSON harus mengikuti skema berikut:
@@ -86,7 +88,7 @@ ATURAN DAN FORMAT OUTPUT:
 PROMPT;
     }
 
-    /** @param array $p keys: duration, interest, customInterest, location, foodPref, companion, penginapan */
+    /** @param array $p keys: duration, interest, customInterest, location, foodPref, companion */
     public static function user(array $p): string
     {
         return "Buatkan itinerary perjalanan Gorontalo dengan parameter:\n".
@@ -95,7 +97,6 @@ PROMPT;
             "- Minat Tambahan: {$p['customInterest']}\n".
             "- Lokasi: {$p['location']}\n".
             "- Preferensi Makanan: {$p['foodPref']}\n".
-            "- Teman Perjalanan: {$p['companion']}\n".
-            "- Penginapan: {$p['penginapan']}";
+            "- Teman Perjalanan: {$p['companion']}";
     }
 }

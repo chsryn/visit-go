@@ -113,7 +113,7 @@ export default function AiResultPlaces({ places }) {
             <div className="rounded-[15px] border border-dashed border-[#715386]/20 bg-white/60 p-10 text-center">
                 <p className="font-display text-lg font-bold">Belum ada destinasi yang dikenali</p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                    AI tidak mengembalikan destinasi yang cocok dengan database. Coba ubah minat atau lokasi, lalu rancang ulang.
+                    AI tidak mengembalikan destinasi yang cocok.Coba ubah minat atau lokasi, lalu rancang ulang.
                 </p>
             </div>
         );

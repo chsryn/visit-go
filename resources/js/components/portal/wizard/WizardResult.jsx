@@ -5,6 +5,7 @@ import CostEstimate from "./CostEstimate";
 
 /** Blok hasil: ringkasan, estimasi biaya, peta destinasi, kuliner/tips, catatan ketersediaan. */
 export default function WizardResult({ result, durationDays, copied, onCopy }) {
+    const noData = result.no_data === true;
     return (
         <div id="ai-result" className="mt-12 space-y-8">
             <Reveal y={30}><div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6 md:p-8">
@@ -23,20 +24,28 @@ export default function WizardResult({ result, durationDays, copied, onCopy }) {
                     </div>
                 </div>
             </div></Reveal>
-            {result.cost_estimate && <CostEstimate estimate={result.cost_estimate} />}
-            {result.places && <AiResultPlaces places={result.places} />}
-            {(result.food_highlights?.length>0 || result.travel_tips?.length>0) && (
+            {noData && (
+                <div className="rounded-[15px] border border-amber-300/50 bg-amber-50/80 backdrop-blur-xl p-6">
+                    <h4 className="font-display font-bold">⚠️ Tidak tersedia di area ini</h4>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Belum ada data database untuk minat pilihanmu di area ini.
+                    </p>
+                </div>
+            )}
+            {!noData && result.cost_estimate && <CostEstimate estimate={result.cost_estimate} />}
+            {!noData && result.places && <AiResultPlaces places={result.places} />}
+            {!noData && (result.food_highlights?.length>0 || result.travel_tips?.length>0) && (
                 <div className="grid gap-6 md:grid-cols-2">
                     {result.food_highlights?.length>0 && <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6"><h4 className="flex items-center gap-2 font-display font-bold"><UtensilsCrossed className="size-4 text-emerald-500"/>Kuliner</h4><ul className="mt-4 space-y-2 text-xs text-muted-foreground">{result.food_highlights.map((f,i)=><li key={i} className="flex gap-2"><span className="text-emerald-500">•</span>{f}</li>)}</ul></div>}
                     {result.travel_tips?.length>0 && <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6"><h4 className="flex items-center gap-2 font-display font-bold"><Lightbulb className="size-4 text-amber-500"/>Tips</h4><ul className="mt-4 space-y-2 text-xs text-muted-foreground">{result.travel_tips.map((t,i)=><li key={i} className="flex gap-2"><span className="text-amber-500">•</span>{t}</li>)}</ul></div>}
                 </div>
             )}
-            {(result.area_empty || (result.unavailable?.length > 0)) && (
+            {(!noData && (result.area_empty || (result.unavailable?.length > 0))) && (
                 <div className="rounded-[15px] border border-amber-300/50 bg-amber-50/80 backdrop-blur-xl p-6">
                     <h4 className="font-display font-bold">⚠️ Tidak tersedia di area ini</h4>
                     {result.area_empty ? (
                         <p className="mt-2 text-sm text-muted-foreground">
-                            Belum ada data database untuk area pilihanmu — rekomendasi di atas disusun AI dari pengetahuan umum Gorontalo.
+                            Belum ada data database untuk area pilihanmu — rekomendasi belum bisa dibuat untuk minat ini.
                         </p>
                     ) : (
                         <>
@@ -51,7 +60,7 @@ export default function WizardResult({ result, durationDays, copied, onCopy }) {
                                 ))}
                             </div>
                             <p className="mt-2 text-xs text-muted-foreground">
-                                AI merekomendasikan alternatif dari pengetahuannya — hubungi admin untuk info terkini.
+                                Rekomendasi minat ini belum bisa dibuat karena datanya belum tersedia. Hubungi admin untuk info terkini.
                             </p>
                         </>
                     )}

@@ -34,7 +34,6 @@ class FallbackItineraryBuilder
         string $foodPref,
         string $companion = 'Solo',
         $currency = 'IDR',
-        string $penginapan = 'Hotel & Resor',
         string $customInterest = '',
         string $budget = 'Menengah',
     ): array {
@@ -50,6 +49,7 @@ class FallbackItineraryBuilder
         $totalEst = $baseAcc + $baseFood + $baseTrans + $baseTicket;
 
         $days = [];
+        $limitation = false;
         $activitiesPool = $this->activityPools($foodRecs);
         $poolOrder = $this->poolOrder($interest, $customInterest);
 
@@ -102,17 +102,34 @@ class FallbackItineraryBuilder
                     ];
                 }
             } else {
-                for ($i = 1; $i <= $numDays; $i++) {
-                    $poolIndex = $poolOrder[($i - 1) % count($poolOrder)];
+                if ($this->allInterestsUnmapped($interestList)) {
+                    $days = $this->limitationDays($numDays, implode(', ', $interestList), $location);
+                    $limitation = true;
+                } else {
+                    for ($i = 1; $i <= $numDays; $i++) {
+                        $poolIndex = $poolOrder[($i - 1) % count($poolOrder)];
 
-                    $days[] = [
-                        'day_number' => $i,
-                        'title' => $dayTitle($i),
-                        'activities' => $activitiesPool[$poolIndex],
-                    ];
+                        $days[] = [
+                            'day_number' => $i,
+                            'title' => $dayTitle($i),
+                            'activities' => $activitiesPool[$poolIndex],
+                        ];
+                    }
                 }
             }
         }
+
+        $travelTips = $limitation
+            ? [
+                "Data database belum memuat layanan untuk minat {$interest} di {$location} — verifikasi ketersediaan & aksesibilitas langsung ke Dinas Pariwisata setempat.",
+                'Gunakan hanya destinasi yang sudah dikonfirmasi ramah untuk kebutuhan khusus (rute landai, akses kursi roda, dsb).',
+                'Hubungi admin untuk info terkini agar rekomendasi bisa disesuaikan.',
+            ]
+            : [
+                'Gunakan pakaian tipis dan bahan menyerap keringat untuk aktivitas pesisir Gorontalo.',
+                'Siapkan uang tunai secukupnya saat berkunjung ke destinasi pesisir seperti Botubarani & Olele.',
+                'Selalu hormati adat dan budaya lokal Gorontalo yang kental dengan nilai kearifan lokal.',
+            ];
 
         return [
             'title' => "Rencana Perjalanan {$duration} di {$location} ({$interest})",
@@ -132,11 +149,7 @@ class FallbackItineraryBuilder
                 'total_estimated' => 'Rp '.number_format($totalEst, 0, ',', '.'),
             ],
             'food_highlights' => $foodRecs,
-            'travel_tips' => [
-                'Gunakan pakaian tipis dan bahan menyerap keringat untuk aktivitas pesisir Gorontalo.',
-                'Siapkan uang tunai secukupnya saat berkunjung ke destinasi pesisir seperti Botubarani & Olele.',
-                'Selalu hormati adat dan budaya lokal Gorontalo yang kental dengan nilai kearifan lokal.',
-            ],
+            'travel_tips' => $travelTips,
         ];
     }
 
@@ -353,5 +366,60 @@ class FallbackItineraryBuilder
         }
 
         return $flat;
+    }
+
+    /**
+     * Semua minat tak terpetakan ke bucket (mis. Akses Difabel, Ramah Anak,
+     * Kesehatan & Spa). Bila ini terjadi, jangan paksa konten kategori lain
+     * (pantai/gunung) — biarkan jujur "belum tersedia".
+     */
+    private function allInterestsUnmapped(array $interestList): bool
+    {
+        if (! $interestList) {
+            return false;
+        }
+        foreach ($interestList as $piece) {
+            if (InterestProfile::bucketFor($piece) !== null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Hari-hari jujur untuk minat yang tak terpetakan: hanya verifikasi &
+     * persiapan, tanpa mengarang destinasi atau mengganti kategori
+     * (mis. akses difabel disuruh ke laut).
+     */
+    private function limitationDays(int $numDays, string $interest, string $location): array
+    {
+        $days = [];
+        for ($i = 1; $i <= $numDays; $i++) {
+            $days[] = [
+                'day_number' => $i,
+                'title' => "Hari {$i}: Persiapan & Verifikasi — {$interest}",
+                'activities' => [
+                    [
+                        'time' => '09:00 - 11:00',
+                        'activity' => "Konfirmasi ketersediaan layanan dan akses untuk {$interest} di {$location}",
+                        'location' => 'Kontak pusat informasi pariwisata daerah',
+                        'food' => null,
+                        'cost' => 'Rp 0',
+                        'notes' => 'Belum ada data database untuk minat ini di area tersebut — verifikasi manual ke Dinas Pariwisata sebelum berangkat.',
+                    ],
+                    [
+                        'time' => '13:00 - 15:00',
+                        'activity' => 'Susun rencana cadangan hanya setelah destinasi terverifikasi aman & ramah untuk kebutuhan khusus ini',
+                        'location' => 'Rencana mandiri (belum ada destinasi terverifikasi)',
+                        'food' => null,
+                        'cost' => 'Rp 0',
+                        'notes' => 'Jangan mengandalkan destinasi yang belum dikonfirmasi cocok untuk kebutuhan khusus.',
+                    ],
+                ],
+            ];
+        }
+
+        return $days;
     }
 }

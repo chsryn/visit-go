@@ -1,6 +1,5 @@
 import {
     MapPin,
-    Wallet,
     Palmtree,
     Mountain,
     Landmark,
@@ -17,8 +16,6 @@ import {
     Accessibility,
     Baby,
     UtensilsCrossed,
-    Home,
-    Building2,
     Sparkles,
 } from "lucide-react";
 
@@ -62,12 +59,6 @@ export const foods = [
     { value: "Western/Cafe", label: "Western / Cafe", sub: "Kopi & pastry", icon: Coffee },
     { value: "Vegan/Vegetarian", label: "Bebas Alergi", sub: "Vegan / Veg", icon: Salad },
     { value: "Tidak ada preferensi khusus", label: "Tidak ada preferensi", sub: "Bebas", icon: Leaf },
-];
-
-export const penginapanList = [
-    { value: "Hotel & Resor", label: "Hotel & Resor", icon: Building2 },
-    { value: "Villa", label: "Villa", icon: Home },
-    { value: "Hemat", label: "Hemat", icon: Wallet },
 ];
 
 export const steps = [

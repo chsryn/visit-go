@@ -104,7 +104,7 @@ function StepDate({ range, onSelectRange, month, onMonthChange, today, disabledA
     );
 }
 
-function StepPreferences({ form, interests, foods, penginapanList, onToggleInterest, onToggleFood, onChange }) {
+function StepPreferences({ form, interests, foods, onToggleInterest, onToggleFood, onChange }) {
     return (
         <div className="max-h-[520px] overflow-y-auto pr-1">
             <h3 className="font-display text-xl font-bold text-foreground">Ceritakan <span className="text-primary">minatmu!</span></h3>
@@ -133,19 +133,6 @@ function StepPreferences({ form, interests, foods, penginapanList, onToggleInter
                     return (
                         <button key={o.value} type="button" onClick={() => onToggleFood(o.value)} className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${active ? "border-primary bg-primary text-white" : "border-border bg-card hover:bg-secondary"}`}>
                             <Icon className="size-3" /> {o.label} {active && <Check className="size-3" />}
-                        </button>
-                    );
-                })}
-            </div>
-            <p className="mt-4 text-xs font-semibold text-foreground">Menginap di mana?</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
-                {penginapanList.map(o => {
-                    const active = form.penginapan === o.value;
-                    const Icon = o.icon;
-                    return (
-                        <button key={o.value} type="button" onClick={() => onChange({ penginapan: o.value })} className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center ${active ? "border-primary bg-primary/10" : "border-border bg-card"}`}>
-                            <Icon className="size-5 text-primary" />
-                            <span className="text-xs font-semibold">{o.label}</span>
                         </button>
                     );
                 })}

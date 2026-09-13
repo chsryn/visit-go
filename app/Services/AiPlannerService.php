@@ -28,7 +28,7 @@ class AiPlannerService
     /**
      * Generate structured travel itinerary recommendations based on user preferences.
      *
-     * @param  array  $params  [duration, duration_days, interest, location, food_preference, budget, companion, currency, penginapan, custom_interest]
+     * @param  array  $params  [duration, duration_days, interest, location, food_preference, budget, companion, currency, custom_interest]
      */
     public function generateItinerary(array $params): array
     {
@@ -37,6 +37,14 @@ class AiPlannerService
         [$scopedContext, $unavailable, $areaEmpty] = $this->grounding->scopedContext(
             $p['location'], $p['interestList'], $p['foodPref']
         );
+
+        // Gate: bila SEMUA minat tak punya data DB, jangan panggil AI / fallback
+        // yang mengarang rekomendasi (mis. akses difabel disuruh ke pantai/resort).
+        $allMissing = ! empty($p['interestList'])
+            && count(array_diff($p['interestList'], $unavailable)) === 0;
+        if ($allMissing) {
+            return $this->noDataResult($p, $unavailable, $areaEmpty);
+        }
 
         $systemPrompt = ItineraryPrompt::system([
             ...$p,
@@ -67,7 +75,7 @@ class AiPlannerService
         if ($result === null) {
             $result = $this->fallbackBuilder->build(
                 $p['duration'], $p['interest'], $p['location'], $p['foodPref'],
-                $p['companion'], $p['currency'], $p['penginapan'],
+                $p['companion'], $p['currency'],
                 $p['customInterest'], $p['budget']
             );
             $source = 'fallback';
@@ -105,7 +113,6 @@ class AiPlannerService
             'budget' => $params['budget'] ?? 'Menengah',
             'companion' => $params['companion'] ?? 'Solo',
             'currency' => $params['currency'] ?? 'IDR',
-            'penginapan' => $params['penginapan'] ?? 'Hotel & Resor',
             'customInterest' => $customInterest,
             'interestList' => array_values(array_filter(
                 array_map('trim', explode(',', $interest.','.$customInterest)),
@@ -122,5 +129,28 @@ class AiPlannerService
         return $priceContext !== ''
             ? $priceContext."\n(prioritaskan angka di atas untuk semua cost_estimate & budget_breakdown)"
             : '(belum ada data harga — gunakan estimasi wajar untuk Gorontalo)';
+    }
+
+    /**
+     * Respons jujur bila tidak ada satu pun minat yang punya data DB:
+     * tanpa hari, tanpa tempat, tanpa estimasi — biarkan "tidak tersedia".
+     */
+    private function noDataResult(array $p, array $unavailable, bool $areaEmpty): array
+    {
+        return [
+            'title' => "Minat belum tersedia di {$p['location']}",
+            'summary' => 'Database belum memuat data untuk minat: '.implode(', ', $unavailable)." di area {$p['location']}. Rekomendasi tidak dibuat agar tidak menyesatkan — lengkapi data via admin untuk hasil yang valid.",
+            'highlights' => [],
+            'days' => [],
+            'budget_breakdown' => null,
+            'food_highlights' => [],
+            'travel_tips' => [],
+            '_source' => 'no-data',
+            'no_data' => true,
+            'unavailable' => $unavailable,
+            'area_empty' => $areaEmpty,
+            'places' => [],
+            'cost_estimate' => ['destinations' => [], 'foods' => [], 'total' => 0],
+        ];
     }
 }

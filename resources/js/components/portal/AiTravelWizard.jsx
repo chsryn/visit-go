@@ -10,7 +10,6 @@ import {
     destinasiUnggulan,
     interests,
     foods,
-    penginapanList,
     steps,
     MAX_INTERESTS,
     MAX_TRIP_DAYS,
@@ -21,7 +20,7 @@ import WizardResult from "./wizard/WizardResult";
 export function AiTravelWizard() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
-    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "", food: [], penginapan: "" });
+    const [form, setForm] = useState({ destinasi: "", durationDays: 3, interests: [], customInterest: "", food: [] });
     const [range, setRange] = useState({ from: undefined, to: undefined });
     const [destSearch, setDestSearch] = useState("");
     const [showDestDropdown, setShowDestDropdown] = useState(false);
@@ -109,7 +108,6 @@ export function AiTravelWizard() {
                     duration_days: finalDays,
                     interest: allInterests.join(", ") || "Pantai",
                     food_preference: form.food.join(", ") || "Kuliner Khas Gorontalo",
-                    penginapan: form.penginapan || "Hotel & Resor",
                     custom_interest: form.customInterest.trim(),
                 }),
             });
@@ -209,7 +207,6 @@ export function AiTravelWizard() {
                                 form={form}
                                 interests={interests}
                                 foods={foods}
-                                penginapanList={penginapanList}
                                 onToggleInterest={toggleInterest}
                                 onToggleFood={toggleFood}
                                 onChange={patchForm}

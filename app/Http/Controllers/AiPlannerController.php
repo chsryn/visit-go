@@ -25,7 +25,6 @@ class AiPlannerController extends Controller
             'companion' => 'nullable|string|max:50',
             'budget' => 'nullable|string|max:50',
             'currency' => 'nullable|string|max:10',
-            'penginapan' => 'nullable|string|max:50',
             'custom_interest' => 'nullable|string|max:200',
         ]);
 
