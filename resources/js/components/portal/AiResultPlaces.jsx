@@ -50,9 +50,8 @@ export default function AiResultPlaces({ places, costEstimate }) {
     // Init map once
     useEffect(() => {
         if (!mapEl.current || mapObj.current) return;
-        const map = L.map(mapEl.current).setView([0.55, 123.06], 9);
+        const map = L.map(mapEl.current, { attributionControl: false }).setView([0.55, 123.06], 9);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
         }).addTo(map);
         mapObj.current = map;
@@ -76,7 +75,7 @@ export default function AiResultPlaces({ places, costEstimate }) {
             const m = L.marker([Number(p.latitude), Number(p.longitude)], {
                 icon: numberIcon(i + 1, p.key === selected),
             }).addTo(map);
-            m.bindPopup(`<strong>${p.name}</strong><br/><span style="color:#6B5A7A">${p.location ?? ""}</span>`);
+            m.bindPopup(`<strong>${p.name}</strong><br/><span style="color:#6B5A7A">${p.location ?? ""}</span><br/><a href="https://www.google.com/maps/search/?api=1&query=${Number(p.latitude)},${Number(p.longitude)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:6px;color:#715386;font-weight:700;text-decoration:none">Buka di Google Maps ↗</a>`);
             m.on("click", () => selectPlace(p.key, true));
             markers.current[p.key] = m;
             bounds.extend([Number(p.latitude), Number(p.longitude)]);

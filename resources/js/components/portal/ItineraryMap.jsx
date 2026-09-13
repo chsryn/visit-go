@@ -50,9 +50,8 @@ export default function ItineraryMap({ days, className = "h-[420px]" }) {
             mapRef.current = null;
         }
 
-        const map = L.map(ref.current).setView(GORONTALO_CENTER, 9);
+        const map = L.map(ref.current, { attributionControl: false }).setView(GORONTALO_CENTER, 9);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
         }).addTo(map);
 
@@ -63,7 +62,7 @@ export default function ItineraryMap({ days, className = "h-[420px]" }) {
             const color = DAY_COLORS[(p.day - 1) % DAY_COLORS.length];
             const m = L.marker([p.lat, p.lng], { icon: dayIcon(p.day, color) }).addTo(map);
             m.bindPopup(
-                `<div style="min-width:180px"><strong style="color:${color}">Hari ${p.day} • ${p.time ?? ""}</strong><br/><span style="font-weight:600">${p.title}</span><br/><span style="color:#6B7280;font-size:12px">${p.location ?? ""}</span><br/><span style="font-family:monospace;font-size:11px;color:#888">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span></div>`
+                `<div style="min-width:180px"><strong style="color:${color}">Hari ${p.day} • ${p.time ?? ""}</strong><br/><span style="font-weight:600">${p.title}</span><br/><span style="color:#6B7280;font-size:12px">${p.location ?? ""}</span><br/><span style="font-family:monospace;font-size:11px;color:#888">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</span><br/><a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:6px;color:#715386;font-weight:700;text-decoration:none">Buka di Google Maps ↗</a></div>`
             );
             // tooltip on hover
             m.bindTooltip(`H${p.day}: ${p.location ?? p.title}`, { direction: "top", offset: [0, -14] });
@@ -108,7 +107,7 @@ export default function ItineraryMap({ days, className = "h-[420px]" }) {
                         Hari {d}
                     </span>
                 ))}
-                <span className="ml-auto text-[11px] text-muted-foreground">{points.length} titik • garis putus = urutan perjalanan • data OSM/Leaflet</span>
+                <span className="ml-auto text-[11px] text-muted-foreground">{points.length} titik • garis putus = urutan perjalanan • klik titik buka Google Maps</span>
             </div>
         </div>
     );
