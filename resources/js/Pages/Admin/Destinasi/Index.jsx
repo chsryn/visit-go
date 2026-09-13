@@ -65,7 +65,7 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                     withImageUpload={false}
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
                         {
                             name: "gallery",
                             label: "Foto",
@@ -101,7 +101,7 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                                 "Gorontalo Utara",
                             ].map((a) => ({ value: a, label: a })),
                         },
-                        { name: "tags", label: "Tags (opsional)", placeholder: "cth: snorkeling, pantai, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
+                        { name: "tags", label: "Tags", placeholder: "cth: snorkeling, pantai, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
                         { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
                         { name: "latitude", label: "Latitude", readonly: true },
                         { name: "longitude", label: "Longitude", readonly: true },

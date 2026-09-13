@@ -19,7 +19,7 @@ export default function EventIndex({ items }) {
                     basePath="/admin/events"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
                         { name: "date", label: "Tanggal", placeholder: "cth: 11–13" },
                         { name: "month", label: "Bulan", placeholder: "cth: Sep 2026" },
                         { name: "location_name", label: "Nama lokasi", placeholder: "cth: Pelataran GPCC" },
@@ -37,7 +37,7 @@ export default function EventIndex({ items }) {
                                 "Gorontalo Utara",
                             ].map((a) => ({ value: a, label: a })),
                         },
-                        { name: "tags", label: "Tags (opsional)", placeholder: "cth: festival, musik, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
+                        { name: "tags", label: "Tags", placeholder: "cth: festival, musik, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
                         { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
                         { name: "latitude", label: "Latitude", readonly: true },
                         { name: "longitude", label: "Longitude", readonly: true },

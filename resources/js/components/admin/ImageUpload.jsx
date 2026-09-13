@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 /**
  * Reusable single-image upload field for Inertia forms (issue.md §4).
@@ -40,32 +39,33 @@ export default function ImageUpload({
     return (
         <div className="space-y-2">
             <Label>{label}</Label>
-            <div
-                className={cn(
-                    "relative overflow-hidden rounded-xl border border-dashed bg-muted/40",
-                    preview ? "border-border" : "border-input"
-                )}
-            >
+            <div style={{ width: 155.55, height: 155.55 }}>
                 {preview ? (
-                    <>
+                    <div
+                        style={{ width: 155.55, height: 155.55 }}
+                        className="group relative shrink-0 overflow-hidden rounded-xl border-2 border-border bg-muted"
+                    >
                         <img
                             src={preview}
                             alt="Pratinjau"
-                            className="h-44 w-full object-cover"
+                            className="size-full object-cover"
                         />
                         <button
                             type="button"
                             onClick={clear}
                             aria-label="Hapus gambar"
-                            className="absolute right-2 top-2 rounded-lg bg-black/60 p-1.5 text-white hover:bg-black/80"
+                            className="absolute right-1 top-1 rounded-lg bg-black/60 p-1.5 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100"
                         >
-                            <X className="size-4" />
+                            <X className="size-3.5" />
                         </button>
-                    </>
+                    </div>
                 ) : (
-                    <label className="flex h-44 cursor-pointer flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground">
+                    <label
+                        style={{ width: 155.55, height: 155.55 }}
+                        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-input bg-muted/40 text-muted-foreground hover:text-foreground"
+                    >
                         <ImagePlus className="size-7" />
-                        <span className="text-xs font-medium">Klik untuk pilih gambar</span>
+                        <span className="px-2 text-center text-[11px] font-medium">Klik untuk pilih gambar</span>
                         <input type="file" accept="image/*" className="hidden" onChange={pick} />
                     </label>
                 )}

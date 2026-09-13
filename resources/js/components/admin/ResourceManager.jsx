@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
-import { router } from "@inertiajs/react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { router, usePage } from "@inertiajs/react";
+import { Pencil, Plus, Trash2, X, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,10 +88,16 @@ function LocationField({ field, values, onChange }) {
     );
 }
 
-function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy, withImageUpload = true }) {
+function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy, withImageUpload = true, errors = {} }) {
     const [values, setValues] = useState(initial);
     const [file, setFile] = useState(null);
     const set = (name, v) => setValues((s) => ({ ...s, [name]: v }));
+    // Error validasi untuk field galeri datang sebagai `gallery_order` / `images.*`
+    const errorFor = (f) =>
+        errors[f.name] ??
+        (f.type === "gallery"
+            ? Object.entries(errors).find(([k]) => k === "gallery_order" || k.startsWith("images"))?.[1] ?? null
+            : null);
 
     return (
         <form
@@ -108,13 +114,14 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
                         {f.type === "location" ? (
                             <LocationField field={f} values={values} onChange={set} />
                         ) : (
-                            <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} />
+                            <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} error={errorFor(f)} />
                         )}
                         {f.hint && f.type !== "gallery" && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
+                        {errorFor(f) && <p className="text-xs font-medium text-destructive">{errorFor(f)}</p>}
                     </div>
                 ))}
                 <div className="space-y-2 sm:col-span-2">
-                    {withImageUpload && <ImageUpload existingUrl={existingImageUrl} onFile={setFile} />}
+                    {withImageUpload && <ImageUpload existingUrl={existingImageUrl} onFile={setFile} error={errors[imageField]} />}
                 </div>
             </div>
             <div className="flex items-center gap-2">
@@ -176,15 +183,28 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
         router.post(url, formData, {
             forceFormData: true,
             preserveScroll: true,
-            onFinish: () => {
-                setBusy(false);
-                done?.();
-            },
+            // Form hanya ditutup bila sukses — saat validasi gagal, error tampil dan form tetap terbuka
+            onSuccess: () => done?.(),
+            onFinish: () => setBusy(false),
         });
     };
+    const { errors } = usePage().props;
+    const errorList = Object.values(errors ?? {});
 
     return (
         <div className="space-y-4">
+            {errorList.length > 0 && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <p className="flex items-center gap-2 font-medium">
+                        <CircleAlert className="size-4" /> Gagal menyimpan — perbaiki berikut:
+                    </p>
+                    <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
+                        {errorList.map((msg, i) => (
+                            <li key={i}>{msg}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
                     Total {items?.total ?? rows.length} data
@@ -204,6 +224,7 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     busy={busy}
                     imageField={imageField}
                     withImageUpload={withImageUpload}
+                    errors={errors}
                     submitLabel="Simpan"
                     onCancel={() => setShowCreate(false)}
                     onSubmit={(payload) =>
@@ -269,6 +290,7 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                                 existingImageUrl={row[urlKey]}
                                                 imageField={imageField}
                                                 withImageUpload={withImageUpload}
+                                                errors={errors}
                                                 busy={busy}
                                                 submitLabel="Simpan perubahan"
                                                 onCancel={() => setEditing(null)}

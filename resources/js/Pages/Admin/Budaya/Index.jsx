@@ -19,7 +19,7 @@ export default function BudayaIndex({ items }) {
                     basePath="/admin/budayas"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "jam_buka", label: "Jam buka", type: "time" },
                         { name: "jam_tutup", label: "Jam tutup", type: "time" },
@@ -41,7 +41,7 @@ export default function BudayaIndex({ items }) {
                                 "Gorontalo Utara",
                             ].map((a) => ({ value: a, label: a })),
                         },
-                        { name: "tags", label: "Tags (opsional)", placeholder: "cth: tari, sejarah, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
+                        { name: "tags", label: "Tags", placeholder: "cth: tari, sejarah, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}
                     columns={[

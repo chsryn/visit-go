@@ -51,18 +51,7 @@ export default function UmkmIndex({ items, filterJenis, tab, kuliners, jenisOpti
                         UMKM
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={() => gotoTab("kuliner")}
-                        className={cn(
-                            "rounded-full px-4 py-2 text-sm font-medium",
-                            activeTab === "kuliner"
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                    >
-                        Kuliner
-                    </button>
+                   
                 </div>
 
                 {activeTab === "umkm" ? (
@@ -72,7 +61,7 @@ export default function UmkmIndex({ items, filterJenis, tab, kuliners, jenisOpti
                     defaults={{ umkm_jenis_id: defaultJenisId }}
                     fields={[
                         { name: "name", label: "Nama UMKM" },
-                        { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
                         {
                             name: "umkm_jenis_id",
                             label: "Jenis",
@@ -99,7 +88,7 @@ export default function UmkmIndex({ items, filterJenis, tab, kuliners, jenisOpti
                             { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
                             { name: "latitude", label: "Latitude", readonly: true },
                             { name: "longitude", label: "Longitude", readonly: true },
-                            { name: "tags", label: "Tags (opsional)", placeholder: "cth: halal, pedas, seafood", hint: "Pisahkan dengan koma — dipakai AI untuk preferensi makanan." },
+                            { name: "tags", label: "Tags", placeholder: "cth: halal, pedas, seafood", hint: "Pisahkan dengan koma — dipakai AI untuk preferensi makanan." },
                             { name: "alt", label: "Alt teks gambar" },
                             { name: "is_active", label: "Status", type: "checkbox" },
                         ]}
@@ -133,7 +122,7 @@ export default function UmkmIndex({ items, filterJenis, tab, kuliners, jenisOpti
                         defaults={{ umkm_jenis_id: kulinerJenisId }}
                         fields={[
                             { name: "name", label: "Nama kuliner" },
-                            { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                            { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
                             { name: "body", label: "Deskripsi", type: "textarea", full: true },
                             { name: "harga", label: "Harga (Rp)", type: "number", placeholder: "cth: 25000" },
                             { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
@@ -154,7 +143,7 @@ export default function UmkmIndex({ items, filterJenis, tab, kuliners, jenisOpti
                                     "Gorontalo Utara",
                                 ].map((a) => ({ value: a, label: a })),
                             },
-                            { name: "tags", label: "Tags (opsional)", placeholder: "cth: halal, pedas, seafood", hint: "Pisahkan dengan koma — dipakai AI untuk preferensi makanan." },
+                            { name: "tags", label: "Tags", placeholder: "cth: halal, pedas, seafood", hint: "Pisahkan dengan koma — dipakai AI untuk preferensi makanan." },
                             { name: "is_active", label: "Status", type: "checkbox" },
                         ]}
                         columns={[

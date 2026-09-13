@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Images, Trash2, Upload } from "lucide-react";
+import { Images, Trash2, Upload, CircleAlert } from "lucide-react";
 
 export default function DestinasiImages({ destinasi, images = [] }) {
     const [files, setFiles] = useState([]);
     const [busy, setBusy] = useState(false);
+    const { errors } = usePage().props;
+    const errorList = Object.values(errors ?? {});
     const previews = files.map((f) => ({ file: f, url: URL.createObjectURL(f) }));
 
     const submit = (e) => {
@@ -18,10 +20,8 @@ export default function DestinasiImages({ destinasi, images = [] }) {
         router.post(`/admin/destinasis/${destinasi.id}/images`, fd, {
             forceFormData: true,
             preserveScroll: true,
-            onFinish: () => {
-                setBusy(false);
-                setFiles([]);
-            },
+            onSuccess: () => setFiles([]),
+            onFinish: () => setBusy(false),
         });
     };
 
@@ -46,6 +46,19 @@ export default function DestinasiImages({ destinasi, images = [] }) {
                         ← Kembali ke Destinasi
                     </Link>
                 </div>
+
+                {errorList.length > 0 && (
+                    <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                        <p className="flex items-center gap-2 font-medium">
+                            <CircleAlert className="size-4" /> Gagal mengunggah — perbaiki berikut:
+                        </p>
+                        <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
+                            {errorList.map((msg, i) => (
+                                <li key={i}>{msg}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
 
                 <form
                     onSubmit={submit}

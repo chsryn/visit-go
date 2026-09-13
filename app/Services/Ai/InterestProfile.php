@@ -14,6 +14,7 @@ final class InterestProfile
         'budaya' => ['benteng', 'otanaha', 'karawo', 'adat', 'budaya', 'desa wisata', 'sidomukti', 'limboto', 'menara', 'air terjun', 'hiyaliyo'],
         'gunung' => ['gunung', 'hiking', 'trekking', 'mendaki', 'nantu', 'lombongo', 'hutan', 'air panas', 'bird'],
         'pantai' => ['pantai', 'laut', 'snorkeling', 'snorkling', 'diving', 'hiu paus', 'botubarani', 'olele', 'pulo cinta', 'island', 'resort', 'leato', 'teluk', 'underwater'],
+        'festival' => ['festival', 'karnaval', 'acara', 'konser', 'pesta', 'pameran', 'event', 'parade', 'lomba'],
     ];
 
     /**
@@ -41,6 +42,9 @@ final class InterestProfile
         }
         if ($has('pantai', 'laut', 'bahari', 'snorkeling', 'diving', 'island', 'selam')) {
             return 'pantai';
+        }
+        if ($has('festival', 'karnaval', 'acara', 'konser', 'pesta', 'pameran', 'event')) {
+            return 'festival';
         }
 
         return null;
