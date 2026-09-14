@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin, CalendarDays, Clock } from "lucide-react";
+import { MapPin, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fallbackImage from "@/assets/kategori-destinasi.jpg";
 import CostDetailModal from "./wizard/CostDetailModal";
@@ -192,20 +192,6 @@ export default function AiResultPlaces({ places, costEstimate }) {
                                                 </span>
                                             )}
                                         </div>
-                                        {(p.schedule ?? []).length > 0 && (
-                                            <ul className="mt-1.5 space-y-1">
-                                                {p.schedule.map((s, si) => (
-                                                    <li key={si} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-                                                        {s.time && (
-                                                            <span className="inline-flex items-center gap-1 font-mono">
-                                                                <Clock className="size-3" />{s.time}
-                                                            </span>
-                                                        )}
-                                                        {s.food && <span>· 🍽 {s.food}</span>}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
                                         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                                             {detail.slice(0, 110)}
                                         </p>

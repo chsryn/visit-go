@@ -1,19 +1,12 @@
-import { CheckCircle2, Lightbulb, UtensilsCrossed } from "lucide-react";
-import { Reveal } from "@/components/ui/Reveal";
+import { Lightbulb, UtensilsCrossed } from "lucide-react";
 import AiResultPlaces from "@/components/portal/AiResultPlaces";
+import RoadmapItinerary from "./RoadmapItinerary";
 
-/** Blok hasil: ringkasan, peta destinasi, kuliner/tips, catatan ketersediaan. */
+/** Blok hasil: kartu destinasi+peta, roadmap jadwal harian, kuliner/tips, catatan ketersediaan. */
 export default function WizardResult({ result }) {
     const noData = result.no_data === true;
     return (
         <div id="ai-result" className="mt-12 space-y-8">
-            <Reveal y={30}><div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6 md:p-8">
-                <div className="space-y-3">
-                    <h3 className="font-display text-2xl font-bold sm:text-3xl">{result.title}</h3>
-                    <p className="text-base leading-relaxed text-muted-foreground">{result.summary}</p>
-                    {result.highlights?.length>0 && <div className="flex flex-wrap gap-2 pt-2">{result.highlights.map((h,i)=><span key={i} className="inline-flex items-center gap-1 text-xs font-medium bg-[#715386]/10 px-3 py-1 rounded-lg"><CheckCircle2 className="size-3.5 text-primary"/>{h}</span>)}</div>}
-                </div>
-            </div></Reveal>
             {noData && (
                 <div className="rounded-[15px] border border-amber-300/50 bg-amber-50/80 backdrop-blur-xl p-6">
                     <h4 className="font-display font-bold">⚠️ Tidak tersedia di area ini</h4>
@@ -23,6 +16,7 @@ export default function WizardResult({ result }) {
                 </div>
             )}
             {!noData && result.places && <AiResultPlaces places={result.places} costEstimate={result.cost_estimate} />}
+            {!noData && result.days && <RoadmapItinerary days={result.days} />}
             {!noData && (result.food_highlights?.length>0 || result.travel_tips?.length>0) && (
                 <div className="grid gap-6 md:grid-cols-2">
                     {result.food_highlights?.length>0 && <div className="rounded-[15px] border border-white/30 bg-white/65 backdrop-blur-xl shadow-soft p-6"><h4 className="flex items-center gap-2 font-display font-bold"><UtensilsCrossed className="size-4 text-emerald-500"/>Kuliner</h4><ul className="mt-4 space-y-2 text-xs text-muted-foreground">{result.food_highlights.map((f,i)=><li key={i} className="flex gap-2"><span className="text-emerald-500">•</span>{f}</li>)}</ul></div>}
