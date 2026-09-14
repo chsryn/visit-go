@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Umkm;
-use App\Models\UmkmJenis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -16,37 +15,21 @@ class UmkmController extends Controller
 
     public function index(Request $request)
     {
-        $jenis = $request->query('jenis');
-        $tab = $request->query('tab', 'umkm');
-
-        $items = Umkm::with('jenisRef:id,name,slug')
-            ->when($jenis, fn ($q) => $q->whereHas('jenisRef', fn ($qq) => $qq->where('slug', $jenis)))
+        $items = Umkm::with(['kulinerCategories:id,name,slug', 'kerajinanCategories:id,name,slug'])
             ->latest()
             ->paginate(12)
             ->withQueryString();
 
         $items->through(fn ($u) => array_merge($u->toArray(), [
             'image_url' => $this->resolveModelImageUrl($u->image),
-        ]));
-
-        // Tab Kuliner = baris UMKM berjenis kuliner (satu pintu, tanpa tabel kuliner)
-        $kulinerJenisId = UmkmJenis::where('slug', 'kuliner')->value('id');
-        $kuliners = Umkm::with('jenisRef:id,name,slug')
-            ->when($kulinerJenisId, fn ($q) => $q->where('umkm_jenis_id', $kulinerJenisId))
-            ->latest()
-            ->paginate(12, ['*'], 'kuliner_page')
-            ->withQueryString();
-        $kuliners->through(fn ($k) => array_merge($k->toArray(), [
-            'image_url' => $this->resolveModelImageUrl($k->image),
+            'kuliner_category_ids' => $u->kulinerCategories->pluck('id')->values()->all(),
+            'kerajinan_category_ids' => $u->kerajinanCategories->pluck('id')->values()->all(),
         ]));
 
         return Inertia::render('Admin/Umkm/Index', [
             'items' => $items,
-            'filterJenis' => $jenis,
-            'tab' => in_array($tab, ['umkm', 'kuliner']) ? $tab : 'umkm',
-            'kuliners' => $kuliners,
-            'kulinerJenisId' => $kulinerJenisId,
-            'jenisOptions' => UmkmJenis::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
+            'kulinerCategories' => \App\Models\KulinerCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
+            'kerajinanCategories' => \App\Models\KerajinanCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }
 
@@ -55,7 +38,6 @@ class UmkmController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'nullable|string|max:150|unique:umkms,slug',
-            'umkm_jenis_id' => 'required|exists:umkm_jenis,id',
             'skala_usaha' => ['required', Rule::in(Umkm::SKALA_USAHA)],
             'body' => 'nullable|string',
             'produk' => 'nullable|string',
@@ -67,11 +49,20 @@ class UmkmController extends Controller
             'alt' => 'nullable|string|max:200',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
+            'kuliner_categories' => 'nullable|array|required_without:kerajinan_categories',
+            'kuliner_categories.*' => 'exists:kuliner_categories,id',
+            'kerajinan_categories' => 'nullable|array|required_without:kuliner_categories',
+            'kerajinan_categories.*' => 'exists:kerajinan_categories,id',
         ]);
 
+        $kulinerIds = $data['kuliner_categories'] ?? [];
+        $kerajinanIds = $data['kerajinan_categories'] ?? [];
+        unset($data['kuliner_categories'], $data['kerajinan_categories']);
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['image'] = $this->storeImage($request, 'image', 'uploads/umkms');
-        Umkm::create($data);
+        $umkm = Umkm::create($data);
+        $umkm->kulinerCategories()->sync($kulinerIds ?? []);
+        $umkm->kerajinanCategories()->sync($kerajinanIds ?? []);
 
         return back()->with('success', 'UMKM ditambahkan.');
     }
@@ -81,7 +72,6 @@ class UmkmController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'slug' => 'required|string|max:150|unique:umkms,slug,'.$umkm->id,
-            'umkm_jenis_id' => 'required|exists:umkm_jenis,id',
             'skala_usaha' => ['required', Rule::in(Umkm::SKALA_USAHA)],
             'body' => 'nullable|string',
             'produk' => 'nullable|string',
@@ -93,10 +83,19 @@ class UmkmController extends Controller
             'alt' => 'nullable|string|max:200',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
+            'kuliner_categories' => 'nullable|array|required_without:kerajinan_categories',
+            'kuliner_categories.*' => 'exists:kuliner_categories,id',
+            'kerajinan_categories' => 'nullable|array|required_without:kuliner_categories',
+            'kerajinan_categories.*' => 'exists:kerajinan_categories,id',
         ]);
 
+        $kulinerIds = $data['kuliner_categories'] ?? [];
+        $kerajinanIds = $data['kerajinan_categories'] ?? [];
+        unset($data['kuliner_categories'], $data['kerajinan_categories']);
         $data['image'] = $this->storeImage($request, 'image', 'uploads/umkms', $umkm->image);
         $umkm->update($data);
+        $umkm->kulinerCategories()->sync($kulinerIds ?? []);
+        $umkm->kerajinanCategories()->sync($kerajinanIds ?? []);
 
         return back()->with('success', 'UMKM diperbarui.');
     }

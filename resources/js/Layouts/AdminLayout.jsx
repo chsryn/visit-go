@@ -23,7 +23,9 @@ import { cn } from "@/lib/utils";
 
 function isActive(url, href) {
     if (href === "/admin") return url === "/admin" || url === "/admin/";
-    return url === href || url.startsWith(href + "/") || url.startsWith(href + "?");
+    return (
+        url === href || url.startsWith(href + "/") || url.startsWith(href + "?")
+    );
 }
 
 export default function AdminLayout({ children, title, subtitle }) {
@@ -39,25 +41,37 @@ export default function AdminLayout({ children, title, subtitle }) {
         }
     }, [user]);
 
-    const [umkmOpen, setUmkmOpen] = useState(url.startsWith("/admin/umkms"));
-    const umkmJenis = props.adminUmkmJenis ?? [];
-    const [destinasiOpen, setDestinasiOpen] = useState(url.startsWith("/admin/destinasis"));
+    const [destinasiOpen, setDestinasiOpen] = useState(
+        url.startsWith("/admin/destinasis"),
+    );
     const destinasiCategories = props.adminDestinationCategories ?? [];
+
+    const [umkmOpen, setUmkmOpen] = useState(
+        url.startsWith("/admin/umkms") ||
+            url.startsWith("/admin/kuliner-categories") ||
+            url.startsWith("/admin/kerajinan-categories"),
+    );
 
     const itemCls = (href) =>
         cn(
             "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
             isActive(url, href)
                 ? "bg-primary text-primary-foreground shadow-soft"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
         );
 
     const sidebar = (
         <div className="flex h-full flex-col">
             <Link href="/admin" className="flex items-center gap-2.5 px-3 py-5">
-                <img src={dulohupaLogo} alt="Dulohupa AI" className="h-9 w-auto object-contain" />
+                <img
+                    src={dulohupaLogo}
+                    alt="Dulohupa AI"
+                    className="h-9 w-auto object-contain"
+                />
                 <span className="leading-tight">
-                    <span className="block font-display text-base font-bold">Dulohupa AI</span>
+                    <span className="block font-display text-base font-bold">
+                        Dulohupa AI
+                    </span>
                     <span className="block text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
                         Admin Panel
                     </span>
@@ -69,6 +83,13 @@ export default function AdminLayout({ children, title, subtitle }) {
                     <LayoutDashboard className="size-4 shrink-0" /> Dashboard
                 </Link>
 
+                <Link
+                    href="/admin/budayas"
+                    className={itemCls("/admin/budayas")}
+                >
+                    <Landmark className="size-4 shrink-0" /> Budaya
+                </Link>
+
                 {/* Destinasi — anak accordion = kategori dinamis dari database */}
                 <button
                     type="button"
@@ -77,12 +98,17 @@ export default function AdminLayout({ children, title, subtitle }) {
                         "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                         url.startsWith("/admin/destinasis")
                             ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                 >
                     <MapPin className="size-4 shrink-0" />
                     <span className="flex-1 text-left">Destinasi</span>
-                    <ChevronDown className={cn("size-4 transition-transform", destinasiOpen && "rotate-180")} />
+                    <ChevronDown
+                        className={cn(
+                            "size-4 transition-transform",
+                            destinasiOpen && "rotate-180",
+                        )}
+                    />
                 </button>
                 {destinasiOpen && (
                     <div className="ml-4 space-y-1 border-l border-border pl-3">
@@ -92,7 +118,7 @@ export default function AdminLayout({ children, title, subtitle }) {
                                 "block rounded-lg px-3 py-2 text-sm transition-colors",
                                 url === "/admin/destinasis"
                                     ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                             )}
                         >
                             Semua Destinasi
@@ -103,16 +129,19 @@ export default function AdminLayout({ children, title, subtitle }) {
                                 href={`/admin/destinasis?kategori=${encodeURIComponent(c.slug)}`}
                                 className={cn(
                                     "block rounded-lg px-3 py-2 text-sm capitalize transition-colors",
-                                    url === `/admin/destinasis?kategori=${encodeURIComponent(c.slug)}`
+                                    url ===
+                                        `/admin/destinasis?kategori=${encodeURIComponent(c.slug)}`
                                         ? "bg-primary/10 font-semibold text-primary"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                 )}
                             >
                                 {c.name}
                             </Link>
                         ))}
                         {destinasiCategories.length === 0 && (
-                            <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada kategori.</p>
+                            <p className="px-3 py-2 text-xs text-muted-foreground">
+                                Belum ada kategori.
+                            </p>
                         )}
                         <Link
                             href="/admin/destination-categories"
@@ -120,7 +149,7 @@ export default function AdminLayout({ children, title, subtitle }) {
                                 "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                                 url.startsWith("/admin/destination-categories")
                                     ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-primary/80 hover:bg-muted hover:text-primary"
+                                    : "text-primary/80 hover:bg-muted hover:text-primary",
                             )}
                         >
                             + Kelola Kategori
@@ -128,24 +157,27 @@ export default function AdminLayout({ children, title, subtitle }) {
                     </div>
                 )}
 
-                <Link href="/admin/budayas" className={itemCls("/admin/budayas")}>
-                    <Landmark className="size-4 shrink-0" /> Budaya
-                </Link>
-
-                {/* UMKM — anak accordion = jenis dinamis dari database */}
+                {/* UMKM — anak accordion = Semua UMKM, Kategori Kuliner, Kategori Kerajinan */}
                 <button
                     type="button"
                     onClick={() => setUmkmOpen((v) => !v)}
                     className={cn(
                         "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                        url.startsWith("/admin/umkms")
+                        url.startsWith("/admin/umkms") ||
+                            url.startsWith("/admin/kuliner-categories") ||
+                            url.startsWith("/admin/kerajinan-categories")
                             ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                 >
                     <Store className="size-4 shrink-0" />
                     <span className="flex-1 text-left">UMKM</span>
-                    <ChevronDown className={cn("size-4 transition-transform", umkmOpen && "rotate-180")} />
+                    <ChevronDown
+                        className={cn(
+                            "size-4 transition-transform",
+                            umkmOpen && "rotate-180",
+                        )}
+                    />
                 </button>
                 {umkmOpen && (
                     <div className="ml-4 space-y-1 border-l border-border pl-3">
@@ -155,57 +187,68 @@ export default function AdminLayout({ children, title, subtitle }) {
                                 "block rounded-lg px-3 py-2 text-sm transition-colors",
                                 url === "/admin/umkms"
                                     ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                             )}
                         >
                             Semua UMKM
                         </Link>
-                        {umkmJenis.map((j) => (
-                            <Link
-                                key={j.slug}
-                                href={`/admin/umkms?jenis=${encodeURIComponent(j.slug)}`}
-                                className={cn(
-                                    "block rounded-lg px-3 py-2 text-sm capitalize transition-colors",
-                                    url === `/admin/umkms?jenis=${encodeURIComponent(j.slug)}`
-                                        ? "bg-primary/10 font-semibold text-primary"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                {j.name}
-                            </Link>
-                        ))}
-                        {umkmJenis.length === 0 && (
-                            <p className="px-3 py-2 text-xs text-muted-foreground">Belum ada jenis.</p>
-                        )}
                         <Link
-                            href="/admin/umkm-jenis"
+                            href="/admin/kuliner-categories"
                             className={cn(
-                                "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                                url.startsWith("/admin/umkm-jenis")
+                                "block rounded-lg px-3 py-2 text-sm transition-colors",
+                                url === "/admin/kuliner-categories" ||
+                                    url.startsWith("/admin/kuliner-categories?")
                                     ? "bg-primary/10 font-semibold text-primary"
-                                    : "text-primary/80 hover:bg-muted hover:text-primary"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                             )}
                         >
-                            + Kelola Jenis
+                            Kategori Kuliner
+                        </Link>
+                        <Link
+                            href="/admin/kerajinan-categories"
+                            className={cn(
+                                "block rounded-lg px-3 py-2 text-sm transition-colors",
+                                url === "/admin/kerajinan-categories" ||
+                                    url.startsWith(
+                                        "/admin/kerajinan-categories?",
+                                    )
+                                    ? "bg-primary/10 font-semibold text-primary"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            )}
+                        >
+                            Kategori Kerajinan
                         </Link>
                     </div>
                 )}
+
                 <Link href="/admin/events" className={itemCls("/admin/events")}>
                     <CalendarDays className="size-4 shrink-0" /> Event
                 </Link>
-                <Link href="/admin/galleries" className={itemCls("/admin/galleries")}>
+                <Link
+                    href="/admin/galleries"
+                    className={itemCls("/admin/galleries")}
+                >
                     <Images className="size-4 shrink-0" /> Galeri
                 </Link>
-                <Link href="/admin/articles" className={itemCls("/admin/articles")}>
+                <Link
+                    href="/admin/articles"
+                    className={itemCls("/admin/articles")}
+                >
                     <Newspaper className="size-4 shrink-0" /> Artikel
                 </Link>
-                <Link href="/admin/ai-keys" className={itemCls("/admin/ai-keys")}>
+                <Link
+                    href="/admin/ai-keys"
+                    className={itemCls("/admin/ai-keys")}
+                >
                     <KeyRound className="size-4 shrink-0" /> AI Usage
                 </Link>
                 <Link href="/admin/maps" className={itemCls("/admin/maps")}>
                     <MapIcon className="size-4 shrink-0" /> Maps
                 </Link>
-                <Link href="/admin/profile" className={itemCls("/admin/profile")}>
+                <Link
+                    href="/admin/profile"
+                    className={itemCls("/admin/profile")}
+                >
                     <User className="size-4 shrink-0" /> User Profile
                 </Link>
             </nav>
@@ -225,7 +268,11 @@ export default function AdminLayout({ children, title, subtitle }) {
                 >
                     <LogOut className="size-4 shrink-0" /> Logout
                 </Link>
-                {user && <p className="px-3 pt-1 text-xs text-muted-foreground">Login sebagai {user.email}</p>}
+                {user && (
+                    <p className="px-3 pt-1 text-xs text-muted-foreground">
+                        Login sebagai {user.email}
+                    </p>
+                )}
             </div>
         </div>
     );
@@ -270,8 +317,14 @@ export default function AdminLayout({ children, title, subtitle }) {
                         <Menu className="size-5" />
                     </button>
                     <div>
-                        <h1 className="font-display text-lg font-bold leading-tight">{title}</h1>
-                        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+                        <h1 className="font-display text-lg font-bold leading-tight">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <p className="text-xs text-muted-foreground">
+                                {subtitle}
+                            </p>
+                        )}
                     </div>
                 </header>
 

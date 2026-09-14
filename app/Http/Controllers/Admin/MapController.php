@@ -44,9 +44,9 @@ class MapController extends Controller
 
         $push(Destinasi::where('is_active', true), 'destinasi');
         $push(Budaya::where('is_active', true), 'budaya');
-        // Kuliner & kerajinan = UMKM berjenis kuliner/kerajinan
-        $push(Umkm::ofJenis('kuliner')->where('is_active', true), 'kuliner');
-        $push(Umkm::ofJenis('kerajinan')->where('is_active', true), 'kerajinan');
+        // Kuliner & kerajinan = UMKM dengan kategori kuliner/kerajinan
+        $push(Umkm::kuliner()->where('is_active', true), 'kuliner');
+        $push(Umkm::kerajinan()->where('is_active', true), 'kerajinan');
         $push(Event::where('is_active', true), 'event');
 
         return response()->json([

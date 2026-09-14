@@ -1,0 +1,7 @@
+export const karawoBorder = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12' viewBox='0 0 120 12'%3E%3Cg fill='none' stroke='%23D4A017' stroke-width='0.7' opacity='0.55'%3E%3Cpath d='M6 6 Q10 1 14 6 Q18 11 22 6'/%3E%3Ccircle cx='30' cy='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M38 6 Q42 1 46 6 Q50 11 54 6'/%3E%3Ccircle cx='62' cy='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M70 6 Q74 1 78 6 Q82 11 86 6'/%3E%3Ccircle cx='94' cy='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M102 6 Q106 1 110 6 Q114 11 118 6'/%3E%3C/g%3E%3C/svg%3E")`;
+export const karawoVertical = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='120' viewBox='0 0 12 120'%3E%3Cg fill='none' stroke='%23D4A017' stroke-width='0.7' opacity='0.55'%3E%3Cpath d='M6 6 Q1 10 6 14 Q11 18 6 22'/%3E%3Ccircle cy='30' cx='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M6 38 Q1 42 6 46 Q11 50 6 54'/%3E%3Ccircle cy='62' cx='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M6 70 Q1 74 6 78 Q11 82 6 86'/%3E%3Ccircle cy='94' cx='6' r='1.4' fill='%23715386' stroke='none' opacity='0.7'/%3E%3Cpath d='M6 102 Q1 106 6 110 Q11 114 6 118'/%3E%3C/g%3E%3C/svg%3E")`;
+export const karawoDividerStyle = {
+    backgroundImage: karawoBorder,
+    backgroundRepeat: "repeat-x",
+    backgroundSize: "120px 12px",
+};

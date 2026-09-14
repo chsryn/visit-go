@@ -167,7 +167,7 @@ class SearchController extends Controller
 
     private function queryKuliner(string $like, int $limit)
     {
-        return Umkm::ofJenis('kuliner')->where('is_active', true)
+        return Umkm::kuliner()->where('is_active', true)
             ->where(function ($w) use ($like) {
                 $w->where('name', 'like', $like)
                     ->orWhere('slug', 'like', $like)
@@ -192,8 +192,7 @@ class SearchController extends Controller
 
     private function queryKerajinan(string $like, int $limit)
     {
-        // Kerajinan hidup sebagai baris UMKM berjenis kerajinan (tanpa tabel kerajinans)
-        return Umkm::ofJenis('kerajinan')->where('is_active', true)
+        return Umkm::kerajinan()->where('is_active', true)
             ->where(function ($w) use ($like) {
                 $w->where('name', 'like', $like)
                     ->orWhere('slug', 'like', $like)

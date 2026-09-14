@@ -9,13 +9,13 @@ const statusBadge = (active) =>
         <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">Nonaktif</span>
     );
 
-export default function UmkmJenis({ items }) {
+export default function KulinerCategoryIndex({ items }) {
     return (
         <>
-            <Head title="Jenis UMKM — Admin" />
+            <Head title="Kategori Kuliner — Admin" />
             <AdminLayout
-                title="Jenis UMKM"
-                subtitle="Master jenis — tambah di sini agar muncul di sidebar & form UMKM."
+                title="Kategori Kuliner"
+                subtitle="Kelola jenis kuliner khas — akan muncul sebagai opsi filter di halaman kuliner & form UMKM."
             >
                 <div className="mb-4">
                     <Link
@@ -27,9 +27,9 @@ export default function UmkmJenis({ items }) {
                 </div>
                 <ResourceManager
                     items={items}
-                    basePath="/admin/umkm-jenis"
+                    basePath="/admin/kuliner-categories"
                     fields={[
-                        { name: "name", label: "Nama jenis", placeholder: "cth: tenun" },
+                        { name: "name", label: "Nama kategori kuliner", placeholder: "cth: Binthe Biluhuta" },
                         { name: "is_active", label: "Status", type: "checkbox" },
                     ]}
                     columns={[
@@ -42,6 +42,7 @@ export default function UmkmJenis({ items }) {
                                     <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                                         {row.umkms_count ?? 0} umkm
                                     </p>
+                                    <p className="mt-0.5 font-mono text-xs text-muted-foreground">{row.slug}</p>
                                 </div>
                             ),
                         },

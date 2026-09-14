@@ -50,7 +50,7 @@ export function WelcomeOverview({ galleries = [] }) {
             <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="grid items-start gap-10 lg:grid-cols-[60%_40%] lg:gap-10">
                     <Reveal y={18}>
-                        <span className="text-xs font-semibold uppercase tracking-[0.10em] text-gray">Selamat Datang di Gorontalo</span>
+                        <span className="text-xs font-semibold uppercase tracking-[0.10em] text-muted-foreground">Selamat Datang di Gorontalo</span>
                         <h2 className="mt-3 font-display text-[40px] font-bold leading-[0.92] tracking-tight text-foreground md:text-[56px]">
                             Di mana Teluk<br />Tomini <span className="font-normal italic text-ocean">bertemu</span><br />Hulonthalo.
                         </h2>
@@ -76,7 +76,7 @@ export function WelcomeOverview({ galleries = [] }) {
                     <div className="relative">
                         <div className="relative overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
                             <div className="aspect-[3/2] w-full overflow-hidden rounded-xl bg-black">
-                                <iframe src="https://www.youtube.com/embed/RyBTguN34bU" title="Gorontalo — Video" className="h-full w-full object-cover rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen frameBorder="0" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
+                                <iframe src="https://www.youtube.com/embed/oVU3NvwTC_Y" title="Gorontalo — Video" className="h-full w-full object-cover rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen frameBorder="0" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" />
                             </div>
                         </div>
                         <div className="mt-3">

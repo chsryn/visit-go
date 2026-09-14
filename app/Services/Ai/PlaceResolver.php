@@ -93,7 +93,7 @@ class PlaceResolver
         ];
         foreach ($tables as [$model, $category, $jenis]) {
             $rows = $model === Umkm::class
-                ? $model::ofJenis($jenis)->where('is_active', true)->get(self::COLUMNS)
+                ? ($jenis === 'kuliner' ? $model::kuliner()->where('is_active', true)->get(self::COLUMNS) : $model::kerajinan()->where('is_active', true)->get(self::COLUMNS))
                 : $model::where('is_active', true)->get(self::COLUMNS);
             foreach ($rows as $r) {
                 if (mb_strlen($r->name) < self::MIN_NAME_LENGTH) {
@@ -152,7 +152,7 @@ class PlaceResolver
             ];
             foreach ($specs as [$model, $jenis, $hasArea]) {
                 $rows = $model === Umkm::class
-                    ? $model::ofJenis($jenis)->where('is_active', true)->get(['name'])
+                    ? ($jenis === 'kuliner' ? $model::kuliner()->where('is_active', true)->get(['name']) : $model::kerajinan()->where('is_active', true)->get(['name']))
                     : $model::where('is_active', true)->get(['name', 'area']);
                 foreach ($rows as $r) {
                     if (mb_strlen($r->name ?? '') < self::MIN_NAME_LENGTH) {

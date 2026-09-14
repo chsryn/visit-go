@@ -91,7 +91,7 @@ function StepDate({ range, onSelectRange, month, onMonthChange, today, disabledA
                     showOutsideDays={false}
                 />
             </div>
-            <div className="mt-3 text-center text-sm text-gray-500">
+            <div className="mt-3 text-center text-sm text-muted-foreground">
                 {range.from && range.to ? (
                     <p className="font-medium text-primary">{format(range.from, "d MMM yyyy", { locale: localeId })} — {format(range.to, "d MMM yyyy", { locale: localeId })} • <span className="font-bold">{durationDays} hari</span></p>
                 ) : range.from ? (

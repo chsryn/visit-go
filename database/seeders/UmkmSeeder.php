@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Umkm;
-use App\Models\UmkmJenis;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -14,13 +13,6 @@ class UmkmSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['kuliner', 'kerajinan'] as $jenis) {
-            UmkmJenis::firstOrCreate(
-                ['slug' => Str::slug($jenis)],
-                ['name' => $jenis, 'is_active' => true]
-            );
-        }
-
         $umkms = [
             [
                 'name' => 'Milu Siram Barokah',
@@ -32,6 +24,7 @@ class UmkmSeeder extends Seeder
                 'kontak' => 'Kota Gorontalo',
                 'image' => '/storage/portal/kategori-kuliner.jpg',
                 'alt' => 'Milu Siram Barokah',
+                'kuliner' => ['Binthe Biluhuta'],
             ],
             [
                 'name' => 'Ilabulo Hj. Fatma',
@@ -43,6 +36,7 @@ class UmkmSeeder extends Seeder
                 'kontak' => 'Kota Gorontalo',
                 'image' => '/storage/portal/kategori-kuliner.jpg',
                 'alt' => 'Ilabulo Hj. Fatma',
+                'kuliner' => ['Ilabulo'],
             ],
             [
                 'name' => 'Karawo Sulaman Gorontalo',
@@ -54,16 +48,15 @@ class UmkmSeeder extends Seeder
                 'kontak' => 'Kabupaten Gorontalo',
                 'image' => '/storage/portal/kategori-kerajinan.jpg',
                 'alt' => 'Karawo Sulaman Gorontalo',
+                'kerajinan' => ['Sulaman Karawo'],
             ],
         ];
 
         foreach ($umkms as $u) {
-            $jenisId = UmkmJenis::where('slug', Str::slug($u['jenis']))->value('id');
-            Umkm::updateOrCreate(
+            $umkm = Umkm::updateOrCreate(
                 ['slug' => $u['slug']],
                 [
                     'name' => $u['name'],
-                    'umkm_jenis_id' => $jenisId,
                     'skala_usaha' => $u['skala_usaha'],
                     'body' => $u['body'],
                     'produk' => $u['produk'],
@@ -73,6 +66,14 @@ class UmkmSeeder extends Seeder
                     'is_active' => true,
                 ]
             );
+            if (! empty($u['kuliner'])) {
+                $ids = \App\Models\KulinerCategory::whereIn('name', $u['kuliner'])->pluck('id')->all();
+                if ($ids) $umkm->kulinerCategories()->syncWithoutDetaching($ids);
+            }
+            if (! empty($u['kerajinan'])) {
+                $ids = \App\Models\KerajinanCategory::whereIn('name', $u['kerajinan'])->pluck('id')->all();
+                if ($ids) $umkm->kerajinanCategories()->syncWithoutDetaching($ids);
+            }
         }
     }
 }

@@ -14,26 +14,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $jenisId = DB::table('umkm_jenis')->where('slug', 'kuliner')->value('id');
-        if (! $jenisId) {
-            $jenisId = DB::table('umkm_jenis')->insertGetId([
-                'name' => 'kuliner',
-                'slug' => 'kuliner',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        if (! Schema::hasTable('kuliners')) {
+            return;
         }
 
         foreach (DB::table('kuliners')->get() as $k) {
             $slug = $k->slug ?: Str::slug($k->name).'-kuliner';
             if (DB::table('umkms')->where('slug', $slug)->exists()) {
-                continue; // jangan timpa (mis. dijalankan ulang)
+                continue;
             }
             DB::table('umkms')->insert([
                 'name' => $k->name,
                 'slug' => $slug,
-                'umkm_jenis_id' => $jenisId,
                 'skala_usaha' => 'mikro',
                 'body' => $k->body,
                 'produk' => null,

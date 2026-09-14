@@ -49,8 +49,8 @@ class GroundingBuilder
                 if ($sweepLines) {
                     $totalRows += count($sweepLines);
                     $blocks[] = "[Minat: {$interest}]\n".implode("\n", $sweepLines);
-                    foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
-                        if ($model === Umkm::class && $umkmJenis === 'kuliner') {
+                    foreach ($this->sourcesForInterest($interest) as [$model, $type]) {
+                        if ($model === Umkm::class && $type === 'kuliner') {
                             $kulinerIncluded = true;
                         }
                     }
@@ -58,17 +58,17 @@ class GroundingBuilder
                     continue;
                 }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
-                    if ($model === Umkm::class && $umkmJenis === 'kuliner') {
+                foreach ($this->sourcesForInterest($interest) as [$model, $type]) {
+                    if ($model === Umkm::class && $type === 'kuliner') {
                         $kulinerIncluded = true;
                     }
                     // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini.
                     // Baris tanpa tags tetap ikut (tak bisa dinilai).
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, kerajinan untuk belanja
+                        // Umkm dibaca per kategori: kuliner via kulinerCategories, kerajinan via kerajinanCategories
                         $q = $model === Umkm::class
-                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
+                            ? $model::where('is_active', true)->when($type === 'kuliner', fn ($qq) => $qq->whereHas('kulinerCategories'))->when($type === 'kerajinan', fn ($qq) => $qq->whereHas('kerajinanCategories'))
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
@@ -174,13 +174,13 @@ class GroundingBuilder
                     continue;
                 }
                 $scored = [];
-                foreach ($this->sourcesForInterest($interest) as [$model, $umkmJenis]) {
+                foreach ($this->sourcesForInterest($interest) as [$model, $type]) {
                     // Gate: tabel non-destinasi + baris bertag tapi skor nol = bukan untuk minat ini
                     $strict = $model !== Destinasi::class;
                     try {
-                        // Umkm dibaca per jenis: kuliner untuk minat kuliner, kerajinan untuk belanja
+                        // Umkm dibaca per kategori pivot
                         $q = $model === Umkm::class
-                            ? $model::whereHas('jenisRef', fn ($qq) => $qq->where('slug', $umkmJenis))->where('is_active', true)
+                            ? $model::where('is_active', true)->when($type === 'kuliner', fn ($qq) => $qq->whereHas('kulinerCategories'))->when($type === 'kerajinan', fn ($qq) => $qq->whereHas('kerajinanCategories'))
                             : $model::where('is_active', true);
                         if ($model === Destinasi::class) {
                             $q->whereNotIn('slug', PortalController::PILLARS);
@@ -247,9 +247,15 @@ class GroundingBuilder
 
     private function categoryOf(string $model, $row = null): string
     {
-        // Baris UMKM bisa kuliner atau kerajinan — bedakan dari jenisnya
+        // Baris UMKM bisa kuliner atau kerajinan — bedakan dari pivot
         if ($model === Umkm::class && $row) {
-            return ($row->jenisRef->slug ?? 'kuliner') === 'kerajinan' ? 'kerajinan' : 'kuliner';
+            $isKerajinan = isset($row->kerajinanCategories) ? $row->kerajinanCategories->isNotEmpty() : $row->kerajinanCategories()->exists();
+            $isKuliner = isset($row->kulinerCategories) ? $row->kulinerCategories->isNotEmpty() : $row->kulinerCategories()->exists();
+            if ($isKerajinan && ! $isKuliner) return 'kerajinan';
+            if ($isKuliner && ! $isKerajinan) return 'kuliner';
+            // jika keduanya ada, tentukan dari relasi yang ada
+            if ($isKerajinan) return 'kerajinan';
+            return 'kuliner';
         }
 
         return match ($model) {
@@ -379,7 +385,7 @@ class GroundingBuilder
     {
         try {
             $foodTokens = $this->interestTokens($foodPref);
-            $rows = Umkm::where('is_active', true)->whereHas('jenisRef', fn ($q) => $q->where('slug', 'kuliner'))->limit(12)->get(['name', 'harga', 'tags']);
+            $rows = Umkm::kuliner()->where('is_active', true)->limit(12)->get(['name', 'harga', 'tags']);
             $scored = [];
             foreach ($rows as $k) {
                 $scored[] = [
@@ -448,7 +454,7 @@ class GroundingBuilder
             try {
                 // Umkm relevan sebagai kuliner maupun kerajinan — token yang memilah
                 $query = $model === Umkm::class
-                    ? $model::whereHas('jenisRef', fn ($q) => $q->whereIn('slug', ['kuliner', 'kerajinan']))->where('is_active', true)
+                    ? $model::where(function ($q) { $q->whereHas('kulinerCategories')->orWhereHas('kerajinanCategories'); })->where('is_active', true)
                     : $model::where('is_active', true);
                 foreach ($query->get() as $r) {
                     $tags = strtolower($r->tags ?? '');

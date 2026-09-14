@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
 
         User::firstOrCreate(
             ['email' => 'test@example.com'],
-            ['name' => 'Test User', 'password' => Hash::make('password')],
+            ['name' => 'Test User', 'password' => Hash::make('password'), 'role' => 'user'],
         );
 
         $this->call([
@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             DestinationPriceSeeder::class,
             UmkmSeeder::class,
             GallerySeeder::class,
+            KulinerCategorySeeder::class,
+            KerajinanCategorySeeder::class,
         ]);
     }
 }

@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { DestinationCard } from "@/components/portal/DestinationCard";
 import { resolveStorageUrl } from "@/lib/image";
+import { karawoBorder } from "@/lib/karawo";
 import { Search } from "lucide-react";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
@@ -51,15 +52,15 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
             <Head title={initialQ ? `Cari "${initialQ}" — Dulohupa AI` : "Cari — Dulohupa AI"} />
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
-                <main>
-                    <div className="relative overflow-hidden bg-warm pt-28 pb-14">
+                <main className="min-h-screen h-auto overflow-visible">
+                    <div className="relative overflow-hidden bg-[#2A1E32] pt-28 pb-14">
                         <img src={karawoImage} alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.16] blur-[8px] scale-105" />
-                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-warm/75" />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#2A1E32]/75" />
                         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
-                        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23D4A017' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-foreground md:text-[40px]">{initialQ ? `Hasil untuk "${initialQ}"` : "Cari"}</h1>
-                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">{total > 0 ? `${total} hasil ditemukan` : initialQ ? "Coba kata kunci lain" : "Cari destinasi, budaya, kuliner, kerajinan, atau agenda Gorontalo"}{initialType ? ` — ${typeLabels[initialType]}` : ""}</p>
+                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">{initialQ ? `Hasil untuk "${initialQ}"` : "Cari"}</h1>
+                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-white/70">{total > 0 ? `${total} hasil ditemukan` : initialQ ? "Coba kata kunci lain" : "Cari destinasi, budaya, kuliner, kerajinan, atau agenda Gorontalo"}{initialType ? ` — ${typeLabels[initialType]}` : ""}</p>
                             <form onSubmit={handleSubmit} className="mt-6 flex max-w-xl items-center gap-2 rounded-full border border-border bg-white p-1.5 shadow-sm">
                                 <Search className="ml-3 size-4 shrink-0 text-muted-foreground" />
                                 <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari Pulo Cinta, Karawo, Milu Siram..." className="flex-1 bg-transparent px-2 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none" />
@@ -77,8 +78,9 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
                                 ))}
                             </div>
                         </div>
+                        <div aria-hidden className="h-[10px] w-full opacity-90 absolute inset-x-0 bottom-0 z-10" style={{ backgroundImage: karawoBorder, backgroundRepeat: "repeat-x", backgroundSize: "120px 12px" }} />
                     </div>
-                    <section className="bg-warm py-16 lg:py-20">
+                    <section className="bg-[#FCFCFC] py-16 lg:py-20">
                         <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                             {!initialQ ? (
                                 <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center"><p className="text-sm text-muted-foreground">Masukkan kata kunci di atas untuk mencari.</p></div>

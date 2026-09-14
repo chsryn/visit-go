@@ -3,6 +3,7 @@ import { Navbar } from "@/components/portal/Navbar";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { resolveStorageUrl } from "@/lib/image";
+import { karawoBorder } from "@/lib/karawo";
 import heroImg from "@/assets/kategori-budaya.jpg";
 import { Calendar, ArrowRight } from "lucide-react";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination";
@@ -16,18 +17,19 @@ export default function ArticleIndex({ items }) {
             <Head title="Artikel — Dulohupa AI" />
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
-                <main>
-                    <div className="relative overflow-hidden bg-warm pt-28 pb-14">
+                <main className="min-h-screen h-auto overflow-visible">
+                    <div className="relative overflow-hidden bg-[#2A1E32] pt-28 pb-14">
                         <img src={heroImg} alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.24] blur-[8px] scale-105" />
-                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-warm/75" />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#2A1E32]/75" />
                         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-foreground md:text-[40px]">Artikel</h1>
-                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted-foreground">Cerita, panduan, dan inspirasi perjalanan di Gorontalo.</p>
+                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">Artikel</h1>
+                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-white/70">Cerita, panduan, dan inspirasi perjalanan di Gorontalo.</p>
                         </div>
+                        <div aria-hidden className="h-[10px] w-full opacity-90 absolute inset-x-0 bottom-0 z-10" style={{ backgroundImage: karawoBorder, backgroundRepeat: "repeat-x", backgroundSize: "120px 12px" }} />
                     </div>
 
-                    <section className="bg-warm py-12 lg:py-16">
+                    <section className="bg-[#FCFCFC] py-12 lg:py-16">
                         <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                             {data?.length ? (
                                 <>

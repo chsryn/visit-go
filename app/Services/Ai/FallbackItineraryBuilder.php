@@ -237,9 +237,9 @@ class FallbackItineraryBuilder
             ],
         };
 
-        // Utamakan nama kuliner dari database (UMKM berjenis kuliner)
+        // Utamakan nama kuliner dari database (UMKM dengan kategori kuliner)
         try {
-            $dbFoods = Umkm::ofJenis('kuliner')->where('is_active', true)->orderBy('name')->pluck('name')->all();
+            $dbFoods = Umkm::kuliner()->where('is_active', true)->orderBy('name')->pluck('name')->all();
         } catch (\Throwable $e) {
             $dbFoods = [];
         }

@@ -6,8 +6,11 @@ use App\Models\Article;
 use App\Models\Budaya;
 use App\Models\Category;
 use App\Models\Destinasi;
+use App\Models\DestinationCategory;
 use App\Models\Event;
 use App\Models\Gallery;
+use App\Models\KerajinanCategory;
+use App\Models\KulinerCategory;
 use App\Models\Umkm;
 use Inertia\Inertia;
 
@@ -19,8 +22,8 @@ class PortalController extends Controller
     {
         $events = Event::where('is_active', true)->orderBy('month')->take(6)->get();
 
-        $kulinerSpotlight = Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->take(3)->get(['id','name','slug','body','image','alt']);
-        $kerajinanSpotlight = Umkm::ofJenis('kerajinan')->where('is_active', true)->latest()->take(2)->get(['id','name','slug','body','image','alt']);
+        $kulinerSpotlight = Umkm::kuliner()->where('is_active', true)->latest()->take(3)->get(['id','name','slug','body','image','alt']);
+        $kerajinanSpotlight = Umkm::kerajinan()->where('is_active', true)->latest()->take(2)->get(['id','name','slug','body','image','alt']);
         $galleries = Gallery::where('is_active', true)->inRandomOrder()->take(12)->get()->map(fn ($g) => array_merge($g->toArray(), ['image_url' => $this->resolveImageUrl($g->image)]))->values();
 
         return Inertia::render('Welcome', [
@@ -40,30 +43,106 @@ class PortalController extends Controller
             $paginator->getCollection()->transform(fn($e) => ['id'=>$e->id,'name'=>$e->name,'slug'=>$e->slug,'category'=>'event','body'=>$e->body,'image'=>$e->image,'alt'=>$e->alt,'date'=>$e->date,'month'=>$e->month,'location'=>$e->location]);
             $items = $paginator;
         } else {
-            $umkmJenis = match ($category) {
-                'kuliner' => 'kuliner',
-                'kerajinan' => 'kerajinan',
-                default => null,
-            };
-            if ($umkmJenis) {
-                $paginator = Umkm::ofJenis($umkmJenis)->where('is_active', true)->latest()->paginate(9)->withQueryString();
-                $paginator->getCollection()->transform(fn($i) => array_merge($i->toArray(), ['category' => $category]));
+            $isKuliner = $category === 'kuliner';
+            $isKerajinan = $category === 'kerajinan';
+            if ($isKuliner || $isKerajinan) {
+                $with = $isKuliner ? ['kulinerCategories:id,name,slug'] : ['kerajinanCategories:id,name,slug'];
+                $query = Umkm::with($with)->where('is_active', true);
+                if ($isKuliner) {
+                    $query->whereHas('kulinerCategories');
+                    $filterSlug = strtolower(trim($request->query('kuliner_category', '')));
+                    if ($filterSlug !== '' && $filterSlug !== 'semua') {
+                        $query->whereHas('kulinerCategories', fn ($qq) => $qq->where('slug', $filterSlug));
+                    }
+                } else {
+                    $query->whereHas('kerajinanCategories');
+                    $filterSlug = strtolower(trim($request->query('kerajinan_category', '')));
+                    if ($filterSlug !== '' && $filterSlug !== 'semua') {
+                        $query->whereHas('kerajinanCategories', fn ($qq) => $qq->where('slug', $filterSlug));
+                    }
+                }
+                $paginator = $query->latest()->paginate(9)->withQueryString();
+                $paginator->getCollection()->transform(fn($i) => array_merge($i->toArray(), [
+                    'category' => $category,
+                    'kuliner_categories' => $isKuliner && $i->relationLoaded('kulinerCategories') ? $i->kulinerCategories->map->only(['id','name','slug']) : [],
+                    'kerajinan_categories' => $isKerajinan && $i->relationLoaded('kerajinanCategories') ? $i->kerajinanCategories->map->only(['id','name','slug']) : [],
+                ]));
                 $items = $paginator;
             } else {
                 $model = match ($category) {
                     'budaya' => Budaya::class,
                     default => Destinasi::class,
                 };
-                $paginator = $model::where('is_active', true)->latest()->paginate(9)->withQueryString();
+                $sub = strtolower(trim($request->query('sub', '')));
+                $query = $model::where('is_active', true);
+                if ($category === 'budaya' && $sub === 'sejarah') {
+                    $query->where(function ($q) {
+                        $q->where('tags', 'like', '%sejarah%')
+                          ->orWhere('body', 'like', '%sejarah%')
+                          ->orWhere('body', 'like', '%Suwawa%')
+                          ->orWhere('body', 'like', '%Pohala%');
+                    });
+                }
+                $perPage = $category === 'budaya' ? 6 : 9;
+                $paginator = $query->latest()->paginate($perPage)->withQueryString();
                 $paginator->getCollection()->transform(fn($i) => array_merge($i->toArray(), ['category' => $category]));
                 $items = $paginator;
             }
         }
         $banner = Category::where('slug', $category)->where('is_active', true)->first();
+        $activeSub = strtolower(trim($request->query('sub', '')));
+        // only budaya supports sub, otherwise null
+        if ($category !== 'budaya' || ! in_array($activeSub, ['sejarah'], true)) {
+            $activeSub = null;
+        }
+        $kulinerCategories = $category === 'kuliner'
+            ? KulinerCategory::where('is_active', true)->orderBy('name')->get(['id','name','slug'])
+            : [];
+        $activeKulinerCategory = $category === 'kuliner' ? strtolower(trim($request->query('kuliner_category', 'semua'))) : 'semua';
+        if ($category === 'kuliner' && $activeKulinerCategory !== 'semua' && ! $kulinerCategories->pluck('slug')->contains($activeKulinerCategory)) {
+            $activeKulinerCategory = 'semua';
+        }
+        $kerajinanCategories = $category === 'kerajinan'
+            ? KerajinanCategory::where('is_active', true)->orderBy('name')->get(['id','name','slug'])
+            : [];
+        $activeKerajinanCategory = $category === 'kerajinan' ? strtolower(trim($request->query('kerajinan_category', 'semua'))) : 'semua';
+        if ($category === 'kerajinan' && $activeKerajinanCategory !== 'semua' && ! $kerajinanCategories->pluck('slug')->contains($activeKerajinanCategory)) {
+            $activeKerajinanCategory = 'semua';
+        }
+
+        // Ekosistem budaya dinamis — hanya untuk /budaya tanpa sub sejarah (tanpa ekosistem kuliner/kerajinan, hanya galeri & destinasi)
+        $destinasiTerkait = [];
+        $galeriBudaya = [];
+        if ($category === 'budaya' && $activeSub !== 'sejarah') {
+            $destinasiTerkait = Destinasi::with('destinationCategory:id,name,slug')->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereHas('destinationCategory', fn ($qq) => $qq->whereIn('slug', ['cagar-budaya', 'sejarah-budaya']))
+                      ->orWhere('name', 'like', '%Benteng%')
+                      ->orWhere('name', 'like', '%Masjid%')
+                      ->orWhere('name', 'like', '%Desa Wisata%')
+                      ->orWhere('name', 'like', '%Kampung%');
+                })
+                ->whereNotIn('slug', self::PILLARS)
+                ->latest()->take(3)->get()
+                ->map(fn ($i) => array_merge($i->toArray(), ['category' => 'destinasi', 'destination_category' => $i->destinationCategory ? $i->destinationCategory->only(['id','name','slug']) : null]))->values();
+            $galeriBudaya = Gallery::where('is_active', true)->whereIn('category', ['budaya', 'kerajinan'])->latest()->take(8)->get()->map(fn ($g) => array_merge($g->toArray(), ['image_url' => $this->resolveImageUrl($g->image)]))->values();
+            // fallback jika galeri kosong: ambil gambar dari budaya
+            if ($galeriBudaya->isEmpty()) {
+                $galeriBudaya = Budaya::where('is_active', true)->whereNotNull('image')->latest()->take(8)->get()->map(fn ($b) => ['id' => $b->id, 'name' => $b->name, 'image_url' => $this->resolveImageUrl($b->image), 'alt' => $b->alt, 'category' => 'budaya'])->values();
+            }
+        }
+
         return Inertia::render('Category/Index', [
             'category' => $category,
             'items' => $items,
             'banner' => $banner,
+            'activeSub' => $activeSub,
+            'kulinerCategories' => $kulinerCategories,
+            'activeKulinerCategory' => $activeKulinerCategory,
+            'kerajinanCategories' => $kerajinanCategories,
+            'activeKerajinanCategory' => $activeKerajinanCategory,
+            'destinasiTerkait' => $destinasiTerkait,
+            'galeriBudaya' => $galeriBudaya,
         ]);
     }
 
@@ -73,19 +152,21 @@ class PortalController extends Controller
             $item = Event::where('slug', $slug)->where('is_active', true)->firstOrFail();
             $related = Event::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
         } else {
-            $umkmJenis = match ($category) {
-                'kuliner' => 'kuliner',
-                'kerajinan' => 'kerajinan',
-                default => null,
-            };
-            if ($umkmJenis) {
-                $item = Umkm::ofJenis($umkmJenis)->with('jenisRef:id,name,slug')->where('slug', $slug)->where('is_active', true)->firstOrFail();
-                $item->setAttribute('jenis', $item->jenisRef?->name);
-                $item->setAttribute('jenis_slug', $item->jenisRef?->slug);
-                $related = Umkm::ofJenis($umkmJenis)->with('jenisRef:id,name,slug')->where('id', '!=', $item->id)->where('is_active', true)
-                    ->orderByRaw('CASE WHEN umkm_jenis_id = ? THEN 0 ELSE 1 END', [$item->umkm_jenis_id])
-                    ->latest()->take(3)->get(['id','name','slug','body','image','alt','umkm_jenis_id','skala_usaha','harga']);
-                $related = $related->map(fn($r) => array_merge($r->toArray(), ['jenis' => $r->jenisRef?->name, 'jenis_slug' => $r->jenisRef?->slug]));
+            $isKuliner = $category === 'kuliner';
+            $isKerajinan = $category === 'kerajinan';
+            if ($isKuliner || $isKerajinan) {
+                $relation = $isKuliner ? 'kulinerCategories' : 'kerajinanCategories';
+                $itemModel = Umkm::with(['kulinerCategories:id,name,slug','kerajinanCategories:id,name,slug'])->where('is_active', true)->whereHas($relation)->where('slug', $slug)->firstOrFail();
+                $item = array_merge($itemModel->toArray(), [
+                    'category' => $category,
+                    'kuliner_categories' => $itemModel->kulinerCategories->map->only(['id','name','slug']),
+                    'kerajinan_categories' => $itemModel->kerajinanCategories->map->only(['id','name','slug']),
+                ]);
+                $related = Umkm::with(['kulinerCategories:id,name,slug','kerajinanCategories:id,name,slug'])->where('is_active', true)->whereHas($relation)->where('id', '!=', $itemModel->id)->latest()->take(3)->get(['id','name','slug','body','image','alt','skala_usaha','harga']);
+                $related = $related->map(fn($r) => array_merge($r->toArray(), [
+                    'kuliner_categories' => $r->kulinerCategories->map->only(['id','name','slug']),
+                    'kerajinan_categories' => $r->kerajinanCategories->map->only(['id','name','slug']),
+                ]));
             } else {
                 $model = match ($category) {
                     'budaya' => Budaya::class,
@@ -113,22 +194,43 @@ class PortalController extends Controller
     }
 
     /**
-     * GET /destinasi — daftar flat semua destinasi aktif (tanpa sub-kategori).
+     * GET /destinasi — daftar flat semua destinasi aktif dengan filter kategori dinamis.
      */
-    public function destinationIndex()
+    public function destinationIndex(\Illuminate\Http\Request $request)
     {
-        $paginator = Destinasi::where('is_active', true)
-            ->whereNotIn('slug', self::PILLARS)
-            ->latest()
-            ->paginate(9)->withQueryString();
-        $paginator->getCollection()->transform(fn($i) => array_merge($i->toArray(), ['category' => 'destinasi']));
+        $filter = strtolower(trim($request->query('kategori', 'semua')));
+        if ($filter === 'destinasi-alam') {
+            $filter = 'wisata-alam';
+        }
+
+        $query = Destinasi::with('destinationCategory:id,name,slug')
+            ->where('is_active', true)
+            ->whereNotIn('slug', self::PILLARS);
+
+        if ($filter !== 'semua') {
+            $exists = DestinationCategory::where('slug', $filter)->where('is_active', true)->exists();
+            if ($exists) {
+                $query->whereHas('destinationCategory', fn ($q) => $q->where('slug', $filter));
+            } else {
+                $filter = 'semua';
+            }
+        }
+
+        $paginator = $query->latest()->paginate(9)->withQueryString();
+        $paginator->getCollection()->transform(fn ($i) => array_merge($i->toArray(), [
+            'category' => 'destinasi',
+            'destination_category' => $i->destinationCategory ? $i->destinationCategory->only(['id', 'name', 'slug']) : null,
+        ]));
 
         $banner = Category::where('slug', 'destinasi')->where('is_active', true)->first();
+        $destinationCategories = DestinationCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']);
 
         return Inertia::render('Category/Index', [
             'category' => 'destinasi',
             'items' => $paginator,
             'banner' => $banner,
+            'destinationCategories' => $destinationCategories,
+            'activeDestinationCategory' => $filter,
         ]);
     }
 

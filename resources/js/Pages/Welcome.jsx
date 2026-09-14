@@ -10,8 +10,9 @@ import { AiTravelWizard } from "@/components/portal/AiTravelWizard";
 import { Events } from "@/components/portal/Events";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
+import { karawoVertical } from "@/lib/karawo";
 
-export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, faqs, galleries }) {
+export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight }) {
     useEffect(() => {
         if (window.location.hash === "#ai-planner") {
             setTimeout(() => document.getElementById("ai-planner")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
@@ -24,7 +25,11 @@ export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, 
                 <meta property="og:title" content="Dulohupa AI — Portal Wisata & Budaya Gorontalo" />
                 <meta property="og:description" content="Jelajahi destinasi, ensiklopedia budaya, kuliner khas, dan kerajinan Gorontalo bersama Dulohupa AI — dari hiu paus Botubarani hingga sulaman Karawo di jantung Teluk Tomini." />
             </Head>
-            <div className="min-h-screen bg-background font-sans antialiased">
+            <div className="min-h-screen bg-background font-sans antialiased relative">
+                {/* Ornamen Landing — terlihat, panel tipis */}
+                <div aria-hidden className="pointer-events-none fixed inset-y-0 left-0 z-0 hidden h-screen w-[220px] opacity-15 lg:block border-r border-[#E8E0EC]/30 bg-[#FEFCF8]/60" style={{ backgroundImage: karawoVertical, backgroundRepeat: "repeat", backgroundSize: "24px 120px", backgroundPosition: "center top" }} />
+                <div aria-hidden className="pointer-events-none fixed inset-y-0 right-0 z-0 hidden h-screen w-[220px] opacity-15 lg:block border-l border-[#E8E0EC]/30 bg-[#FEFCF8]/60" style={{ backgroundImage: karawoVertical, backgroundRepeat: "repeat", backgroundSize: "24px 120px", backgroundPosition: "center top", transform: "scaleX(-1)" }} />
+                <div className="relative z-10">
                 <Navbar />
                 <main>
                     <Hero />
@@ -43,6 +48,7 @@ export default function Welcome({ events, kulinerSpotlight, kerajinanSpotlight, 
                 </main>
                 <SiteFooter />
                 <AiAssistantButton />
+                </div>
             </div>
         </>
     );

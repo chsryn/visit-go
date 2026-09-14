@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Umkm extends Model
 {
@@ -11,7 +11,7 @@ class Umkm extends Model
     public const SKALA_USAHA = ['mikro', 'kecil', 'menengah'];
 
     protected $fillable = [
-        'name', 'slug', 'umkm_jenis_id', 'skala_usaha', 'body', 'produk', 'kontak', 'harga', 'image', 'alt',
+        'name', 'slug', 'skala_usaha', 'body', 'produk', 'kontak', 'harga', 'image', 'alt',
         'latitude', 'longitude', 'tags', 'is_active',
     ];
 
@@ -22,20 +22,23 @@ class Umkm extends Model
         'is_active' => 'boolean',
     ];
 
-    public function jenisRef(): BelongsTo
+    public function scopeKuliner($query)
     {
-        return $this->belongsTo(UmkmJenis::class, 'umkm_jenis_id');
+        return $query->whereHas('kulinerCategories');
     }
 
-    /** Nama jenis (akses mudah untuk badge/laporan). */
-    public function getJenisAttribute(): ?string
+    public function scopeKerajinan($query)
     {
-        return $this->jenisRef?->name;
+        return $query->whereHas('kerajinanCategories');
     }
 
-    /** Scope: hanya UMKM berjenis tertentu (mis. kuliner). */
-    public function scopeOfJenis($query, string $slug)
+    public function kulinerCategories(): BelongsToMany
     {
-        return $query->whereHas('jenisRef', fn ($q) => $q->where('slug', $slug));
+        return $this->belongsToMany(KulinerCategory::class, 'kuliner_category_umkm');
+    }
+
+    public function kerajinanCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(KerajinanCategory::class, 'kerajinan_category_umkm');
     }
 }

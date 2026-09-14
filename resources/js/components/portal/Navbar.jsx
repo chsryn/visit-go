@@ -63,7 +63,7 @@ const fallbackNav = {
         },
         {
             heading: "Destinasi Alam",
-            viewAll: { label: "Lihat semua Destinasi Alam", href: "/destinasi?kategori=destinasi-alam" },
+            viewAll: { label: "Lihat semua Destinasi Alam", href: "/destinasi?kategori=wisata-alam" },
             items: [
                 { label: "Hiu Paus Botubarani", href: "/destinasi/hiu-paus-botubarani" },
                 { label: "Taman Laut Olele", href: "/destinasi/taman-laut-olele" },

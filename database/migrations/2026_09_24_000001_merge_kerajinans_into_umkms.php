@@ -15,52 +15,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasTable('kerajinans') || ! DB::table('kerajinans')->exists()) {
+        if (! Schema::hasTable('kerajinans')) {
             Schema::dropIfExists('kerajinans');
 
             return;
         }
 
-        $jenisId = DB::table('umkm_jenis')->where('slug', 'kerajinan')->value('id');
-        if (! $jenisId) {
-            $jenisId = DB::table('umkm_jenis')->insertGetId([
-                'name' => 'kerajinan',
-                'slug' => 'kerajinan',
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
+        foreach (DB::table('kerajinans')->get() as $k) {
+            $slug = $k->slug ?: Str::slug($k->name).'-kerajinan';
+            if (DB::table('umkms')->where('slug', $slug)->exists()) {
+                continue;
+            }
+            DB::table('umkms')->insert([
+                'name' => $k->name,
+                'slug' => $slug,
+                'skala_usaha' => 'mikro',
+                'body' => $k->body,
+                'produk' => null,
+                'kontak' => null,
+                'harga' => null,
+                'image' => $k->image,
+                'alt' => $k->alt,
+                'latitude' => $k->latitude,
+                'longitude' => $k->longitude,
+                'tags' => $k->tags ?? null,
+                'is_active' => $k->is_active,
+                'created_at' => $k->created_at ?? now(),
+                'updated_at' => $k->updated_at ?? now(),
             ]);
         }
 
-        if (Schema::hasTable('kerajinans')) {
-            foreach (DB::table('kerajinans')->get() as $k) {
-                $slug = $k->slug ?: Str::slug($k->name).'-kerajinan';
-                if (DB::table('umkms')->where('slug', $slug)->exists()) {
-                    continue; // jangan timpa (mis. dijalankan ulang)
-                }
-                DB::table('umkms')->insert([
-                    'name' => $k->name,
-                    'slug' => $slug,
-                    'umkm_jenis_id' => $jenisId,
-                    'skala_usaha' => 'mikro',
-                    'body' => $k->body,
-                    'produk' => null,
-                    'kontak' => null,
-                    'harga' => null,
-                    'image' => $k->image,
-                    'alt' => $k->alt,
-                    'latitude' => $k->latitude,
-                    'longitude' => $k->longitude,
-                    'tags' => $k->tags ?? null,
-                    'is_active' => $k->is_active,
-                    'created_at' => $k->created_at ?? now(),
-                    'updated_at' => $k->updated_at ?? now(),
-                ]);
-                echo "  [kerajinan] {$k->name}\n";
-            }
-
-            Schema::dropIfExists('kerajinans');
-        }
+        Schema::dropIfExists('kerajinans');
     }
 
     public function down(): void

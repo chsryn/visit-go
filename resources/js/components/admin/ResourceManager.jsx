@@ -13,7 +13,11 @@ import { cn } from "@/lib/utils";
 const emptyFor = (fields) => {
     const o = {};
     for (const f of fields) {
-        o[f.name] = f.default ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : "");
+        if (f.type === "checkbox-list") o[f.name] = f.default ?? [];
+        else
+            o[f.name] =
+                f.default ??
+                (f.type === "checkbox" ? true : f.type === "gallery" ? [] : "");
     }
     o.image = null;
     return o;
@@ -23,7 +27,7 @@ function FieldInput({ field, value, onChange, error }) {
     if (field.type === "textarea") {
         return (
             <Textarea
-                rows={4}
+                rows={field.rows ?? 4}
                 value={value ?? ""}
                 placeholder={field.placeholder}
                 onChange={(e) => onChange(e.target.value)}
@@ -34,7 +38,9 @@ function FieldInput({ field, value, onChange, error }) {
         return (
             <select
                 value={value ?? ""}
-                onChange={(e) => onChange(e.target.value === "" ? null : e.target.value)}
+                onChange={(e) =>
+                    onChange(e.target.value === "" ? null : e.target.value)
+                }
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring"
             >
                 <option value="">— {field.placeholder ?? "Pilih"} —</option>
@@ -59,8 +65,68 @@ function FieldInput({ field, value, onChange, error }) {
             </label>
         );
     }
+    if (field.type === "checkbox-list") {
+        const vals = Array.isArray(value) ? value : [];
+        return (
+            <div className="space-y-2">
+                {(field.options ?? []).length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                        Belum ada kategori — tambah di Kelola Kategori.
+                    </p>
+                ) : (
+                    (field.options ?? []).map((o) => {
+                        const checked =
+                            vals.includes(o.value) ||
+                            vals.includes(String(o.value));
+                        return (
+                            <label
+                                key={o.value}
+                                className="flex cursor-pointer items-center gap-2 text-sm"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(e) => {
+                                        const next = e.target.checked
+                                            ? [...vals, o.value]
+                                            : vals.filter(
+                                                  (v) =>
+                                                      v !== o.value &&
+                                                      String(v) !==
+                                                          String(o.value),
+                                              );
+                                        onChange(next);
+                                    }}
+                                    className="size-4 rounded border-input accent-[#715386]"
+                                />
+                                {o.label}
+                            </label>
+                        );
+                    })
+                )}
+                {field.hint && (
+                    <p className="text-[11px] text-muted-foreground">
+                        {field.hint}
+                    </p>
+                )}
+            </div>
+        );
+    }
     if (field.type === "gallery") {
-        return <GalleryField value={value ?? []} onChange={onChange} hint={field.hint} />;
+        return (
+            <GalleryField
+                value={value ?? []}
+                onChange={onChange}
+                hint={field.hint}
+            />
+        );
+    }
+    if (field.readonly) {
+        return (
+            <div className="flex h-9 items-center rounded-md border border-input bg-muted px-3 text-sm text-muted-foreground">
+                {value ?? "—"}
+            </div>
+        );
     }
     return (
         <Input
@@ -111,7 +177,18 @@ function LocationField({ field, values, onChange }) {
     );
 }
 
-function ResourceForm({ fields, initial, existingImageUrl, imageField = "image", submitLabel, onSubmit, onCancel, busy, withImageUpload = true, errors = {} }) {
+function ResourceForm({
+    fields,
+    initial,
+    existingImageUrl,
+    imageField = "image",
+    submitLabel,
+    onSubmit,
+    onCancel,
+    busy,
+    withImageUpload = true,
+    errors = {},
+}) {
     const [values, setValues] = useState(initial);
     const [file, setFile] = useState(null);
     const set = (name, v) => setValues((s) => ({ ...s, [name]: v }));
@@ -119,8 +196,75 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
     const errorFor = (f) =>
         errors[f.name] ??
         (f.type === "gallery"
-            ? Object.entries(errors).find(([k]) => k === "gallery_order" || k.startsWith("images"))?.[1] ?? null
+            ? (Object.entries(errors).find(
+                  ([k]) => k === "gallery_order" || k.startsWith("images"),
+              )?.[1] ?? null)
             : null);
+
+    // Group fields by section
+    const sections = {};
+    const sidebarFields = [];
+
+    fields.forEach((f) => {
+        if (f.sidebar) {
+            sidebarFields.push(f);
+        } else {
+            const section = f.section || "Umum";
+            if (!sections[section]) sections[section] = [];
+            sections[section].push(f);
+        }
+    });
+
+    // For checkbox-list fields, arrange in grid
+    const renderCheckboxList = (field, value) => {
+        const vals = Array.isArray(value) ? value : [];
+        return (
+            <div className="space-y-2.5">
+                {(field.options ?? []).length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                        Belum ada kategori — tambah di Kelola Kategori.
+                    </p>
+                ) : (
+                    <div className="grid grid-cols-2 gap-2.5">
+                        {(field.options ?? []).map((o) => {
+                            const checked =
+                                vals.includes(o.value) ||
+                                vals.includes(String(o.value));
+                            return (
+                                <label
+                                    key={o.value}
+                                    className="flex cursor-pointer items-center gap-2 text-sm"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={(e) => {
+                                            const next = e.target.checked
+                                                ? [...vals, o.value]
+                                                : vals.filter(
+                                                      (v) =>
+                                                          v !== o.value &&
+                                                          String(v) !==
+                                                              String(o.value),
+                                                  );
+                                            set(field.name, next);
+                                        }}
+                                        className="size-4 rounded border-input accent-[#715386]"
+                                    />
+                                    {o.label}
+                                </label>
+                            );
+                        })}
+                    </div>
+                )}
+                {field.hint && (
+                    <p className="text-[11px] text-muted-foreground">
+                        {field.hint}
+                    </p>
+                )}
+            </div>
+        );
+    };
 
     return (
         <form
@@ -128,34 +272,208 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
                 e.preventDefault();
                 onSubmit({ ...values, [imageField]: file });
             }}
-            className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:p-5"
+            className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
         >
-            <div className="grid gap-4 sm:grid-cols-2">
-                {fields.map((f) => (
-                    <div key={f.name} className={cn("space-y-2", (f.full || f.type === "location") && "sm:col-span-2")}>
-                        {f.type !== "checkbox" && <Label>{f.label}</Label>}
-                        {f.type === "location" ? (
-                            <LocationField field={f} values={values} onChange={set} />
-                        ) : (
-                            <FieldInput field={f} value={values[f.name]} onChange={(v) => set(f.name, v)} error={errorFor(f)} />
-                        )}
-                        {f.hint && f.type !== "gallery" && <p className="text-[11px] text-muted-foreground">{f.hint}</p>}
-                        {errorFor(f) && <p className="text-xs font-medium text-destructive">{errorFor(f)}</p>}
-                    </div>
-                ))}
-                <div className="space-y-2 sm:col-span-2">
-                    {withImageUpload && <ImageUpload existingUrl={existingImageUrl} onFile={setFile} error={errors[imageField]} />}
+            <div className="grid gap-6 lg:grid-cols-3">
+                {/* Main Content (2 columns) */}
+                <div className="space-y-6 lg:col-span-2">
+                    {Object.entries(sections).map(
+                        ([sectionName, sectionFields]) => (
+                            <div key={sectionName}>
+                                {sectionName !== "Umum" && (
+                                    <h3 className="mb-3.5 font-display text-sm font-bold text-foreground">
+                                        {sectionName}
+                                    </h3>
+                                )}
+
+                                {sectionName === "Kategori" ? (
+                                    // Special layout for categories
+                                    <div className="space-y-3">
+                                        {sectionFields.map((f) => (
+                                            <div
+                                                key={f.name}
+                                                className="rounded-xl border border-stone-200 bg-stone-50 p-4"
+                                            >
+                                                <Label className="text-sm font-semibold text-foreground">
+                                                    {f.label}
+                                                </Label>
+                                                <div className="mt-3">
+                                                    {renderCheckboxList(
+                                                        f,
+                                                        values[f.name],
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : sectionName === "Peta & Lokasi" ? (
+                                    // Special layout for location
+                                    <div className="space-y-4">
+                                        {sectionFields.map((f) =>
+                                            f.type === "location" ? (
+                                                <div
+                                                    key={f.name}
+                                                    className="rounded-xl border border-stone-200 overflow-hidden"
+                                                >
+                                                    <LocationField
+                                                        field={f}
+                                                        values={values}
+                                                        onChange={set}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    key={f.name}
+                                                    className="space-y-2"
+                                                >
+                                                    <Label className="text-xs font-medium text-muted-foreground">
+                                                        {f.label}
+                                                    </Label>
+                                                    <FieldInput
+                                                        field={f}
+                                                        value={values[f.name]}
+                                                        onChange={(v) =>
+                                                            set(f.name, v)
+                                                        }
+                                                        error={errorFor(f)}
+                                                    />
+                                                    {errorFor(f) && (
+                                                        <p className="text-xs font-medium text-destructive">
+                                                            {errorFor(f)}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+                                ) : (
+                                    // Standard grid layout for other sections
+                                    <div className="space-y-3">
+                                        {sectionFields.map((f) => (
+                                            <div
+                                                key={f.name}
+                                                className="space-y-2"
+                                            >
+                                                {f.type !== "checkbox" && (
+                                                    <Label>{f.label}</Label>
+                                                )}
+                                                {f.type === "location" ? (
+                                                    <LocationField
+                                                        field={f}
+                                                        values={values}
+                                                        onChange={set}
+                                                    />
+                                                ) : (
+                                                    <FieldInput
+                                                        field={f}
+                                                        value={values[f.name]}
+                                                        onChange={(v) =>
+                                                            set(f.name, v)
+                                                        }
+                                                        error={errorFor(f)}
+                                                    />
+                                                )}
+                                                {f.hint &&
+                                                    f.type !== "gallery" && (
+                                                        <p className="text-[11px] text-muted-foreground">
+                                                            {f.hint}
+                                                        </p>
+                                                    )}
+                                                {errorFor(f) && (
+                                                    <p className="text-xs font-medium text-destructive">
+                                                        {errorFor(f)}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ),
+                    )}
                 </div>
-            </div>
-            <div className="flex items-center gap-2">
-                <Button type="submit" disabled={busy}>
-                    {busy ? "Menyimpan…" : submitLabel}
-                </Button>
-                {onCancel && (
-                    <Button type="button" variant="outline" onClick={onCancel}>
-                        Batal
-                    </Button>
-                )}
+
+                {/* Sidebar (1 column) */}
+                <div className="space-y-6 lg:col-span-1">
+                    {/* Image Upload */}
+                    {withImageUpload && (
+                        <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                            <h3 className="mb-3 font-display text-sm font-bold text-foreground">
+                                Gambar
+                            </h3>
+                            <ImageUpload
+                                existingUrl={existingImageUrl}
+                                onFile={setFile}
+                                error={errors[imageField]}
+                            />
+                        </div>
+                    )}
+
+                    {/* Metadata fields */}
+                    {sidebarFields.length > 0 && (
+                        <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                            <h3 className="mb-3 font-display text-sm font-bold text-foreground">
+                                Metadata
+                            </h3>
+                            <div className="space-y-3">
+                                {sidebarFields.map((f) => (
+                                    <div key={f.name}>
+                                        {f.type !== "checkbox" && (
+                                            <Label className="text-sm">
+                                                {f.label}
+                                            </Label>
+                                        )}
+                                        <div
+                                            className={
+                                                f.type !== "checkbox"
+                                                    ? "mt-1.5"
+                                                    : ""
+                                            }
+                                        >
+                                            <FieldInput
+                                                field={f}
+                                                value={values[f.name]}
+                                                onChange={(v) => set(f.name, v)}
+                                                error={errorFor(f)}
+                                            />
+                                        </div>
+                                        {f.hint && f.type !== "gallery" && (
+                                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                                {f.hint}
+                                            </p>
+                                        )}
+                                        {errorFor(f) && (
+                                            <p className="text-xs font-medium text-destructive">
+                                                {errorFor(f)}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Action buttons */}
+                    <div className="flex flex-col gap-2 pt-2">
+                        <Button
+                            type="submit"
+                            disabled={busy}
+                            className="w-full"
+                        >
+                            {busy ? "Menyimpan…" : submitLabel}
+                        </Button>
+                        {onCancel && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onCancel}
+                                className="w-full"
+                            >
+                                Batal
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
         </form>
     );
@@ -165,7 +483,17 @@ function ResourceForm({ fields, initial, existingImageUrl, imageField = "image",
  * Generic admin CRUD manager (table + create/edit forms + delete).
  * Keeps the 5 content modules consistent without duplicating code.
  */
-export default function ResourceManager({ items, basePath, fields, columns, defaults = {}, imageField = "image", imageUrlKey = null, allowCreate = true, withImageUpload = true }) {
+export default function ResourceManager({
+    items,
+    basePath,
+    fields,
+    columns,
+    defaults = {},
+    imageField = "image",
+    imageUrlKey = null,
+    allowCreate = true,
+    withImageUpload = true,
+}) {
     const [showCreate, setShowCreate] = useState(false);
     const [editing, setEditing] = useState(null);
     const [busy, setBusy] = useState(false);
@@ -194,6 +522,12 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                 formData.append("gallery_order", JSON.stringify(order));
                 continue;
             }
+            if (field?.type === "checkbox-list") {
+                if (Array.isArray(v)) {
+                    for (const id of v) formData.append(`${k}[]`, String(id));
+                }
+                continue;
+            }
             if (v === null || v === undefined || v === "") continue;
             if (k === imageField && !(v instanceof File)) continue;
             if (typeof v === "boolean") {
@@ -219,7 +553,8 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
             {errorList.length > 0 && (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
                     <p className="flex items-center gap-2 font-medium">
-                        <CircleAlert className="size-4" /> Gagal menyimpan — perbaiki berikut:
+                        <CircleAlert className="size-4" /> Gagal menyimpan —
+                        perbaiki berikut:
                     </p>
                     <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
                         {errorList.map((msg, i) => (
@@ -233,8 +568,18 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     Total {items?.total ?? rows.length} data
                 </p>
                 {allowCreate && (
-                    <Button size="sm" onClick={() => { setEditing(null); setShowCreate((v) => !v); }}>
-                        {showCreate ? <X className="size-4" /> : <Plus className="size-4" />}
+                    <Button
+                        size="sm"
+                        onClick={() => {
+                            setEditing(null);
+                            setShowCreate((v) => !v);
+                        }}
+                    >
+                        {showCreate ? (
+                            <X className="size-4" />
+                        ) : (
+                            <Plus className="size-4" />
+                        )}
                         {showCreate ? "Tutup" : "Tambah"}
                     </Button>
                 )}
@@ -251,7 +596,9 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     submitLabel="Simpan"
                     onCancel={() => setShowCreate(false)}
                     onSubmit={(payload) =>
-                        submit(payload, "post", basePath, () => setShowCreate(false))
+                        submit(payload, "post", basePath, () =>
+                            setShowCreate(false),
+                        )
                     }
                 />
             )}
@@ -262,11 +609,16 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                         <thead>
                             <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                                 {columns.map((c) => (
-                                    <th key={c.key} className="px-4 py-3 font-medium">
+                                    <th
+                                        key={c.key}
+                                        className="px-4 py-3 font-medium"
+                                    >
                                         {c.label}
                                     </th>
                                 ))}
-                                <th className="px-4 py-3 text-right font-medium">Aksi</th>
+                                <th className="px-4 py-3 text-right font-medium">
+                                    Aksi
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -274,34 +626,95 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                 <Fragment key={row.id}>
                                     <tr className="border-b border-border/60 last:border-0 hover:bg-muted/40">
                                         {columns.map((c) => (
-                                            <td key={c.key} className="px-4 py-3 align-top">
-                                                {c.render ? c.render(row) : row[c.key]}
+                                            <td
+                                                key={c.key}
+                                                className="px-4 py-3 align-top"
+                                            >
+                                                {c.render
+                                                    ? c.render(row)
+                                                    : row[c.key]}
                                             </td>
                                         ))}
                                         <td className="px-4 py-3">
                                             <RowActions
-                                                onEdit={() => { setShowCreate(false); setEditing(editing?.id === row.id ? null : row); }}
-                                                onDelete={() => { if (confirm(`Hapus "${row.name}"?`)) router.delete(`${basePath}/${row.id}`, { preserveScroll: true }); }}
+                                                onEdit={() => {
+                                                    setShowCreate(false);
+                                                    setEditing(
+                                                        editing?.id === row.id
+                                                            ? null
+                                                            : row,
+                                                    );
+                                                }}
+                                                onDelete={() => {
+                                                    if (
+                                                        confirm(
+                                                            `Hapus "${row.name}"?`,
+                                                        )
+                                                    )
+                                                        router.delete(
+                                                            `${basePath}/${row.id}`,
+                                                            {
+                                                                preserveScroll: true,
+                                                            },
+                                                        );
+                                                }}
                                             />
                                         </td>
                                     </tr>
                                     {editing?.id === row.id && (
-                                        <tr key={`${row.id}-edit`} className="bg-muted/30">
-                                            <td colSpan={columns.length + 1} className="px-4 py-4">
+                                        <tr
+                                            key={`${row.id}-edit`}
+                                            className="bg-muted/30"
+                                        >
+                                            <td
+                                                colSpan={columns.length + 1}
+                                                className="px-4 py-4"
+                                            >
                                                 <ResourceForm
                                                     fields={fields}
                                                     initial={Object.fromEntries(
-                                                        fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
+                                                        fields.map((f) => [
+                                                            f.name,
+                                                            typeof f.initial ===
+                                                            "function"
+                                                                ? f.initial(row)
+                                                                : (row[
+                                                                      f.name
+                                                                  ] ??
+                                                                  (f.type ===
+                                                                  "checkbox"
+                                                                      ? true
+                                                                      : f.type ===
+                                                                              "checkbox-list" ||
+                                                                          f.type ===
+                                                                              "gallery"
+                                                                        ? []
+                                                                        : "")),
+                                                        ]),
                                                     )}
-                                                    existingImageUrl={row[urlKey]}
+                                                    existingImageUrl={
+                                                        row[urlKey]
+                                                    }
                                                     imageField={imageField}
-                                                    withImageUpload={withImageUpload}
+                                                    withImageUpload={
+                                                        withImageUpload
+                                                    }
                                                     errors={errors}
                                                     busy={busy}
                                                     submitLabel="Simpan perubahan"
-                                                    onCancel={() => setEditing(null)}
+                                                    onCancel={() =>
+                                                        setEditing(null)
+                                                    }
                                                     onSubmit={(payload) =>
-                                                        submit(payload, "put", `${basePath}/${row.id}`, () => setEditing(null))
+                                                        submit(
+                                                            payload,
+                                                            "put",
+                                                            `${basePath}/${row.id}`,
+                                                            () =>
+                                                                setEditing(
+                                                                    null,
+                                                                ),
+                                                        )
                                                     }
                                                 />
                                             </td>
@@ -311,8 +724,13 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                             ))}
                             {rows.length === 0 && (
                                 <tr>
-                                    <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                        {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
+                                    <td
+                                        colSpan={columns.length + 1}
+                                        className="px-4 py-12 text-center text-sm text-muted-foreground"
+                                    >
+                                        {allowCreate
+                                            ? "Belum ada data — klik Tambah untuk membuat baru."
+                                            : "Belum ada data."}
                                     </td>
                                 </tr>
                             )}
@@ -326,9 +744,13 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                 <div className="space-y-2.5">
                                     {columns.map((c) => (
                                         <div key={c.key}>
-                                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{c.label}</p>
+                                            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                                {c.label}
+                                            </p>
                                             <div className="mt-0.5 text-sm">
-                                                {c.render ? c.render(row) : (row[c.key] ?? "—")}
+                                                {c.render
+                                                    ? c.render(row)
+                                                    : (row[c.key] ?? "—")}
                                             </div>
                                         </div>
                                     ))}
@@ -336,8 +758,21 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                 <div className="mt-3 border-t border-border/60 pt-2">
                                     <RowActions
                                         align="justify-start"
-                                        onEdit={() => { setShowCreate(false); setEditing(editing?.id === row.id ? null : row); }}
-                                        onDelete={() => { if (confirm(`Hapus "${row.name}"?`)) router.delete(`${basePath}/${row.id}`, { preserveScroll: true }); }}
+                                        onEdit={() => {
+                                            setShowCreate(false);
+                                            setEditing(
+                                                editing?.id === row.id
+                                                    ? null
+                                                    : row,
+                                            );
+                                        }}
+                                        onDelete={() => {
+                                            if (confirm(`Hapus "${row.name}"?`))
+                                                router.delete(
+                                                    `${basePath}/${row.id}`,
+                                                    { preserveScroll: true },
+                                                );
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -346,7 +781,20 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                     <ResourceForm
                                         fields={fields}
                                         initial={Object.fromEntries(
-                                            fields.map((f) => [f.name, typeof f.initial === "function" ? f.initial(row) : (row[f.name] ?? (f.type === "checkbox" ? true : f.type === "gallery" ? [] : ""))])
+                                            fields.map((f) => [
+                                                f.name,
+                                                typeof f.initial === "function"
+                                                    ? f.initial(row)
+                                                    : (row[f.name] ??
+                                                      (f.type === "checkbox"
+                                                          ? true
+                                                          : f.type ===
+                                                                  "checkbox-list" ||
+                                                              f.type ===
+                                                                  "gallery"
+                                                            ? []
+                                                            : "")),
+                                            ]),
                                         )}
                                         existingImageUrl={row[urlKey]}
                                         imageField={imageField}
@@ -356,7 +804,12 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                                         submitLabel="Simpan perubahan"
                                         onCancel={() => setEditing(null)}
                                         onSubmit={(payload) =>
-                                            submit(payload, "put", `${basePath}/${row.id}`, () => setEditing(null))
+                                            submit(
+                                                payload,
+                                                "put",
+                                                `${basePath}/${row.id}`,
+                                                () => setEditing(null),
+                                            )
                                         }
                                     />
                                 </div>
@@ -365,7 +818,9 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                     ))}
                     {rows.length === 0 && (
                         <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center text-sm text-muted-foreground">
-                            {allowCreate ? "Belum ada data — klik Tambah untuk membuat baru." : "Belum ada data."}
+                            {allowCreate
+                                ? "Belum ada data — klik Tambah untuk membuat baru."
+                                : "Belum ada data."}
                         </div>
                     )}
                 </div>
@@ -379,9 +834,14 @@ export default function ResourceManager({ items, basePath, fields, columns, defa
                             size="sm"
                             variant={l.active ? "default" : "outline"}
                             disabled={!l.url}
-                            onClick={() => l.url && router.get(l.url, {}, { preserveScroll: true })}
+                            onClick={() =>
+                                l.url &&
+                                router.get(l.url, {}, { preserveScroll: true })
+                            }
                         >
-                            <span dangerouslySetInnerHTML={{ __html: l.label }} />
+                            <span
+                                dangerouslySetInnerHTML={{ __html: l.label }}
+                            />
                         </Button>
                     ))}
                 </div>

@@ -1,6 +1,13 @@
 import { Head, Link } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { MapPin, Landmark, UtensilsCrossed, Hammer, CalendarDays, ArrowRight } from "lucide-react";
+import {
+    MapPin,
+    Landmark,
+    UtensilsCrossed,
+    Hammer,
+    CalendarDays,
+    ArrowRight,
+} from "lucide-react";
 
 function StatCard({ icon: Icon, label, value, href }) {
     return (
@@ -12,8 +19,12 @@ function StatCard({ icon: Icon, label, value, href }) {
                 <Icon className="size-5" />
             </span>
             <span>
-                <span className="block font-display text-2xl font-bold leading-none">{value}</span>
-                <span className="mt-1 block text-xs font-medium text-muted-foreground">{label}</span>
+                <span className="block font-display text-2xl font-bold leading-none">
+                    {value}
+                </span>
+                <span className="mt-1 block text-xs font-medium text-muted-foreground">
+                    {label}
+                </span>
             </span>
             <ArrowRight className="ml-auto size-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
         </Link>
@@ -24,22 +35,57 @@ export default function Dashboard({ stats, latest }) {
     return (
         <>
             <Head title="Dashboard — Admin Dulohupa AI" />
-            <AdminLayout title="Dashboard" subtitle="Ringkasan konten portal pariwisata Gorontalo.">
+            <AdminLayout
+                title="Dashboard"
+                subtitle="Ringkasan konten portal pariwisata Gorontalo."
+            >
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                    <StatCard icon={MapPin} label="Destinasi" value={stats.destinasi} href="/admin/destinasis" />
-                    <StatCard icon={Landmark} label="Budaya" value={stats.budaya} href="/admin/budayas" />
-                    <StatCard icon={UtensilsCrossed} label="Kuliner" value={stats.kuliner} href="/admin/umkms?tab=kuliner" />
-                    <StatCard icon={Hammer} label="Kerajinan" value={stats.kerajinan} href="/admin/umkms?jenis=kerajinan" />
-                    <StatCard icon={CalendarDays} label="Event" value={stats.event} href="/admin/events" />
+                    <StatCard
+                        icon={MapPin}
+                        label="Destinasi"
+                        value={stats.destinasi}
+                        href="/admin/destinasis"
+                    />
+                    <StatCard
+                        icon={Landmark}
+                        label="Budaya"
+                        value={stats.budaya}
+                        href="/admin/budayas"
+                    />
+                    <StatCard
+                        icon={UtensilsCrossed}
+                        label="Kuliner"
+                        value={stats.kuliner}
+                        href="/admin/umkms"
+                    />
+                    <StatCard
+                        icon={Hammer}
+                        label="Kerajinan"
+                        value={stats.kerajinan}
+                        href="/admin/umkms"
+                    />
+                    <StatCard
+                        icon={CalendarDays}
+                        label="Event"
+                        value={stats.event}
+                        href="/admin/events"
+                    />
                 </div>
 
                 <div className="mt-6 grid gap-4 lg:grid-cols-2">
                     <div className="rounded-2xl border border-border bg-card p-5">
-                        <h2 className="font-display text-base font-bold">Destinasi terbaru</h2>
+                        <h2 className="font-display text-base font-bold">
+                            Destinasi terbaru
+                        </h2>
                         <ul className="mt-3 divide-y divide-border/60">
                             {(latest?.destinasi ?? []).map((d) => (
-                                <li key={d.id} className="flex items-center gap-3 py-2.5 text-sm">
-                                    <span className="flex-1 truncate font-medium">{d.name}</span>
+                                <li
+                                    key={d.id}
+                                    className="flex items-center gap-3 py-2.5 text-sm"
+                                >
+                                    <span className="flex-1 truncate font-medium">
+                                        {d.name}
+                                    </span>
                                     <span
                                         className={
                                             d.is_active
@@ -52,16 +98,25 @@ export default function Dashboard({ stats, latest }) {
                                 </li>
                             ))}
                             {(latest?.destinasi ?? []).length === 0 && (
-                                <li className="py-6 text-center text-sm text-muted-foreground">Belum ada data.</li>
+                                <li className="py-6 text-center text-sm text-muted-foreground">
+                                    Belum ada data.
+                                </li>
                             )}
                         </ul>
                     </div>
                     <div className="rounded-2xl border border-border bg-card p-5">
-                        <h2 className="font-display text-base font-bold">Event terbaru</h2>
+                        <h2 className="font-display text-base font-bold">
+                            Event terbaru
+                        </h2>
                         <ul className="mt-3 divide-y divide-border/60">
                             {(latest?.events ?? []).map((e) => (
-                                <li key={e.id} className="flex items-center gap-3 py-2.5 text-sm">
-                                    <span className="flex-1 truncate font-medium">{e.name}</span>
+                                <li
+                                    key={e.id}
+                                    className="flex items-center gap-3 py-2.5 text-sm"
+                                >
+                                    <span className="flex-1 truncate font-medium">
+                                        {e.name}
+                                    </span>
                                     <span
                                         className={
                                             e.is_active
@@ -74,7 +129,9 @@ export default function Dashboard({ stats, latest }) {
                                 </li>
                             ))}
                             {(latest?.events ?? []).length === 0 && (
-                                <li className="py-6 text-center text-sm text-muted-foreground">Belum ada data.</li>
+                                <li className="py-6 text-center text-sm text-muted-foreground">
+                                    Belum ada data.
+                                </li>
                             )}
                         </ul>
                     </div>

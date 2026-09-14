@@ -60,7 +60,7 @@ export function Events({ items }) {
     return (
         <section
             id="agenda"
-            className="relative bg-[#715386]/[0.04] pt-4 pb-12 md:pt-6 md:pb-16"
+            className="relative bg-[#715386]/5 pt-4 pb-12 md:pt-6 md:pb-16"
         >
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
 

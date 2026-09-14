@@ -13,7 +13,15 @@ class EnsureAdminAuth
     {
         if (! Auth::check()) {
             return redirect()->route('login')
-                ->with('warning', 'Maaf, anda tidak punya akses. Silakan login terlebih dahulu.');
+                ->with('warning', 'Silakan login terlebih dahulu.');
+        }
+
+        if (! Auth::user()->isAdmin()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')
+                ->with('warning', 'Maaf, Anda tidak memiliki hak akses admin.');
         }
 
         return $next($request);

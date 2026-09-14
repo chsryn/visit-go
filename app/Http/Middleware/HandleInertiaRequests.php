@@ -8,7 +8,6 @@ use App\Models\Destinasi;
 use App\Models\DestinationCategory;
 use App\Models\Event;
 use App\Models\Umkm;
-use App\Models\UmkmJenis;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,17 +45,13 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
 
             'auth' => [
-                'user' => fn () => $request->user()?->only(['id', 'name', 'email']),
+                'user' => fn () => $request->user()?->only(['id', 'name', 'email', 'role']),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
                 'warning' => fn () => $request->session()->get('warning'),
             ],
-            // Jenis UMKM dinamis dari tabel master untuk accordion sidebar
-            'adminUmkmJenis' => fn () => $request->is('admin*')
-                ? UmkmJenis::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug'])
-                : [],
             // Kategori destinasi dinamis dari tabel master untuk accordion sidebar
             'adminDestinationCategories' => fn () => $request->is('admin*')
                 ? DestinationCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug'])
@@ -68,8 +63,8 @@ class HandleInertiaRequests extends Middleware
 
                     return $tag(Destinasi::where('is_active', true)->whereNotIn('slug', PortalController::PILLARS)->latest()->take(10)->get(['name', 'slug']), 'destinasi')
                         ->merge($tag(Budaya::where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'budaya'))
-                        ->merge($tag(Umkm::ofJenis('kuliner')->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kuliner'))
-                        ->merge($tag(Umkm::ofJenis('kerajinan')->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kerajinan'))
+                        ->merge($tag(Umkm::kuliner()->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kuliner'))
+                        ->merge($tag(Umkm::kerajinan()->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kerajinan'))
                         ->values();
                 },
                 'events' => fn () => Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location']),

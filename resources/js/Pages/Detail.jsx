@@ -7,6 +7,7 @@ import { DestinationCard } from "@/components/portal/DestinationCard";
 import DetailMap from "@/components/portal/DetailMap";
 import { MapPin, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { ViewCounter } from "@/components/portal/ViewCounter";
+import { karawoBorder } from "@/lib/karawo";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -66,7 +67,7 @@ export default function Detail({ item, category, related }) {
         if (paused || slides.length < 2) return;
         const t = setInterval(() => setIdx((i) => (i + 1) % slides.length), 4000);
         return () => clearInterval(t);
-    }, [paused, slides.length, idx]);
+    }, [paused, slides.length]);
     const go = (dir) => setIdx((i) => (i + dir + slides.length) % slides.length);
 
     return (
@@ -76,23 +77,29 @@ export default function Detail({ item, category, related }) {
             </Head>
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
-                <main>
-                    <div className="relative overflow-hidden bg-warm pt-28 pb-14">
+                <main className="min-h-screen h-auto overflow-visible">
+                    <div className="relative overflow-hidden bg-[#2A1E32] pt-28 pb-14">
                         {image && <img src={image.startsWith("/") || image.startsWith("http") ? image : `/${image}`} alt="" aria-hidden className="pointer-events-none absolute inset-0 size-full object-cover opacity-[0.26] blur-[8px] scale-105" />}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-warm/75" />
+                        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#2A1E32]/80" />
                         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
                         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-foreground md:text-[40px]">{title}</h1>
-                            <ViewCounter className="mt-3" />
-                            {(item.jenis || item.skala_usaha || item.harga) && (
+                            <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">{title}</h1>
+                            <ViewCounter className="mt-3 [&_span]:!text-white/70" />
+                            {( (item.kuliner_categories?.length || item.kerajinan_categories?.length || item.skala_usaha || item.harga)) && (
                                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                                    {item.jenis && <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold capitalize text-primary">{item.jenis}</span>}
+                                    {(item.kuliner_categories ?? []).map((c) => (
+                                        <span key={c.slug} className="rounded-full bg-primary/10 px-3 py-1 font-semibold capitalize text-primary">{c.name}</span>
+                                    ))}
+                                    {(item.kerajinan_categories ?? []).map((c) => (
+                                        <span key={c.slug} className="rounded-full bg-primary/10 px-3 py-1 font-semibold capitalize text-primary">{c.name}</span>
+                                    ))}
                                     {item.skala_usaha && <span className="rounded-full bg-white px-3 py-1 font-medium capitalize text-muted-foreground border border-border">{item.skala_usaha}</span>}
                                     {item.harga && <span className="rounded-full bg-foreground px-3 py-1 font-semibold text-white">Rp {Number(item.harga).toLocaleString('id-ID')}</span>}
                                 </div>
                             )}
                         </div>
+                        <div aria-hidden className="h-[10px] w-full opacity-90 absolute inset-x-0 bottom-0 z-10" style={{ backgroundImage: karawoBorder, backgroundRepeat: "repeat-x", backgroundSize: "120px 12px" }} />
                     </div>
 
                     <div className="mx-auto max-w-[1280px] px-6 py-12 lg:px-8">
@@ -168,12 +175,11 @@ export default function Detail({ item, category, related }) {
                                 </div>
                                 {related?.length > 0 && (
                                     <section>
-                                        <h3 className="font-display text-xl font-semibold text-foreground">{(category === 'kuliner' || category === 'kerajinan') ? `Rekomendasi UMKM ${item.jenis ? `— ${item.jenis}` : 'terkait'}` : `Lokasi serupa di ${category}`}</h3>
+                                        <h3 className="font-display text-xl font-semibold text-foreground">{(category === 'kuliner' || category === 'kerajinan') ? `Rekomendasi UMKM terkait` : `Lokasi serupa di ${category}`}</h3>
                                         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                             {related.map((r) => {
                                                 const rImg = resolveImage(r, category);
-                                                const hargaLabel = r.harga ? `Rp ${Number(r.harga).toLocaleString('id-ID')}` : null;
-                                                return <DestinationCard key={r.slug ?? r.id} href={`/${category}/${r.slug}`} image={rImg ?? fallbackByCategory[category]} title={r.name} location={r.jenis ? `${r.jenis} · ${r.skala_usaha ?? ''}`.trim() : undefined} description={r.body?.slice(0, 90)} harga={hargaLabel} />;
+                                                return <DestinationCard key={r.slug ?? r.id} href={`/${category}/${r.slug}`} image={rImg ?? fallbackByCategory[category]} title={r.name} location={r.skala_usaha ?? undefined} description={r.body?.slice(0, 90)} />;
                                             })}
                                         </div>
                                     </section>
@@ -201,7 +207,7 @@ export default function Detail({ item, category, related }) {
                                         <a href={item.latitude && item.longitude ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` : `https://www.google.com/maps/search/${encodeURIComponent(item.location ?? item.area ?? title)}`} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">Buka di Google Maps →</a>
                                     </div>
                                 </div>
-                                <div className="rounded-2xl bg-charcoal p-6 text-white">
+                                <div className="rounded-2xl bg-[#2A1E32] p-6 text-white">
                                     <h3 className="font-display text-lg">Butuh bantuan?</h3>
                                     <p className="mt-2 text-sm leading-relaxed text-white/70">Tanya Si Munggi untuk rekomendasi rute, kuliner, dan penginapan di sekitar {title}.</p>
                                 </div>

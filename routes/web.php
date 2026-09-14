@@ -13,7 +13,8 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\MapController as AdminMapController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
-use App\Http\Controllers\Admin\UmkmJenisController as AdminUmkmJenisController;
+use App\Http\Controllers\Admin\KerajinanCategoryController as AdminKerajinanCategoryController;
+use App\Http\Controllers\Admin\KulinerCategoryController as AdminKulinerCategoryController;
 use App\Http\Controllers\AiPlannerController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DestinasiController;
@@ -74,20 +75,17 @@ Route::post('/api/chat', [ChatbotController::class, 'handle'])->middleware('thro
 Route::post('/api/ai-planner', [AiPlannerController::class, 'generate'])->middleware('throttle:15,1')->name('api.ai-planner');
 Route::get('/api/knowledge/search', [KnowledgeController::class, 'search'])->name('api.knowledge.search');
 
-// Admin CRUD (nanti bisa tambah middleware auth) — index destinasi sudah dipakai untuk public listing /destinasi
-Route::resource('knowledge', KnowledgeController::class)->only(['index', 'store', 'update', 'destroy']);
-Route::resource('destinasi', DestinasiController::class)->only(['store', 'update', 'destroy']);
-Route::resource('events', EventController::class)->only(['index', 'store', 'update', 'destroy']);
+// Admin CRUD — sebelumnya tanpa middleware (celah), sekarang dipindah ke grup admin di bawah
 
 // ---- Admin panel  ----
 Route::get('/login', [AdminAuthController::class, 'showLogin'])->middleware('guest')->name('login');
-Route::post('/login', [AdminAuthController::class, 'login'])->middleware('guest')->name('login.store');
+Route::post('/login', [AdminAuthController::class, 'login'])->middleware(['guest', 'throttle:5,1'])->name('login.store');
 Route::get('/admin/login', fn () => redirect()->route('login'))->name('admin.login');
 Route::post('/admin/login', fn () => redirect()->route('login'))->name('admin.login.store');
 Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
-Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.auth'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -98,7 +96,8 @@ Route::prefix('admin')->name('admin.')->middleware('admin.auth')->group(function
     Route::resource('destination-prices', AdminDestinationPriceController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('budayas', AdminBudayaController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('umkms', AdminUmkmController::class)->only(['index', 'store', 'update', 'destroy']);
-    Route::resource('umkm-jenis', AdminUmkmJenisController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['umkm-jenis' => 'umkmJenis']);
+    Route::resource('kuliner-categories', AdminKulinerCategoryController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['kuliner-categories' => 'kulinerCategory']);
+    Route::resource('kerajinan-categories', AdminKerajinanCategoryController::class)->only(['index', 'store', 'update', 'destroy'])->parameters(['kerajinan-categories' => 'kerajinanCategory']);
     Route::resource('events', AdminEventController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('galleries', AdminGalleryController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('articles', AdminArticleController::class)->only(['index', 'store', 'update', 'destroy']);

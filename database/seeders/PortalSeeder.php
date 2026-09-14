@@ -55,33 +55,8 @@ class PortalSeeder extends Seeder
             Destinasi::updateOrCreate(['slug' => $d['slug']], $d);
         }
 
-        // Budaya hidup di tabelnya sendiri; kuliner/kerajinan sebagai baris UMKM (bukan destinasis)
-        $budayas = [
-            [
-                'name' => 'Tari Saronde',
-                'slug' => 'tari-saronde',
-                'body' => "Tari Saronde adalah tari pergaulan penyambutan tamu dengan selendang, diiringi musik polopalo — ikon keramahan Gorontalo.",
-                'image' => '/storage/portal/kategori-budaya.jpg',
-                'alt' => 'Tari Saronde',
-            ],
-            [
-                'name' => 'Tradisi Dikili',
-                'slug' => 'tradisi-dikili',
-                'body' => "Tradisi Dikili adalah zikir semalam suntuk memperingati Maulid Nabi di masjid-masjid bersejarah Gorontalo — sarat nilai religius Hulondalo.",
-                'image' => '/storage/portal/kategori-budaya.jpg',
-                'alt' => 'Tradisi Dikili',
-            ],
-            [
-                'name' => 'Ensiklopedia Budaya',
-                'slug' => 'tari-saronde-dikili',
-                'body' => "Tradisi Dikili adalah zikir semalam suntuk memperingati Maulid Nabi di masjid-masjid bersejarah Gorontalo — sarat nilai religius Hulondalo. Tari Saronde adalah tari pergaulan penyambutan tamu dengan selendang, diiringi musik polopalo. Upacara adat Moloopu dan warisan lisan Pohutu Limo Lo Pohalaa (lima kerajaan Gorontalo) menjadi pilar identitas budaya yang terus dilestarikan Dinas Pariwisata.",
-                'image' => '/storage/portal/kategori-budaya.jpg',
-                'alt' => 'Penari Saronde Gorontalo',
-            ],
-        ];
-        foreach ($budayas as $b) {
-            Budaya::updateOrCreate(['slug' => $b['slug']], $b);
-        }
+        // Budaya — dihapus permanen, kembalikan welcome overview statis (tidak ada entitas budaya dinamis)
+        Budaya::whereIn('slug', ['tari-saronde', 'tradisi-dikili', 'tari-saronde-dikili', 'sejarah-peradaban-gorontalo', 'nilai-adat-pohutu-limo', 'seni-pertunjukan-warisan-lisan'])->delete();
 
         $kuliners = [
             [
@@ -106,14 +81,14 @@ class PortalSeeder extends Seeder
                 'alt' => 'Hidangan Milu Siram dan Ilabulo',
             ],
         ];
-        // Kuliner hidup sebagai baris UMKM berjenis kuliner (tanpa tabel kuliners)
-        $kulinerJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'kuliner'], ['name' => 'kuliner', 'is_active' => true])->id;
         foreach ($kuliners as $k) {
-            \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
-                'umkm_jenis_id' => $kulinerJenisId,
+            $umkm = \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
                 'skala_usaha' => 'mikro',
                 'is_active' => true,
             ]));
+            // Attach default kuliner category jika belum ada pivot
+            $catId = \App\Models\KulinerCategory::where('slug', $k['slug'] === 'ilabulo' ? 'ilabulo' : 'binthe-biluhuta')->value('id');
+            if ($catId) $umkm->kulinerCategories()->syncWithoutDetaching([$catId]);
         }
 
         $kerajinans = [
@@ -139,14 +114,15 @@ class PortalSeeder extends Seeder
                 'alt' => 'Kerajinan Daerah',
             ],
         ];
-        // Kerajinan hidup sebagai baris UMKM berjenis kerajinan (tanpa tabel kerajinans)
-        $kerajinanJenisId = \App\Models\UmkmJenis::firstOrCreate(['slug' => 'kerajinan'], ['name' => 'kerajinan', 'is_active' => true])->id;
         foreach ($kerajinans as $k) {
-            \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
-                'umkm_jenis_id' => $kerajinanJenisId,
+            $slugMap = ['sulaman-karawo' => 'sulaman-karawo', 'anyaman-rotan' => 'anyaman-rotan', 'kerajinan-daerah' => 'ukiran-kayu'];
+            $umkm = \App\Models\Umkm::updateOrCreate(['slug' => $k['slug']], array_merge($k, [
                 'skala_usaha' => 'mikro',
                 'is_active' => true,
             ]));
+            $catSlug = $slugMap[$k['slug']] ?? 'sulaman-karawo';
+            $catId = \App\Models\KerajinanCategory::where('slug', $catSlug)->value('id');
+            if ($catId) $umkm->kerajinanCategories()->syncWithoutDetaching([$catId]);
         }
 
         $events = [
