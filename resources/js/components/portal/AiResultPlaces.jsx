@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { MapPin, CalendarDays } from "lucide-react";
+import { MapPin, CalendarDays, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fallbackImage from "@/assets/kategori-destinasi.jpg";
 import CostDetailModal from "./wizard/CostDetailModal";
@@ -119,7 +119,7 @@ export default function AiResultPlaces({ places, costEstimate }) {
     if (!places || places.length === 0) {
         return (
             <div className="rounded-[15px] border border-dashed border-[#715386]/20 bg-white/60 p-10 text-center">
-                <p className="font-display text-lg font-bold">Belum ada destinasi yang dikenali</p>
+                <p className=" text-lg font-bold">Belum ada destinasi yang dikenali</p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                     AI tidak mengembalikan destinasi yang cocok.Coba ubah minat atau lokasi, lalu rancang ulang.
                 </p>
@@ -128,10 +128,23 @@ export default function AiResultPlaces({ places, costEstimate }) {
     }
 
     return (
-        <div>
-            <h4 className="font-display text-xl font-bold">📍 Destinasi Rekomendasi</h4>
-            <p className="mt-1 text-xs text-muted-foreground">Klik kartu untuk melihat deskripsi &amp; fokus peta.</p>
-            <div className="mt-4 grid gap-6 lg:grid-cols-10">
+        <details
+            className="group mb-6 overflow-hidden rounded-[15px] border border-white/30 bg-transparent shadow-soft"
+            onToggle={(e) => {
+                if (e.target.open) {
+                    setTimeout(() => mapObj.current?.invalidateSize(), 300);
+                }
+            }}
+        >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-[15px] bg-white/65 p-5  text-xl font-bold text-foreground backdrop-blur-xl marker:hidden transition-colors hover:bg-primary/[0.06]">
+                Rekomendasi Destinasi &amp; Lokasi Wisata
+                <ChevronDown className="size-5 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180" />
+            </summary>
+
+            <div className="rounded-[15px] border border-t-0 border-white/30 bg-white/65 p-5 backdrop-blur-xl transition-[grid-template-rows,opacity] duration-300 ease-in-out grid grid-rows-[0fr] opacity-0 group-open:grid-rows-[1fr] group-open:opacity-100 md:p-6">
+                <div className="overflow-hidden">
+                    <p className="text-xs text-muted-foreground">Klik kartu untuk fokus ke peta.</p>
+                    <div className="mt-4 grid gap-6 lg:grid-cols-10">
                 {/* Kiri 70% — daftar kartu */}
                 <div className="space-y-4 lg:col-span-7">
                     {places.map((p, i) => {
@@ -165,7 +178,7 @@ export default function AiResultPlaces({ places, costEstimate }) {
                                             <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
                                                 {i + 1}
                                             </span>
-                                            <h5 className="truncate font-display text-base font-bold leading-tight">
+                                            <h5 className="truncate  text-base font-bold leading-tight">
                                                 {p.name}
                                             </h5>
                                         </div>
@@ -173,9 +186,6 @@ export default function AiResultPlaces({ places, costEstimate }) {
                                             <MapPin className="size-3.5 shrink-0 text-accent" />
                                             <span className="truncate">
                                                 {p.location ?? p.category}
-                                                {hasCoords
-                                                    ? ` · ${Number(p.latitude).toFixed(4)}, ${Number(p.longitude).toFixed(4)}`
-                                                    : ""}
                                             </span>
                                         </p>
                                         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -224,7 +234,9 @@ export default function AiResultPlaces({ places, costEstimate }) {
                         </p>
                     </div>
                 </div>
+                </div>
+                </div>
             </div>
-        </div>
+        </details>
     );
 }

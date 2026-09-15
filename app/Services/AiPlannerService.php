@@ -81,6 +81,7 @@ class AiPlannerService
             $source = 'fallback';
         }
 
+        $result = $this->placeResolver->enrichWithImages($result);
         $places = $this->placeResolver->resolve($result);
 
         return array_merge($result, [

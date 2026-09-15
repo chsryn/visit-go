@@ -188,6 +188,9 @@ function ResourceForm({
     onCancel,
     busy,
     withImageUpload = true,
+    sidebarTitle = "Metadata",
+    formTitle = null,
+    formSubtitle = null,
     errors = {},
 }) {
     const [values, setValues] = useState(initial);
@@ -232,7 +235,7 @@ function ResourceForm({
                             const checked =
                                 vals.includes(o.value) ||
                                 vals.includes(String(o.value));
-                            return (
+                        return (
                                 <label
                                     key={o.value}
                                     className="flex cursor-pointer items-center gap-2 text-sm"
@@ -268,6 +271,55 @@ function ResourceForm({
         );
     };
 
+    const renderField = (f) => (
+        <div key={f.name} className="space-y-2">
+            {f.type !== "checkbox" && <Label>{f.label}</Label>}
+            {f.type === "location" ? (
+                <LocationField field={f} values={values} onChange={set} />
+            ) : (
+                <FieldInput
+                    field={f}
+                    value={values[f.name]}
+                    onChange={(v) => set(f.name, v)}
+                    error={errorFor(f)}
+                />
+            )}
+            {f.hint && f.type !== "gallery" && (
+                <p className="text-[11px] text-muted-foreground">{f.hint}</p>
+            )}
+            {errorFor(f) && (
+                <p className="text-xs font-medium text-destructive">{errorFor(f)}</p>
+            )}
+        </div>
+    );
+
+    // Field pendek bertanda `half` berkelompok dua per baris; sisanya full-width.
+    const renderStandardSection = (sectionFields) => {
+        const blocks = [];
+        let run = [];
+        for (const f of sectionFields) {
+            if (f.half) {
+                run.push(f);
+            } else {
+                if (run.length) {
+                    blocks.push({ kind: "half", fields: run });
+                    run = [];
+                }
+                blocks.push({ kind: "full", fields: [f] });
+            }
+        }
+        if (run.length) blocks.push({ kind: "half", fields: run });
+        return blocks.map((b, i) =>
+            b.kind === "half" ? (
+                <div key={`half-${i}`} className="grid gap-4 sm:grid-cols-2">
+                    {b.fields.map(renderField)}
+                </div>
+            ) : (
+                renderField(b.fields[0])
+            ),
+        );
+    };
+
     return (
         <form
             onSubmit={(e) => {
@@ -276,14 +328,32 @@ function ResourceForm({
             }}
             className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
         >
+            {(formTitle || formSubtitle) && (
+                <div className="mb-6 border-b border-stone-100 pb-5">
+                    {formTitle && (
+                        <h2 className="text-lg font-semibold text-stone-900">
+                            {formTitle}
+                        </h2>
+                    )}
+                    {formSubtitle && (
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                            {formSubtitle}
+                        </p>
+                    )}
+                </div>
+            )}
+
             <div className="grid gap-6 lg:grid-cols-3">
                 {/* Main Content (2 columns) */}
                 <div className="space-y-6 lg:col-span-2">
                     {Object.entries(sections).map(
                         ([sectionName, sectionFields]) => (
-                            <div key={sectionName}>
+                            <div
+                                key={sectionName}
+                                className="space-y-4 rounded-xl border border-stone-200 bg-stone-50/50 p-5"
+                            >
                                 {sectionName !== "Umum" && (
-                                    <h3 className="mb-3.5 font-display text-sm font-bold text-foreground">
+                                    <h3 className="text-sm font-semibold text-stone-900">
                                         {sectionName}
                                     </h3>
                                 )}
@@ -294,7 +364,7 @@ function ResourceForm({
                                         {sectionFields.map((f) => (
                                             <div
                                                 key={f.name}
-                                                className="rounded-xl border border-stone-200 bg-stone-50 p-4"
+                                                className="rounded-xl border border-stone-200 bg-white p-4"
                                             >
                                                 <Label className="text-sm font-semibold text-foreground">
                                                     {f.label}
@@ -309,85 +379,40 @@ function ResourceForm({
                                         ))}
                                     </div>
                                 ) : sectionName === "Peta & Lokasi" ? (
-                                    // Special layout for location
+                                    // Special layout for location: peta full-width,
+                                    // field lain dipasangkan levat renderStandardSection (half).
                                     <div className="space-y-4">
-                                        {sectionFields.map((f) =>
-                                            f.type === "location" ? (
-                                                <div
-                                                    key={f.name}
-                                                    className="rounded-xl border border-stone-200 overflow-hidden"
-                                                >
-                                                    <LocationField
-                                                        field={f}
-                                                        values={values}
-                                                        onChange={set}
-                                                    />
-                                                </div>
-                                            ) : (
+                                        {sectionFields
+                                            .filter((f) => f.type === "location")
+                                            .map((f) => (
                                                 <div
                                                     key={f.name}
                                                     className="space-y-2"
                                                 >
-                                                    <Label className="text-xs font-medium text-muted-foreground">
-                                                        {f.label}
-                                                    </Label>
-                                                    <FieldInput
-                                                        field={f}
-                                                        value={values[f.name]}
-                                                        onChange={(v) =>
-                                                            set(f.name, v)
-                                                        }
-                                                        error={errorFor(f)}
-                                                    />
-                                                    {errorFor(f) && (
-                                                        <p className="text-xs font-medium text-destructive">
-                                                            {errorFor(f)}
+                                                    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white p-2">
+                                                        <LocationField
+                                                            field={f}
+                                                            values={values}
+                                                            onChange={set}
+                                                        />
+                                                    </div>
+                                                    {f.hint && (
+                                                        <p className="text-[11px] text-muted-foreground">
+                                                            {f.hint}
                                                         </p>
                                                     )}
                                                 </div>
+                                            ))}
+                                        {renderStandardSection(
+                                            sectionFields.filter(
+                                                (f) => f.type !== "location",
                                             ),
                                         )}
                                     </div>
                                 ) : (
                                     // Standard grid layout for other sections
-                                    <div className="space-y-3">
-                                        {sectionFields.map((f) => (
-                                            <div
-                                                key={f.name}
-                                                className="space-y-2"
-                                            >
-                                                {f.type !== "checkbox" && (
-                                                    <Label>{f.label}</Label>
-                                                )}
-                                                {f.type === "location" ? (
-                                                    <LocationField
-                                                        field={f}
-                                                        values={values}
-                                                        onChange={set}
-                                                    />
-                                                ) : (
-                                                    <FieldInput
-                                                        field={f}
-                                                        value={values[f.name]}
-                                                        onChange={(v) =>
-                                                            set(f.name, v)
-                                                        }
-                                                        error={errorFor(f)}
-                                                    />
-                                                )}
-                                                {f.hint &&
-                                                    f.type !== "gallery" && (
-                                                        <p className="text-[11px] text-muted-foreground">
-                                                            {f.hint}
-                                                        </p>
-                                                    )}
-                                                {errorFor(f) && (
-                                                    <p className="text-xs font-medium text-destructive">
-                                                        {errorFor(f)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        ))}
+                                    <div className="space-y-4">
+                                        {renderStandardSection(sectionFields)}
                                     </div>
                                 )}
                             </div>
@@ -395,11 +420,12 @@ function ResourceForm({
                     )}
                 </div>
 
-                {/* Sidebar (1 column) */}
-                <div className="space-y-6 lg:col-span-1">
+                {/* Sidebar (1 column, sticky) */}
+                <div className="lg:col-span-1">
+                    <div className="space-y-6 lg:sticky lg:top-20">
                     {/* Image Upload */}
                     {withImageUpload && (
-                        <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                        <div className="rounded-xl border border-stone-200 bg-stone-50/50 p-4">
                             <h3 className="mb-3 font-display text-sm font-bold text-foreground">
                                 Gambar
                             </h3>
@@ -411,11 +437,11 @@ function ResourceForm({
                         </div>
                     )}
 
-                    {/* Metadata fields */}
+                    {/* Sidebar field settings */}
                     {sidebarFields.length > 0 && (
-                        <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                        <div className="rounded-xl border border-stone-200 bg-stone-50/50 p-4">
                             <h3 className="mb-3 font-display text-sm font-bold text-foreground">
-                                Metadata
+                                {sidebarTitle}
                             </h3>
                             <div className="space-y-3">
                                 {sidebarFields.map((f) => (
@@ -456,24 +482,27 @@ function ResourceForm({
                     )}
 
                     {/* Action buttons */}
-                    <div className="flex flex-col gap-2 pt-2">
-                        <Button
-                            type="submit"
-                            disabled={busy}
-                            className="w-full"
-                        >
-                            {busy ? "Menyimpan…" : submitLabel}
-                        </Button>
-                        {onCancel && (
+                    <div className="rounded-xl border border-stone-200 bg-stone-50/50 p-4">
+                        <div className="flex flex-col gap-2">
                             <Button
-                                type="button"
-                                variant="outline"
-                                onClick={onCancel}
-                                className="w-full hover:bg-primary/10 hover:text-primary"
+                                type="submit"
+                                disabled={busy}
+                                className="w-full"
                             >
-                                Batal
+                                {busy ? "Menyimpan…" : submitLabel}
                             </Button>
-                        )}
+                            {onCancel && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={onCancel}
+                                    className="w-full hover:bg-primary/10 hover:text-primary"
+                                >
+                                    Batal
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -495,6 +524,9 @@ export default function ResourceManager({
     imageUrlKey = null,
     allowCreate = true,
     withImageUpload = true,
+    sidebarTitle = "Metadata",
+    formTitle = null,
+    formSubtitle = null,
 }) {
     const [showCreate, setShowCreate] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -594,6 +626,9 @@ export default function ResourceManager({
                     busy={busy}
                     imageField={imageField}
                     withImageUpload={withImageUpload}
+                    sidebarTitle={sidebarTitle}
+                    formTitle={formTitle}
+                    formSubtitle={formSubtitle}
                     errors={errors}
                     submitLabel="Simpan"
                     onCancel={() => setShowCreate(false)}
@@ -701,6 +736,9 @@ export default function ResourceManager({
                                                     withImageUpload={
                                                         withImageUpload
                                                     }
+                                                    sidebarTitle={sidebarTitle}
+                                                    formTitle={formTitle}
+                                                    formSubtitle={formSubtitle}
                                                     errors={errors}
                                                     busy={busy}
                                                     submitLabel="Simpan perubahan"
@@ -801,6 +839,9 @@ export default function ResourceManager({
                                         existingImageUrl={row[urlKey]}
                                         imageField={imageField}
                                         withImageUpload={withImageUpload}
+                                        sidebarTitle={sidebarTitle}
+                                        formTitle={formTitle}
+                                        formSubtitle={formSubtitle}
                                         errors={errors}
                                         busy={busy}
                                         submitLabel="Simpan perubahan"

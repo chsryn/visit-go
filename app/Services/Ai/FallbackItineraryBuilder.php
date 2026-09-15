@@ -256,32 +256,32 @@ class FallbackItineraryBuilder
             1 => [
                 ['time' => '06:00 - 09:00', 'activity' => 'Melihat Hiu Paus & Snorkeling di Teluk Tomini', 'location' => 'Wisata Hiu Paus Botubarani, Bone Bolango', 'food' => $foodRecs[0], 'cost' => 'Rp 50.000', 'notes' => 'Datang pagi jam 06:00 untuk melihat hiu paus muncul di permukaan.'],
                 ['time' => '10:30 - 12:30', 'activity' => 'Jelajah Benteng Bersejarah Otanaha & Danau Limboto', 'location' => 'Benteng Otanaha, Kota Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 15.000', 'notes' => 'Naik 348 anak tangga untuk pemandangan panorama Danau Limboto.'],
-                ['time' => '13:00 - 15:30', 'activity' => 'Santap Siang Kuliner Khas & Belanja Kerajinan Sulaman Karawo', 'location' => 'Pusat Kerajinan Karawo, Kota Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 75.000', 'notes' => 'Sulaman Karawo adalah warisan budaya takbenda UNESCO khas Gorontalo.'],
-                ['time' => '17:00 - 20:00', 'activity' => 'Sunset & Makan Malam Santai di Kawasan Wisata Kuliner', 'location' => 'Kawasan Lapangan Taruna Remaja / Pesisir Pantai', 'food' => $foodRecs[3], 'cost' => 'Rp 60.000', 'notes' => 'Nikmati suasana malam udara pesisir Gorontalo.'],
+                ['time' => '13:00 - 15:30', 'activity' => 'Santap Siang Kuliner Khas & Belanja Kerajinan Sulaman Karawo', 'location' => 'Tenun Gorontalo Motif Karawo', 'food' => $foodRecs[2], 'cost' => 'Rp 75.000', 'notes' => 'Sulaman Karawo adalah warisan budaya takbenda UNESCO khas Gorontalo.'],
+                ['time' => '17:00 - 20:00', 'activity' => 'Sunset & Makan Malam Santai di Kawasan Wisata Kuliner', 'location' => 'Pantai Libuo', 'food' => $foodRecs[3], 'cost' => 'Rp 60.000', 'notes' => 'Nikmati suasana malam udara pesisir Gorontalo.'],
             ],
             2 => [
                 ['time' => '07:30 - 12:00', 'activity' => 'Island Hopping & Snorkeling Terumbu Karang', 'location' => 'Taman Laut Olele / Pulau Saronde', 'food' => $foodRecs[0], 'cost' => 'Rp 150.000', 'notes' => 'Air sangat jernih, wajib bawa kamera underwater.'],
-                ['time' => '13:00 - 16:00', 'activity' => 'Eksplorasi Menara Agung Limboto & Air Terjun Hiyaliyo Daas', 'location' => 'Kabupaten Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 20.000', 'notes' => 'Cocok untuk berfoto dan menikmati arsitektur ikonik.'],
-                ['time' => '17:30 - 20:30', 'activity' => 'Makan Malam Kuliner Spesial & Belanja Oleh-Oleh Khas', 'location' => 'Pusat Kota Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 80.000', 'notes' => 'Jangan lupa beli Pia Gorontalo dan Kopi Pinogu.'],
+                ['time' => '13:00 - 16:00', 'activity' => 'Eksplorasi Menara Agung Limboto & Air Terjun Hiyaliyo Daas', 'location' => 'Kawasan Integrasi Budaya Limboto', 'food' => $foodRecs[1], 'cost' => 'Rp 20.000', 'notes' => 'Cocok untuk berfoto dan menikmati arsitektur ikonik.'],
+                ['time' => '17:30 - 20:30', 'activity' => 'Makan Malam Kuliner Spesial & Belanja Oleh-Oleh Khas', 'location' => 'Sambal Sagela Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 80.000', 'notes' => 'Jangan lupa beli Pia Gorontalo dan Kopi Pinogu.'],
             ],
             3 => [
                 ['time' => '08:00 - 11:30', 'activity' => 'Wisata Bahari Pulo Cinta Resort & Fotografi Pantai', 'location' => 'Pulo Cinta, Boalemo', 'food' => $foodRecs[3], 'cost' => 'Rp 200.000', 'notes' => 'Destinasi resort romantic berbentuk hati di tengah laut.'],
-                ['time' => '12:30 - 15:00', 'activity' => 'Santap Siang & Wisata Desa Adat / Budaya', 'location' => 'Desa Wisata Sidomukti / Dulohupa', 'food' => $foodRecs[0], 'cost' => 'Rp 40.000', 'notes' => 'Mengenal rumah adat Bantayo Poboide Gorontalo.'],
-                ['time' => '16:00 - 18:30', 'activity' => 'Penutupan Perjalanan & Sunset di Pantai Leato', 'location' => 'Pantai Leato, Kota Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 30.000', 'notes' => 'Momen penutup perjalanan yang tenang dan estetik.'],
+                ['time' => '12:30 - 15:00', 'activity' => 'Santap Siang & Wisata Desa Adat / Budaya', 'location' => 'Rumah Adat Dulohupa', 'food' => $foodRecs[0], 'cost' => 'Rp 40.000', 'notes' => 'Mengenal rumah adat Bantayo Poboide Gorontalo.'],
+                ['time' => '16:00 - 18:30', 'activity' => 'Penutupan Perjalanan & Sunset di Pantai Leato', 'location' => 'Pantai Indah Pohe', 'food' => $foodRecs[1], 'cost' => 'Rp 30.000', 'notes' => 'Momen penutup perjalanan yang tenang dan estetik.'],
             ],
             4 => [
-                ['time' => '08:30 - 12:00', 'activity' => 'Eksplorasi Hutan Cagar Alam Nantu & Bird Watching', 'location' => 'Cagar Alam Nantu, Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 100.000', 'notes' => 'Habitat langka Anoa dan Babirusa Gorontalo.'],
-                ['time' => '13:00 - 17:00', 'activity' => 'Relaksasi Pemandian Air Panas Lombongo', 'location' => 'Lombongo, Suwawa, Bone Bolango', 'food' => $foodRecs[3], 'cost' => 'Rp 25.000', 'notes' => 'Air panas alami di tengah nuansa hutan tropis yang sejuk.'],
+                ['time' => '08:30 - 12:00', 'activity' => 'Eksplorasi Hutan Cagar Alam Nantu & Bird Watching', 'location' => 'Nantu Forest Checkpost', 'food' => $foodRecs[2], 'cost' => 'Rp 100.000', 'notes' => 'Habitat langka Anoa dan Babirusa Gorontalo.'],
+                ['time' => '13:00 - 17:00', 'activity' => 'Relaksasi Pemandian Air Panas Lombongo', 'location' => 'Pemandian Air Panas Lombongo', 'food' => $foodRecs[3], 'cost' => 'Rp 25.000', 'notes' => 'Air panas alami di tengah nuansa hutan tropis yang sejuk.'],
             ],
             5 => [
-                ['time' => '09:00 - 11:30', 'activity' => 'Belanja Sulaman Karawo & Kerajinan Tangan', 'location' => 'Pusat Kerajinan Karawo, Kota Gorontalo', 'food' => $foodRecs[0], 'cost' => 'Rp 50.000', 'notes' => 'Karawo adalah sulaman khas Gorontalo bermotif flora.'],
-                ['time' => '13:00 - 15:30', 'activity' => 'Berburu Oleh-Oleh: Pia, Kopi Pinogu & Sambal Sagela', 'location' => 'Pusat Kota Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 100.000', 'notes' => 'Siapkan daftar belanja agar tidak kalap.'],
-                ['time' => '16:00 - 18:00', 'activity' => 'Jelajah Pasar Sentral & Street Food Sore', 'location' => 'Pasar Sentral, Kota Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 40.000', 'notes' => 'Datang sore untuk jajanan paling lengkap.'],
+                ['time' => '09:00 - 11:30', 'activity' => 'Belanja Sulaman Karawo & Kerajinan Tangan', 'location' => 'Tenun Gorontalo Motif Karawo', 'food' => $foodRecs[0], 'cost' => 'Rp 50.000', 'notes' => 'Karawo adalah sulaman khas Gorontalo bermotif flora.'],
+                ['time' => '13:00 - 15:30', 'activity' => 'Berburu Oleh-Oleh: Pia, Kopi Pinogu & Sambal Sagela', 'location' => 'Sambal Sagela Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 100.000', 'notes' => 'Siapkan daftar belanja agar tidak kalap.'],
+                ['time' => '16:00 - 18:00', 'activity' => 'Jelajah Pasar Sentral & Street Food Sore', 'location' => 'Milu Siram Barokah', 'food' => $foodRecs[2], 'cost' => 'Rp 40.000', 'notes' => 'Datang sore untuk jajanan paling lengkap.'],
             ],
             6 => [
-                ['time' => '07:30 - 09:30', 'activity' => 'Sarapan Milu Siram di Warung Legendaris', 'location' => 'Kota Gorontalo', 'food' => $foodRecs[0], 'cost' => 'Rp 25.000', 'notes' => 'Milu Siram paling nikmat disantap hangat pagi hari.'],
-                ['time' => '12:00 - 14:00', 'activity' => 'Makan Siang Ilabulo & Ayam Iloni', 'location' => 'Rumah Makan Khas, Kota Gorontalo', 'food' => $foodRecs[1], 'cost' => 'Rp 45.000', 'notes' => 'Pesan Ilabulo yang dibungkus daun pisang.'],
-                ['time' => '18:30 - 20:30', 'activity' => 'Wisata Kuliner Malam: Sate Tuna & Sagela', 'location' => 'Kawasan Kuliner Pesisir, Kota Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 60.000', 'notes' => 'Akhiri dengan Es Kelapa Gula Merah.'],
+                ['time' => '07:30 - 09:30', 'activity' => 'Sarapan Milu Siram di Warung Legendaris', 'location' => 'Milu Siram Barokah', 'food' => $foodRecs[0], 'cost' => 'Rp 25.000', 'notes' => 'Milu Siram paling nikmat disantap hangat pagi hari.'],
+                ['time' => '12:00 - 14:00', 'activity' => 'Makan Siang Ilabulo & Ayam Iloni', 'location' => 'Ilabulo Hj. Fatma', 'food' => $foodRecs[1], 'cost' => 'Rp 45.000', 'notes' => 'Pesan Ilabulo yang dibungkus daun pisang.'],
+                ['time' => '18:30 - 20:30', 'activity' => 'Wisata Kuliner Malam: Sate Tuna & Sagela', 'location' => 'Ayam Iloni Gorontalo', 'food' => $foodRecs[2], 'cost' => 'Rp 60.000', 'notes' => 'Akhiri dengan Es Kelapa Gula Merah.'],
             ],
         ];
     }

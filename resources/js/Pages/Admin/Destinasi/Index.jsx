@@ -48,13 +48,29 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                     basePath="/admin/destinasis"
                     defaults={{ destination_category_id: defaultCategoryId }}
                     withImageUpload={false}
+                    sidebarTitle="Status Publikasi"
+                    formTitle="Destinasi Wisata"
+                    formSubtitle="Perbarui informasi, foto, dan titik lokasi destinasi."
                     fields={[
-                        { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: botubarani-pulo-cinta." },
+                        { name: "name", label: "Nama", section: "Informasi Dasar", half: true },
+                        { name: "slug", label: "Slug", section: "Informasi Dasar", half: true, required: true, hint: "Wajib diisi — contoh: botubarani-pulo-cinta." },
+                        {
+                            name: "destination_category_id",
+                            label: "Kategori",
+                            type: "select",
+                            section: "Informasi Dasar",
+                            half: true,
+                            placeholder: "Pilih kategori",
+                            hint: "Kategori baru ditambahkan lewat halaman Kelola Kategori.",
+                            options: categoryOptions.map((c) => ({ value: c.id, label: c.name })),
+                        },
+                        { name: "tags", label: "Tags", section: "Informasi Dasar", half: true, placeholder: "cth: snorkeling, pantai, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
+                        { name: "body", label: "Deskripsi", type: "textarea", section: "Informasi Dasar" },
                         {
                             name: "gallery",
                             label: "Foto",
                             type: "gallery",
+                            section: "Media & Galeri",
                             full: true,
                             hint: "Paling kiri = sampul. Seret foto untuk menyusun ulang; tambah beberapa sekaligus.",
                             initial: (row) => [
@@ -62,20 +78,13 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                                 ...((row.gallery ?? []).map((g) => ({ kind: "gallery", id: g.id, url: g.image_url }))),
                             ],
                         },
-                        {
-                            name: "destination_category_id",
-                            label: "Kategori",
-                            type: "select",
-                            placeholder: "Pilih kategori",
-                            hint: "Kategori baru ditambahkan lewat halaman Kelola Kategori.",
-                            options: categoryOptions.map((c) => ({ value: c.id, label: c.name })),
-                        },
-                        { name: "body", label: "Deskripsi", type: "textarea", full: true },
-                        { name: "location", label: "Lokasi (label)" },
+                        { name: "alt", label: "Alt teks gambar", section: "Media & Galeri" },
                         {
                             name: "area",
                             label: "Wilayah",
                             type: "select",
+                            section: "Pemetaan Lokasi",
+                            half: true,
                             placeholder: "Pilih wilayah",
                             options: [
                                 "Kota Gorontalo",
@@ -86,12 +95,11 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                                 "Gorontalo Utara",
                             ].map((a) => ({ value: a, label: a })),
                         },
-                        { name: "tags", label: "Tags", placeholder: "cth: snorkeling, pantai, keluarga", hint: "Pisahkan dengan koma — dipakai AI untuk mencocokkan minat." },
-                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
-                        { name: "latitude", label: "Latitude", readonly: true },
-                        { name: "longitude", label: "Longitude", readonly: true },
-                        { name: "alt", label: "Alt teks gambar" },
-                        { name: "is_active", label: "Status", type: "checkbox" },
+                        { name: "location", label: "Lokasi (label)", section: "Pemetaan Lokasi", half: true },
+                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", section: "Pemetaan Lokasi", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
+                        { name: "latitude", label: "Latitude", section: "Pemetaan Lokasi", half: true, readonly: true },
+                        { name: "longitude", label: "Longitude", section: "Pemetaan Lokasi", half: true, readonly: true },
+                        { name: "is_active", label: "Status", type: "checkbox", sidebar: true, checkboxLabel: "Aktif (Ditampilkan)" },
                     ]}
                     columns={[
                         {

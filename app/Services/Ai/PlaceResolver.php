@@ -80,21 +80,87 @@ class PlaceResolver
         }
     }
 
+    /**
+     * Lampirkan image (URL publik) ke tiap aktivitas yang lokasinya cocok
+     * baris DB, untuk thumbnail per hari di kartu jadwal. Aktivitas tanpa
+     * kecocokan dibiarkan apa adanya.
+     */
+    public function enrichWithImages(array $itinerary): array
+    {
+        try {
+            $candidates = $this->candidates();
+            if (! isset($itinerary['days']) || ! is_array($itinerary['days'])) {
+                return $itinerary;
+            }
+            // Mutasi harus menembus ke $itinerary asli → ref variabel sejati
+            // (foreach di atas ekspresi `?? ...` mengerjakan salinan, bukan aslinya).
+            $days = &$itinerary['days'];
+            foreach ($days as &$day) {
+                if (! is_array($day['activities'] ?? null)) {
+                    continue;
+                }
+                foreach ($day['activities'] as &$act) {
+                    $loc = is_string($act['location'] ?? null) ? trim($act['location']) : '';
+                    if ($loc === '') {
+                        continue;
+                    }
+                    $match = $this->matchLocation($loc, $candidates, []);
+                    if ($match !== null) {
+                        $act['image'] = $match['image'];
+                        $act['place_key'] = $match['key'];
+                    }
+                }
+                unset($act);
+            }
+            unset($day);
+            unset($day);
+
+            return $itinerary;
+        } catch (\Throwable $e) {
+            Log::warning('PlaceResolver enrich images failed: '.$e->getMessage());
+
+            return $itinerary;
+        }
+    }
+
+    private function fallbackImage(string $category, ?string $image): string
+    {
+        if ($image) {
+            return $image;
+        }
+
+        return match ($category) {
+            'budaya' => '/storage/portal/kategori-budaya.jpg',
+            'kuliner' => '/storage/portal/kategori-kuliner.jpg',
+            'kerajinan' => '/storage/portal/kategori-kerajinan.jpg',
+            'event' => '/storage/portal/event-dikili.jpg',
+            default => '/storage/portal/kategori-destinasi.jpg',
+        };
+    }
+
     private function candidates(): Collection
     {
         $candidates = collect();
+        // Kolom per tabel: events tak punya latitude/longitude (hanya area/location_name),
+        // sehingga tak bisa bertanda peta — tetap ikut sebagai kandidat tempat.
         $tables = [
-            [Destinasi::class, 'destinasi', null],
-            [Budaya::class, 'budaya', null],
-            [Umkm::class, 'kuliner', 'kuliner'],
+            [Destinasi::class, 'destinasi', null, self::COLUMNS],
+            [Budaya::class, 'budaya', null, self::COLUMNS],
+            [Umkm::class, 'kuliner', 'kuliner', self::COLUMNS],
             // Kerajinan = UMKM berjenis kerajinan
-            [Umkm::class, 'kerajinan', 'kerajinan'],
-            [Event::class, 'event', null],
+            [Umkm::class, 'kerajinan', 'kerajinan', self::COLUMNS],
+            [Event::class, 'event', null, ['id', 'name', 'slug', 'body', 'image']],
         ];
-        foreach ($tables as [$model, $category, $jenis]) {
-            $rows = $model === Umkm::class
-                ? ($jenis === 'kuliner' ? $model::kuliner()->where('is_active', true)->get(self::COLUMNS) : $model::kerajinan()->where('is_active', true)->get(self::COLUMNS))
-                : $model::where('is_active', true)->get(self::COLUMNS);
+        foreach ($tables as [$model, $category, $jenis, $columns]) {
+            try {
+                $rows = $model === Umkm::class
+                    ? ($jenis === 'kuliner' ? $model::kuliner()->where('is_active', true)->get($columns) : $model::kerajinan()->where('is_active', true)->get($columns))
+                    : $model::where('is_active', true)->get($columns);
+            } catch (\Throwable $e) {
+                Log::warning('PlaceResolver candidates table failed ('.$category.'): '.$e->getMessage());
+
+                continue;
+            }
             foreach ($rows as $r) {
                 if (mb_strlen($r->name) < self::MIN_NAME_LENGTH) {
                     continue;
@@ -104,7 +170,9 @@ class PlaceResolver
                     'name' => $r->name,
                     'category' => $category,
                     'slug' => $r->slug,
-                    'image' => $this->publicImageUrl($r->image),
+                    // Mayoritas baris destinasi/budaya belum punya foto; pakai
+                    // placeholder kategori agar thumbnail tiap hari tetap muat.
+                    'image' => $this->publicImageUrl($this->fallbackImage($category, $r->image)),
                     'latitude' => $r->latitude !== null ? (float) $r->latitude : null,
                     'longitude' => $r->longitude !== null ? (float) $r->longitude : null,
                     'body' => $r->body,
