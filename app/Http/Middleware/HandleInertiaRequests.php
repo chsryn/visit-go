@@ -9,6 +9,7 @@ use App\Models\DestinationCategory;
 use App\Models\Event;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -61,13 +62,14 @@ class HandleInertiaRequests extends Middleware
                 'categories' => function () {
                     $tag = fn ($rows, $category) => $rows->map(fn ($r) => ['name' => $r->name, 'slug' => $r->slug, 'category' => $category]);
 
-                    return $tag(Destinasi::where('is_active', true)->whereNotIn('slug', PortalController::PILLARS)->latest()->take(10)->get(['name', 'slug']), 'destinasi')
+                    return Cache::remember('nav.categories', 300, fn () => $tag(Destinasi::where('is_active', true)->whereNotIn('slug', PortalController::PILLARS)->latest()->take(10)->get(['name', 'slug']), 'destinasi')
                         ->merge($tag(Budaya::where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'budaya'))
                         ->merge($tag(Umkm::kuliner()->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kuliner'))
                         ->merge($tag(Umkm::kerajinan()->where('is_active', true)->latest()->take(10)->get(['name', 'slug']), 'kerajinan'))
-                        ->values();
+                        ->values()
+                        ->all());
                 },
-                'events' => fn () => Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location']),
+                'events' => fn () => Cache::remember('nav.events', 300, fn () => Event::where('is_active', true)->latest()->take(10)->get(['name', 'slug', 'location'])->all()),
             ],
         ];
     }

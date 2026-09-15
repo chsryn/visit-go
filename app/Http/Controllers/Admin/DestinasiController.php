@@ -7,7 +7,6 @@ use App\Models\Destinasi;
 use App\Models\DestinationCategory;
 use App\Models\DestinationImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -49,7 +48,7 @@ class DestinasiController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:destinasis,slug',
+            'slug' => 'required|string|max:150|unique:destinasis,slug',
             'destination_category_id' => 'required|exists:destination_categories,id',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
@@ -65,7 +64,6 @@ class DestinasiController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['category'] = 'destinasi'; // tabel destinasis hanya berisi destinasi wisata
 
         // Alur galeri: foto pertama = sampul, sisanya = baris destination_images

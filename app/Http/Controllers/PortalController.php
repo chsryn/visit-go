@@ -110,7 +110,7 @@ class PortalController extends Controller
             $activeKerajinanCategory = 'semua';
         }
 
-        // Ekosistem budaya dinamis — hanya untuk /budaya tanpa sub sejarah (tanpa ekosistem kuliner/kerajinan, hanya galeri & destinasi)
+        // Ekosistem budaya dinamis — galeri & destinasi terkait
         $destinasiTerkait = [];
         $galeriBudaya = [];
         if ($category === 'budaya' && $activeSub !== 'sejarah') {
@@ -150,7 +150,7 @@ class PortalController extends Controller
     {
         if ($category === 'event') {
             $item = Event::where('slug', $slug)->where('is_active', true)->firstOrFail();
-            $related = Event::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+            $related = Event::where('id', '!=', $item->id)->where('is_active', true)->latest()->take(3)->get();
         } else {
             $isKuliner = $category === 'kuliner';
             $isKerajinan = $category === 'kerajinan';
@@ -173,7 +173,7 @@ class PortalController extends Controller
                     default => Destinasi::class,
                 };
                 $item = $model::where('slug', $slug)->where('is_active', true)->firstOrFail();
-                $related = $model::where('id', '!=', $item->id)->where('is_active', true)->take(3)->get();
+                $related = $model::where('id', '!=', $item->id)->where('is_active', true)->latest()->take(3)->get();
                 if ($category === 'destinasi') {
                     // Galeri foto tambahan (foto sampul tetap di `image`).
                     // setRelation agar dipakai saat serialisasi (relasi menimpa atribut).

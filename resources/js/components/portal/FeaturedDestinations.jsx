@@ -12,7 +12,7 @@ const featured = [
     {
         title: "Botubarani Whale Shark",
         location: "Bone Bolango",
-        // category: "Wisata Bahari",
+        //
         href: "/destinasi/hiu-paus-botubarani",
         image: heroWhale,
         desc: "Berenang bersama hiu paus di pagi hari — pertemuan istimewa di Teluk Tomini.",
@@ -44,6 +44,7 @@ const featured = [
     {
         title: "Pulau Saronde",
         location: "Gorontalo Utara",
+        category: "Pantai",
         href: "/destinasi/pulau-saronde",
         image: puloCinta,
         desc: "Pulau pasir putih dengan air jernih kebiruan.",

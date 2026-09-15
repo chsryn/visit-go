@@ -43,7 +43,7 @@ class MapController extends Controller
         };
 
         $push(Destinasi::where('is_active', true), 'destinasi');
-        $push(Budaya::where('is_active', true), 'budaya');
+        $push(Budaya::where('is_active', true)->where('has_location', true), 'budaya');
         // Kuliner & kerajinan = UMKM dengan kategori kuliner/kerajinan
         $push(Umkm::kuliner()->where('is_active', true), 'kuliner');
         $push(Umkm::kerajinan()->where('is_active', true), 'kerajinan');

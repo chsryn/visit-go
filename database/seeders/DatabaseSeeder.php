@@ -34,6 +34,6 @@ class DatabaseSeeder extends Seeder
             GallerySeeder::class,
             KulinerCategorySeeder::class,
             KerajinanCategorySeeder::class,
-        ]);
+            ]);
     }
 }

@@ -19,7 +19,7 @@ export default function EventIndex({ items }) {
                     basePath="/admin/events"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: karnaval-karawo-2026." },
                         { name: "date", label: "Tanggal", placeholder: "cth: 11–13" },
                         { name: "month", label: "Bulan", placeholder: "cth: Sep 2026" },
                         { name: "location_name", label: "Nama lokasi", placeholder: "cth: Pelataran GPCC" },

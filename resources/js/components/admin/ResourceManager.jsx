@@ -134,6 +134,7 @@ function FieldInput({ field, value, onChange, error }) {
             step={field.step}
             value={value ?? ""}
             placeholder={field.placeholder}
+            required={field.required}
             onChange={(e) => onChange(e.target.value)}
         />
     );
@@ -206,6 +207,7 @@ function ResourceForm({
     const sidebarFields = [];
 
     fields.forEach((f) => {
+        if (f.visibleWhen && !f.visibleWhen(values)) return;
         if (f.sidebar) {
             sidebarFields.push(f);
         } else {
@@ -467,7 +469,7 @@ function ResourceForm({
                                 type="button"
                                 variant="outline"
                                 onClick={onCancel}
-                                className="w-full"
+                                className="w-full hover:bg-primary/10 hover:text-primary"
                             >
                                 Batal
                             </Button>
@@ -834,6 +836,11 @@ export default function ResourceManager({
                             size="sm"
                             variant={l.active ? "default" : "outline"}
                             disabled={!l.url}
+                            className={
+                                l.active
+                                    ? ""
+                                    : "hover:bg-primary/10 hover:text-primary"
+                            }
                             onClick={() =>
                                 l.url &&
                                 router.get(l.url, {}, { preserveScroll: true })

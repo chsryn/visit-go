@@ -1,6 +1,7 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ResourceManager from "@/components/admin/ResourceManager";
+import { AdminBreadcrumb, DESTINASI_NAV } from "@/components/admin/AdminBreadcrumb";
 
 const statusBadge = (active) =>
     active ? (
@@ -17,14 +18,7 @@ export default function DestinationCategories({ items }) {
                 title="Kategori Destinasi"
                 subtitle="Master kategori — tambah di sini agar muncul di sidebar & form destinasi."
             >
-                <div className="mb-4">
-                    <Link
-                        href="/admin/destinasis"
-                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        ← Kembali ke Destinasi
-                    </Link>
-                </div>
+                <div className="mb-4"><AdminBreadcrumb items={DESTINASI_NAV} /></div>
                 <ResourceManager
                     items={items}
                     basePath="/admin/destination-categories"

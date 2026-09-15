@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Budaya;
 use App\Models\Destinasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -28,20 +27,20 @@ class BudayaController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:budayas,slug',
+            'slug' => 'required|string|max:150|unique:budayas,slug',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'area' => ['nullable', Rule::in(Destinasi::AREAS)],
             'tags' => 'nullable|string|max:500',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'has_location' => 'nullable|boolean',
+            'latitude' => [Rule::requiredIf($request->boolean('has_location')), 'nullable', 'numeric', 'between:-90,90'],
+            'longitude' => [Rule::requiredIf($request->boolean('has_location')), 'nullable', 'numeric', 'between:-180,180'],
             'jam_buka' => 'nullable|date_format:H:i',
             'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
         ]);
 
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['image'] = $this->storeImage($request, 'image', 'uploads/budayas');
         Budaya::create($data);
 
@@ -57,8 +56,9 @@ class BudayaController extends Controller
             'alt' => 'nullable|string|max:200',
             'area' => ['nullable', Rule::in(Destinasi::AREAS)],
             'tags' => 'nullable|string|max:500',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'has_location' => 'nullable|boolean',
+            'latitude' => [Rule::requiredIf($request->boolean('has_location')), 'nullable', 'numeric', 'between:-90,90'],
+            'longitude' => [Rule::requiredIf($request->boolean('has_location')), 'nullable', 'numeric', 'between:-180,180'],
             'jam_buka' => 'nullable|date_format:H:i',
             'jam_tutup' => 'nullable|date_format:H:i|after:jam_buka',
             'image' => 'nullable|image|max:4096',

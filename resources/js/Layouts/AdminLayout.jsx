@@ -22,7 +22,7 @@ import dulohupaLogo from "@/assets/dulohupa-ai.png";
 import { cn } from "@/lib/utils";
 
 function isActive(url, href) {
-    if (href === "/admin") return url === "/admin" || url === "/admin/";
+    if (href === "/admin/dashboard") return url === "/admin/dashboard" || url === "/admin/dashboard/";
     return (
         url === href || url.startsWith(href + "/") || url.startsWith(href + "?")
     );
@@ -40,6 +40,15 @@ export default function AdminLayout({ children, title, subtitle }) {
             router.visit("/login", { replace: true });
         }
     }, [user]);
+
+    // Bfcache lolos pun tetap logout: cegah restore halaman admin dari memori browser
+    useEffect(() => {
+        const onPageshow = (e) => {
+            if (e.persisted) window.location.reload();
+        };
+        window.addEventListener("pageshow", onPageshow);
+        return () => window.removeEventListener("pageshow", onPageshow);
+    }, []);
 
     const [destinasiOpen, setDestinasiOpen] = useState(
         url.startsWith("/admin/destinasis"),
@@ -62,7 +71,7 @@ export default function AdminLayout({ children, title, subtitle }) {
 
     const sidebar = (
         <div className="flex h-full flex-col">
-            <Link href="/admin" className="flex items-center gap-2.5 px-3 py-5">
+            <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-5">
                 <img
                     src={dulohupaLogo}
                     alt="Dulohupa AI"
@@ -79,7 +88,7 @@ export default function AdminLayout({ children, title, subtitle }) {
             </Link>
 
             <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
-                <Link href="/admin" className={itemCls("/admin")}>
+                <Link href="/admin/dashboard" className={itemCls("/admin/dashboard")}>
                     <LayoutDashboard className="size-4 shrink-0" /> Dashboard
                 </Link>
 

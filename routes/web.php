@@ -25,10 +25,6 @@ use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
-
 Route::get('/', [PortalController::class, 'index'])->name('home');
 
 // Search (hero) — sebelum wildcard {slug}
@@ -43,6 +39,7 @@ Route::get('/kerajinan', [PortalController::class, 'indexByCategory'])->defaults
 Route::get('/event', [PortalController::class, 'indexByCategory'])->defaults('category', 'event')->name('event.index');
 Route::get('/galeri', [PortalController::class, 'galleryIndex'])->name('galeri.index');
 Route::get('/artikel', [PortalController::class, 'articleIndex'])->name('artikel.index');
+Route::get('/sejarah', fn () => Inertia::render('Sejarah'))->name('sejarah.index');
 
 // Dynamic detail routes: /destinasi/{slug}, /budaya/{slug}, /kuliner/{slug}, /kerajinan/{slug}, /event/{slug}
 Route::get('/destinasi/{slug}', [PortalController::class, 'showDestinasi'])->name('destinasi.show');
@@ -86,7 +83,8 @@ Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('auth
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->middleware('auth')->name('admin.logout');
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin.auth'])->group(function () {
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::redirect('/', '/admin/dashboard');
+    Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('destinasis', AdminDestinasiController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('destinasis/{destinasi}/images', [AdminDestinasiController::class, 'images'])->name('destinasis.images');

@@ -7,27 +7,7 @@ import { DestinationCard } from "@/components/portal/DestinationCard";
 import { resolveStorageUrl } from "@/lib/image";
 import { karawoBorder } from "@/lib/karawo";
 import { Search } from "lucide-react";
-import destinasiImage from "@/assets/kategori-destinasi.jpg";
-import budayaImage from "@/assets/kategori-budaya.jpg";
-import kulinerImage from "@/assets/kategori-kuliner.jpg";
-import kerajinanImage from "@/assets/kategori-kerajinan.jpg";
-import karawoImage from "@/assets/event-karawo.jpg";
-
-const fallbackImg = {
-    destinasi: destinasiImage,
-    budaya: budayaImage,
-    kuliner: kulinerImage,
-    kerajinan: kerajinanImage,
-    event: karawoImage,
-};
-
-const typeLabels = {
-    destinasi: "Destinasi",
-    budaya: "Budaya",
-    kuliner: "Kuliner",
-    kerajinan: "Kerajinan",
-    event: "Agenda",
-};
+import { fallbackImg, categoryLabels } from "../Category/data";
 
 export default function SearchIndex({ q: initialQ = "", type: initialType = null, results = [], counts = {}, total = 0 }) {
     const [q, setQ] = useState(initialQ);
@@ -60,7 +40,7 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
                         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23D4A017' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`, backgroundSize: "240px 240px" }} />
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
                             <h1 className="max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">{initialQ ? `Hasil untuk "${initialQ}"` : "Cari"}</h1>
-                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-white/70">{total > 0 ? `${total} hasil ditemukan` : initialQ ? "Coba kata kunci lain" : "Cari destinasi, budaya, kuliner, kerajinan, atau agenda Gorontalo"}{initialType ? ` — ${typeLabels[initialType]}` : ""}</p>
+                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-white/70">{total > 0 ? `${total} hasil ditemukan` : initialQ ? "Coba kata kunci lain" : "Cari destinasi, budaya, kuliner, kerajinan, atau agenda Gorontalo"}{initialType ? ` — ${categoryLabels[initialType]}` : ""}</p>
                             <form onSubmit={handleSubmit} className="mt-6 flex max-w-xl items-center gap-2 rounded-full border border-border bg-white p-1.5 shadow-sm">
                                 <Search className="ml-3 size-4 shrink-0 text-muted-foreground" />
                                 <input type="text" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari Pulo Cinta, Karawo, Milu Siram..." className="flex-1 bg-transparent px-2 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none" />
@@ -74,7 +54,7 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
                             <div className="mt-6 flex flex-wrap gap-2">
                                 <button type="button" onClick={() => router.get("/search", { q: initialQ })} className={`rounded-full px-4 py-1.5 text-xs font-semibold ${!initialType ? "bg-sand text-white" : "border border-border bg-white text-foreground shadow-sm hover:bg-muted"}`}>Semua {total > 0 ? `(${total})` : ""}</button>
                                 {types.map((t) => (
-                                    <button key={t} type="button" onClick={() => router.get("/search", { q: initialQ, type: t })} className={`rounded-full px-4 py-1.5 text-xs font-semibold ${initialType === t ? "bg-sand text-white" : "border border-border bg-white text-foreground shadow-sm hover:bg-muted"}`}>{typeLabels[t]} {counts[t] ? `(${counts[t]})` : ""}</button>
+                                    <button key={t} type="button" onClick={() => router.get("/search", { q: initialQ, type: t })} className={`rounded-full px-4 py-1.5 text-xs font-semibold ${initialType === t ? "bg-sand text-white" : "border border-border bg-white text-foreground shadow-sm hover:bg-muted"}`}>{categoryLabels[t]} {counts[t] ? `(${counts[t]})` : ""}</button>
                                 ))}
                             </div>
                         </div>
@@ -88,8 +68,8 @@ export default function SearchIndex({ q: initialQ = "", type: initialType = null
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                                     {filtered.map((it) => {
                                         const src = resolveStorageUrl(it.image);
-                                        const img = src ?? fallbackImg[it.category] ?? destinasiImage;
-                                        return <DestinationCard key={`${it.category}-${it.slug}`} href={it.href ?? `/${it.category}/${it.slug}`} image={img} title={it.name} location={it.location} category={typeLabels[it.category] ?? it.category} description={it.body} />;
+                                        const img = src ?? fallbackImg[it.category] ?? fallbackImg.destinasi;
+                                        return <DestinationCard key={`${it.category}-${it.slug}`} href={it.href ?? `/${it.category}/${it.slug}`} image={img} title={it.name} location={it.location} category={categoryLabels[it.category] ?? it.category} description={it.body} />;
                                     })}
                                 </div>
                             ) : (

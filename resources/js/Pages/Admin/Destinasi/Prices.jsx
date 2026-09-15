@@ -1,6 +1,7 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ResourceManager from "@/components/admin/ResourceManager";
+import { AdminBreadcrumb, DESTINASI_NAV } from "@/components/admin/AdminBreadcrumb";
 import { cn } from "@/lib/utils";
 
 const JENIS_LABELS = {
@@ -28,15 +29,7 @@ export default function DestinationPrices({ items, destinasis, filterDestinasiId
                 subtitle="Sub-bagian estimasi harga — dipakai AI untuk perkiraan biaya liburan."
             >
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <Link
-                        href="/admin/destinasis"
-                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        Destinasi
-                    </Link>
-                    <span className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                        Estimasi Harga
-                    </span>
+                    <AdminBreadcrumb items={DESTINASI_NAV} />
                     <select
                         value={filterDestinasiId ?? ""}
                         onChange={(e) =>

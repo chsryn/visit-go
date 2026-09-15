@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Umkm;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -15,7 +14,12 @@ class UmkmController extends Controller
 
     public function index(Request $request)
     {
+        $kuliner = $request->query('kuliner_kategori');
+        $kerajinan = $request->query('kerajinan_kategori');
+
         $items = Umkm::with(['kulinerCategories:id,name,slug', 'kerajinanCategories:id,name,slug'])
+            ->when($kuliner, fn ($q) => $q->whereHas('kulinerCategories', fn ($qq) => $qq->where('slug', $kuliner)))
+            ->when($kerajinan, fn ($q) => $q->whereHas('kerajinanCategories', fn ($qq) => $qq->where('slug', $kerajinan)))
             ->latest()
             ->paginate(5)
             ->withQueryString();
@@ -28,6 +32,8 @@ class UmkmController extends Controller
 
         return Inertia::render('Admin/Umkm/Index', [
             'items' => $items,
+            'filterKuliner' => $kuliner,
+            'filterKerajinan' => $kerajinan,
             'kulinerCategories' => \App\Models\KulinerCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
             'kerajinanCategories' => \App\Models\KerajinanCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
         ]);
@@ -37,7 +43,7 @@ class UmkmController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:umkms,slug',
+            'slug' => 'required|string|max:150|unique:umkms,slug',
             'skala_usaha' => ['required', Rule::in(Umkm::SKALA_USAHA)],
             'body' => 'nullable|string',
             'produk' => 'nullable|string',
@@ -58,7 +64,6 @@ class UmkmController extends Controller
         $kulinerIds = $data['kuliner_categories'] ?? [];
         $kerajinanIds = $data['kerajinan_categories'] ?? [];
         unset($data['kuliner_categories'], $data['kerajinan_categories']);
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['image'] = $this->storeImage($request, 'image', 'uploads/umkms');
         $umkm = Umkm::create($data);
         $umkm->kulinerCategories()->sync($kulinerIds ?? []);

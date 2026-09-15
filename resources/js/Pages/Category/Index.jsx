@@ -1,544 +1,63 @@
-import { useEffect, useState } from "react";
-import { Head, router } from "@inertiajs/react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Head } from "@inertiajs/react";
 import { Navbar } from "@/components/portal/Navbar";
+import { PageBreadcrumb } from "@/components/portal/PageBreadcrumb";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { DestinationCard } from "@/components/portal/DestinationCard";
-import { Reveal } from "@/components/ui/Reveal";
 import { resolveStorageUrl } from "@/lib/image";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-} from "@/components/ui/pagination";
 import { Sejarah } from "@/components/portal/Sejarah";
+import { CategoryFilter } from "./shared/CategoryFilter";
+import { ItemGrid } from "./shared/ItemGrid";
+import { Lightbox } from "@/components/portal/Lightbox";
 import { karawoBorder, karawoPattern } from "@/lib/karawo";
-import destinasiImage from "@/assets/kategori-destinasi.jpg";
-import budayaImage from "@/assets/kategori-budaya.jpg";
-import kulinerImage from "@/assets/kategori-kuliner.jpg";
-import kerajinanImage from "@/assets/kategori-kerajinan.jpg";
-import karawoImage from "@/assets/event-karawo.jpg";
-import busanaAdatImg from "@/assets/busana-adat-gorontalo.jpg";
-import patungPataniImg from "@/assets/patung-patani.jpg";
-import motifKarawoImg from "@/assets/motif-karawo.jpg";
-import menyulamKarawoImg from "@/assets/menyulam-karawo.webp";
-import pantaiTaludaaImg from "@/assets/pantai-taludaa.jpg";
-import bentengOtanahaImg from "@/assets/benteng-otanaha.jpg";
-import pulauCintaImg from "@/assets/pulau-cinta.jpg";
-import pulauDiyonumoImg from "@/assets/pulau-diyonumo.jpg";
-import binteImg from "@/assets/binte.jpg";
+import { heroByCategory, fallbackImg, heroSvgPattern } from "./data";
+import { IntroBudaya } from "./Budaya/IntroBudaya";
+import { BudayaNavCards } from "./Budaya/BudayaNavCards";
+import { IntroKuliner } from "./Kuliner/IntroKuliner";
+import { IntroKerajinan } from "./Kerajinan/IntroKerajinan";
+import { IntroDestinasi } from "./Destinasi/IntroDestinasi";
 
-const heroByCategory = {
-    destinasi: {
-        title: "Destinasi Wisata",
-        image: destinasiImage,
-    },
-    budaya: {
-        title: "Budaya Gorontalo",
-        image: budayaImage,
-    },
-    kuliner: {
-        title: "Kuliner Khas",
-        image: kulinerImage,
-    },
-    kerajinan: {
-        title: "Kerajinan Daerah",
-        image: kerajinanImage,
-    },
-    event: {
-        title: "Agenda Budaya",
-        image: karawoImage,
-    },
-};
-
-const fallbackImg = {
-    destinasi: destinasiImage,
-    budaya: budayaImage,
-    kuliner: kulinerImage,
-    kerajinan: kerajinanImage,
-    event: karawoImage,
-};
-
-// Image rotation helper - selects different fallback based on item ID/slug hash
-const getRotatedFallback = (category, itemId) => {
-    const fallbacks = {
-        kuliner: [kulinerImage, binteImg],
-        kerajinan: [kerajinanImage, motifKarawoImg],
-        destinasi: [
-            destinasiImage,
-            pulauCintaImg,
-            pulauDiyonumoImg,
-            bentengOtanahaImg,
-        ],
-        budaya: [budayaImage, busanaAdatImg, patungPataniImg],
-    };
-
-    const categoryFallbacks = fallbacks[category] || [fallbackImg[category]];
-    if (categoryFallbacks.length === 0) return fallbackImg[category];
-
-    // Simple hash-based rotation using itemId
-    const hash = String(itemId)
-        .split("")
-        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return categoryFallbacks[hash % categoryFallbacks.length];
-};
-
-// kulinerCategories & activeKulinerCategory disuplai server (PortalController) — dinamis dari DB
-
-function IntroBudaya() {
-    return (
-        <section className="relative overflow-hidden bg-[#FCFBFC] py-8 md:py-12">
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`,
-                    backgroundSize: "240px 240px",
-                }}
-            />
-            <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                <div className="grid items-start gap-10 lg:grid-cols-[55%_45%]">
-                    <div className="order-2 lg:order-1">
-                        <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                            <img
-                                src={budayaImage}
-                                alt="Warisan budaya Gorontalo"
-                                className="aspect-[4/3] w-full rounded-xl object-cover"
-                            />
-                        </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={busanaAdatImg}
-                                    alt="Busana adat"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={patungPataniImg}
-                                    alt="Patung Patani"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={bentengOtanahaImg}
-                                    alt="Benteng Otanaha"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <Reveal y={16} className="order-1 lg:order-2">
-                        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">
-                            Warisan Budaya Gorontalo
-                        </span>
-                        <h2 className="mt-3 font-display text-[34px] font-bold leading-[0.95] tracking-tight text-foreground md:text-[44px]">
-                            Adat yang
-                            <br />
-                            <span className="font-normal italic text-ocean">
-                                masih hidup.
-                            </span>
-                        </h2>
-                        <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed text-muted-foreground">
-                            Dari Pohutu Limo hingga Saronde dan Dikili — adat
-                            Gorontalo dirawat sebagai ruang tamu: dipakai
-                            sehari-hari, diwariskan, dan terus ditafsir ulang.
-                            Jelajahi jejak sejarah, rasa, dan karya yang saling
-                            terhubung.
-                        </p>
-                        <div className="mt-6 space-y-4 border-t border-border pt-6">
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Pohutu Limo
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    lima kerajaan yang menjadi falsafah
-                                    persatuan Gorontalo
-                                </span>
-                            </div>
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Saronde & Dikili
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    tari penyambutan dan zikir semalam suntuk di
-                                    masjid tua
-                                </span>
-                            </div>
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Karawo
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    sulaman iris-cabut benang bermotif flora
-                                    pesisir
-                                </span>
-                            </div>
-                        </div>
-                    </Reveal>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function BudayaNavCards() {
-    const cards = [
-        {
-            title: "Sejarah & Peradaban",
-            desc: "Jejak Hulontalangi, Pohala'a, hingga proklamasi Nani Wartabone.",
-            image: budayaImage,
-            href: "/budaya?sub=sejarah",
-            cta: "Jelajahi Sejarah",
-            location: "Kota Gorontalo",
-        },
-        {
-            title: "Kuliner Khas",
-            desc: "Cita rasa pesisir Teluk Tomini — Milu Siram, Ilabulo, dan Sagela.",
-            image: kulinerImage,
-            href: "/kuliner",
-            cta: "Lihat Kuliner Khas",
-            location: "Teluk Tomini",
-        },
-        {
-            title: "Kerajinan & Kriya",
-            desc: "Karawo, anyaman rotan, dan karya tangan Gorontalo.",
-            image: kerajinanImage,
-            href: "/kerajinan",
-            cta: "Lihat Kerajinan Daerah",
-            location: "Kampung Karawo",
-        },
-    ];
-    return (
-        <section className="bg-[#FCFBFC] py-8 lg:py-12">
-            <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
-                <div className="grid gap-6 md:grid-cols-3">
-                    {cards.map((c) => (
-                        <a key={c.title} href={c.href} className="group">
-                            <div className="relative overflow-hidden rounded-3xl">
-                                <img
-                                    src={c.image}
-                                    alt={c.title}
-                                    className="aspect-4/3 w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div>
-                                        <h3 className="font-display text-lg font-semibold text-foreground">
-                                            {c.title}
-                                        </h3>
-                                        <p className="mt-1 text-xs text-muted-foreground">
-                                            {c.location}
-                                        </p>
-                                    </div>
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        className="lucide lucide-arrow-up-right mt-1 size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M7 7h10v10"></path>
-                                        <path d="M7 17 17 7"></path>
-                                    </svg>
-                                </div>
-                                <p className="mt-2 max-w-[34ch] text-sm leading-6 text-muted-foreground">
-                                    {c.desc}
-                                </p>
-                                <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                                    {c.cta} <span aria-hidden>→</span>
-                                </span>
-                            </div>
-                        </a>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function IntroKuliner() {
-    return (
-        <section className="relative overflow-hidden bg-[#FCFBFC] py-8 md:py-12">
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`,
-                    backgroundSize: "240px 240px",
-                }}
-            />
-            <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                <div className="grid items-start gap-10 lg:grid-cols-[55%_45%]">
-                    <div className="order-2 lg:order-1">
-                        <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                            <img
-                                src={kulinerImage}
-                                alt="Hidangan Gorontalo"
-                                className="aspect-[4/3] w-full rounded-xl object-cover"
-                            />
-                        </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={binteImg}
-                                    alt="Binthe Biluhuta"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={kulinerImage}
-                                    alt="Ilabulo"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={binteImg}
-                                    alt="Sambal Sagela"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <Reveal y={16} className="order-1 lg:order-2">
-                        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">
-                            Warisan Kuliner Gorontalo
-                        </span>
-                        <h2 className="mt-3 font-display text-[34px] font-bold leading-[0.95] tracking-tight text-foreground md:text-[44px]">
-                            Jagung, sagu,
-                            <br />
-                            <span className="font-normal italic text-ocean">
-                                dan rempah asap.
-                            </span>
-                        </h2>
-                        <p className="mt-4 max-w-[48ch] text-[15px] leading-relaxed text-muted-foreground">
-                            Dapur Gorontalo bertumpu pada hasil laut segar Teluk
-                            Tomini dan jagung pulut lokal. Diolah tanpa santan
-                            pekat, karakternya didominasi rasa gurih, asam segar
-                            jeruk nipis, dan aroma asap yang kuat.
-                        </p>
-
-                        <div className="mt-6 space-y-4 border-t border-border pt-6">
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Binthe Biluhuta
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    Sup jagung pipil dengan suwiran cakalang,
-                                    kelapa parut, kemangi, dan perasan jeruk
-                                    nipis.
-                                </span>
-                            </div>
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Ilabulo
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    Adonan sagu berbumbu lada pedas berisi
-                                    jeroan ayam, dibungkus daun woka lalu
-                                    dibakar di atas bara.
-                                </span>
-                            </div>
-                            <div className="grid md:grid-cols-[140px_1fr] md:gap-4 gap-1 text-sm">
-                                <span className="font-bold text-foreground">
-                                    Sambal Sagela
-                                </span>
-                                <span className="text-muted-foreground leading-relaxed">
-                                    Olahan ikan roa asap yang ditumbuk halus
-                                    bersama cabai dan bawang hingga renyah serta
-                                    gurih.
-                                </span>
-                            </div>
-                        </div>
-                    </Reveal>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function IntroKerajinan() {
-    return (
-        <section className="relative overflow-hidden bg-[#FCFBFC] py-8 md:py-12">
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`,
-                    backgroundSize: "240px 240px",
-                }}
-            />
-            <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-                    {/* Gambar di Kiri */}
-                    <div className="order-2 lg:order-1 grid grid-cols-2 gap-3">
-                        <div className="space-y-3">
-                            <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                                <img
-                                    src={motifKarawoImg}
-                                    alt="Motif Karawo"
-                                    className="aspect-[4/3] w-full rounded-xl object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                                <img
-                                    src={kerajinanImage}
-                                    alt="Anyaman"
-                                    className="h-[120px] w-full rounded-xl object-cover"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                                <img
-                                    src={menyulamKarawoImg}
-                                    alt="Menyulam Karawo"
-                                    className="aspect-[4/3] w-full rounded-xl object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                                <img
-                                    src={busanaAdatImg}
-                                    alt="Karawo pada busana"
-                                    className="h-[120px] w-full rounded-xl object-cover"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Teks di Kanan */}
-                    <Reveal y={16} className="order-1 lg:order-2">
-                        <h2 className="font-display text-[30px] font-bold leading-[0.95] tracking-tight text-foreground md:text-[38px]">
-                            Satu lubang,
-                            <br />
-                            <span className="font-normal italic text-ocean">
-                                satu benang.
-                            </span>
-                        </h2>
-                        <p className="mt-4 w-full text-[15px] leading-relaxed text-muted-foreground">
-                            Karawo dibuat dengan mengiris dan mencabut benang —
-                            bukan menambah. Kekosongan itu yang diisi motif
-                            flora. Seminggu untuk satu kain, seumur hidup untuk
-                            satu tangan yang mahir.
-                        </p>
-                    </Reveal>
-                </div>
-            </div>
-        </section>
-    );
-}
-
-function IntroDestinasi() {
-    return (
-        <section className="relative overflow-hidden bg-[#FCFBFC] py-8 md:py-12">
-            <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3C/g%3E%3C/svg%3E")`,
-                    backgroundSize: "240px 240px",
-                }}
-            />
-            <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
-                <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-                    <div className="order-2 lg:order-1">
-                        <div className="overflow-hidden rounded-2xl border border-border bg-white p-1.5 shadow-sm">
-                            <img
-                                src={pulauCintaImg}
-                                alt="Pulo Cinta Gorontalo"
-                                className="aspect-[4/3] w-full rounded-xl object-cover"
-                            />
-                        </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={bentengOtanahaImg}
-                                    alt="Benteng Otanaha"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={pulauDiyonumoImg}
-                                    alt="Pulau Diyonumo"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                            <div className="overflow-hidden rounded-xl border border-border bg-white p-1 shadow-sm">
-                                <img
-                                    src={pantaiTaludaaImg}
-                                    alt="Pantai Taludaa"
-                                    className="h-[72px] w-full rounded-lg object-cover"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <Reveal y={16} className="order-1 lg:order-2">
-                        <h2 className="font-display text-[30px] font-bold leading-[0.95] tracking-tight text-foreground md:text-[38px]">
-                            Dari Teluk Tomini
-                            <br />
-                            <span className="font-normal italic text-ocean">
-                                hingga benteng bersejarah.
-                            </span>
-                        </h2>
-                        <p className="mt-4 w-full text-[15px] leading-relaxed text-muted-foreground">
-                            Gorontalo menawarkan keindahan alam eksotis yang
-                            masih perawan—mulai dari titik penyelaman kelas
-                            dunia di Olele, interaksi dekat dengan Hiu Paus di
-                            Botubarani, hingga lanskap peninggalan sejarah yang
-                            megah.
-                        </p>
-                    </Reveal>
-                </div>
-            </div>
-        </section>
-    );
-}
+const toTitleCase = (str) =>
+    str
+        .split(/\s+/)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
 
 export default function CategoryIndex({
-    category,
-    items,
-    banner,
-    activeSub,
+    category = "destinasi",
+    items = [],
+    banner = null,
     kulinerCategories = [],
     activeKulinerCategory = "semua",
     destinationCategories = [],
     activeDestinationCategory = "semua",
     kerajinanCategories = [],
     activeKerajinanCategory = "semua",
-    kulinerItems = [],
-    kerajinanItems = [],
     destinasiTerkait = [],
     galeriBudaya = [],
+    activeSub = null,
 }) {
-    const isSejarah = category === "budaya" && activeSub === "sejarah";
     const fallback = heroByCategory[category] ?? heroByCategory.destinasi;
+    const isSejarah = category === "budaya" && activeSub === "sejarah";
     const hero = banner
         ? {
               title: banner.name ?? fallback.title,
               image: banner.banner_image ?? fallback.image,
           }
         : fallback;
-    const label = isSejarah ? "Sejarah Gorontalo" : hero.title;
+    const activeDestCat =
+        category === "destinasi"
+            ? destinationCategories.find(
+                  (c) => c.slug === activeDestinationCategory,
+              )
+            : null;
+    const label = isSejarah
+        ? "Sejarah Gorontalo"
+        : activeDestCat
+          ? `${toTitleCase(activeDestCat.name)} Gorontalo`
+          : `${hero.title}${["destinasi", "kuliner", "kerajinan"].includes(category) ? " Gorontalo" : ""}`;
 
-    // Lightbox untuk Arsip Visual Galeri Budaya — parity dengan Gallery/Index.jsx
     const [lightbox, setLightbox] = useState(null);
     useEffect(() => {
         if (lightbox === null) return;
@@ -586,6 +105,7 @@ export default function CategoryIndex({
             <div className="min-h-screen bg-background font-sans antialiased">
                 <Navbar />
                 <main className="min-h-screen h-auto overflow-visible">
+                    {/* ─── Hero ─── */}
                     <div className="relative overflow-hidden bg-[#2A1E32] pt-28 pb-14">
                         {(() => {
                             const raw = hero.image;
@@ -627,7 +147,7 @@ export default function CategoryIndex({
                             aria-hidden
                             className="pointer-events-none absolute inset-0 opacity-[0.04]"
                             style={{
-                                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23715386' stroke-width='0.6' opacity='0.4'%3E%3Cpath d='M60 18 L70 30 L60 42 L50 30 Z'/%3E%3Cpath d='M60 42 L70 54 L60 66 L50 54 Z'/%3E%3C/g%3E%3C/svg%3E")`,
+                                backgroundImage: heroSvgPattern,
                                 backgroundSize: "240px 240px",
                             }}
                         />
@@ -643,6 +163,7 @@ export default function CategoryIndex({
                             />
                         )}
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
+                            <PageBreadcrumb items={[{ label }]} />
                             <h1 className="mt-6 max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">
                                 {label}
                             </h1>
@@ -662,393 +183,69 @@ export default function CategoryIndex({
                         />
                     </div>
 
+                    {/* ─── Intro sections ─── */}
                     {category === "budaya" && (
                         <>
                             <IntroBudaya />
                             <BudayaNavCards />
                         </>
                     )}
-                    {category === "destinasi" && <IntroDestinasi />}
+                    {category === "destinasi" && (
+                        <IntroDestinasi active={activeDestinationCategory} />
+                    )}
                     {category === "kuliner" && <IntroKuliner />}
                     {category === "kerajinan" && <IntroKerajinan />}
 
+                    {/* ─── Filters + Grid ─── */}
                     <section className="bg-[#FCFBFC] py-12 lg:py-16">
                         <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                             {category === "kuliner" && (
-                                <div className="mb-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                                    <label
-                                        htmlFor="kuliner-filter"
-                                        className="text-sm font-medium text-foreground"
-                                    >
-                                        Pilih Kategori Kuliner:
-                                    </label>
-                                    <select
-                                        id="kuliner-filter"
-                                        value={activeKulinerCategory}
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            router.get(
-                                                "/kuliner",
-                                                v === "semua"
-                                                    ? {}
-                                                    : { kuliner_category: v },
-                                                {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                },
-                                            );
-                                        }}
-                                        className="w-full sm:w-64 rounded-full border border-input bg-white px-4 py-2.5 text-sm font-medium shadow-xs outline-none focus-visible:border-ring"
-                                    >
-                                        <option value="semua">
-                                            Semua UMKM Kuliner
-                                        </option>
-                                        {kulinerCategories.map((c) => (
-                                            <option key={c.slug} value={c.slug}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <CategoryFilter
+                                    id="kuliner-filter"
+                                    label="Pilih Kategori Kuliner"
+                                    value={activeKulinerCategory}
+                                    route="/kuliner"
+                                    param="kuliner_category"
+                                    emptyOption="Semua UMKM Kuliner"
+                                    categories={kulinerCategories}
+                                />
                             )}
                             {category === "destinasi" && (
-                                <div className="mb-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                                    <label
-                                        htmlFor="destinasi-filter"
-                                        className="text-sm font-medium text-foreground"
-                                    >
-                                        Pilih Kategori Destinasi:
-                                    </label>
-                                    <select
-                                        id="destinasi-filter"
-                                        value={activeDestinationCategory}
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            router.get(
-                                                "/destinasi",
-                                                v === "semua"
-                                                    ? {}
-                                                    : { kategori: v },
-                                                {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                },
-                                            );
-                                        }}
-                                        className="w-full sm:w-64 rounded-full border border-input bg-white px-4 py-2.5 text-sm font-medium shadow-xs outline-none focus-visible:border-ring"
-                                    >
-                                        <option value="semua">
-                                            Semua Destinasi Wisata
-                                        </option>
-                                        {destinationCategories.map((c) => (
-                                            <option key={c.slug} value={c.slug}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <CategoryFilter
+                                    id="destinasi-filter"
+                                    label="Pilih Kategori Destinasi"
+                                    value={activeDestinationCategory}
+                                    route="/destinasi"
+                                    param="kategori"
+                                    emptyOption="Semua Destinasi Wisata"
+                                    categories={destinationCategories}
+                                />
                             )}
                             {category === "kerajinan" && (
-                                <div className="mb-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                                    <label
-                                        htmlFor="kerajinan-filter"
-                                        className="text-sm font-medium text-foreground"
-                                    >
-                                        Pilih Kategori Kerajinan:
-                                    </label>
-                                    <select
-                                        id="kerajinan-filter"
-                                        value={activeKerajinanCategory}
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            router.get(
-                                                "/kerajinan",
-                                                v === "semua"
-                                                    ? {}
-                                                    : { kerajinan_category: v },
-                                                {
-                                                    preserveState: true,
-                                                    preserveScroll: true,
-                                                },
-                                            );
-                                        }}
-                                        className="w-full sm:w-64 rounded-full border border-input bg-white px-4 py-2.5 text-sm font-medium shadow-xs outline-none focus-visible:border-ring"
-                                    >
-                                        <option value="semua">
-                                            Semua Kerajinan
-                                        </option>
-                                        {kerajinanCategories.map((c) => (
-                                            <option key={c.slug} value={c.slug}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <CategoryFilter
+                                    id="kerajinan-filter"
+                                    label="Pilih Kategori Kerajinan"
+                                    value={activeKerajinanCategory}
+                                    route="/kerajinan"
+                                    param="kerajinan_category"
+                                    emptyOption="Semua Kerajinan"
+                                    categories={kerajinanCategories}
+                                />
                             )}
-                            {(() => {
-                                const rawData = Array.isArray(items)
-                                    ? items
-                                    : (items?.data ?? []);
-                                const paginator = Array.isArray(items)
-                                    ? null
-                                    : items;
-                                const hasPagination =
-                                    paginator && paginator.last_page > 1;
-                                const isKulinerFiltered =
-                                    category === "kuliner" &&
-                                    activeKulinerCategory !== "semua";
-                                const isDestinasiFiltered =
-                                    category === "destinasi" &&
-                                    activeDestinationCategory !== "semua";
-                                const isKerajinanFiltered =
-                                    category === "kerajinan" &&
-                                    activeKerajinanCategory !== "semua";
-                                const data = rawData;
-                                if (!rawData.length) {
-                                    if (isKulinerFiltered) {
-                                        return (
-                                            <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-                                                <p className="text-sm text-muted-foreground">
-                                                    Kuliner tidak ditemukan
-                                                </p>
-                                            </div>
-                                        );
-                                    }
-                                    if (isDestinasiFiltered) {
-                                        return (
-                                            <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-                                                <p className="text-sm text-muted-foreground">
-                                                    Destinasi tidak ditemukan
-                                                </p>
-                                            </div>
-                                        );
-                                    }
-                                    if (isKerajinanFiltered) {
-                                        return (
-                                            <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-                                                <p className="text-sm text-muted-foreground">
-                                                    Kerajinan tidak ditemukan
-                                                </p>
-                                            </div>
-                                        );
-                                    }
-                                    return (
-                                        <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-                                            <p className="text-sm text-muted-foreground">
-                                                Belum ada objek di kategori ini
-                                                — tambah via admin.
-                                            </p>
-                                        </div>
-                                    );
-                                }
-                                return (
-                                    <>
-                                        <div className="grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-10 lg:gap-y-16">
-                                            {data.map((it) => {
-                                                const src = resolveStorageUrl(
-                                                    it.image,
-                                                );
-                                                const img =
-                                                    src ??
-                                                    getRotatedFallback(
-                                                        category,
-                                                        it.id,
-                                                    ) ??
-                                                    destinasiImage;
-                                                const kulinerBadges =
-                                                    it.kuliner_categories ??
-                                                    it.kulinerCategories ??
-                                                    [];
-                                                const kerajinanBadges =
-                                                    it.kerajinan_categories ??
-                                                    it.kerajinanCategories ??
-                                                    [];
-                                                const destinasiBadge =
-                                                    it.destination_category ??
-                                                    it.destinationCategory ??
-                                                    null;
-                                                const budayaBadges = (() => {
-                                                    if (category !== "budaya")
-                                                        return [];
-                                                    const out = [];
-                                                    if (it.area)
-                                                        out.push({
-                                                            name: it.area,
-                                                            slug: it.area,
-                                                        });
-                                                    if (it.tags) {
-                                                        const tags = String(
-                                                            it.tags,
-                                                        )
-                                                            .split(",")
-                                                            .map((t) =>
-                                                                t.trim(),
-                                                            )
-                                                            .filter(Boolean)
-                                                            .slice(0, 2);
-                                                        tags.forEach((t) =>
-                                                            out.push({
-                                                                name: t,
-                                                                slug: t,
-                                                            }),
-                                                        );
-                                                    }
-                                                    return out;
-                                                })();
-                                                const badges =
-                                                    category === "kuliner"
-                                                        ? kulinerBadges
-                                                        : category ===
-                                                            "kerajinan"
-                                                          ? kerajinanBadges
-                                                          : category ===
-                                                                  "destinasi" &&
-                                                              destinasiBadge
-                                                            ? [destinasiBadge]
-                                                            : category ===
-                                                                "budaya"
-                                                              ? budayaBadges
-                                                              : [];
-                                                return (
-                                                    <div
-                                                        key={it.slug}
-                                                        className="transition-all duration-300"
-                                                    >
-                                                        <DestinationCard
-                                                            href={`/${category}/${it.slug}`}
-                                                            image={img}
-                                                            title={it.name}
-                                                            category={category}
-                                                            description={it.body?.slice(
-                                                                0,
-                                                                180,
-                                                            )}
-                                                            badges={badges}
-                                                        />
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                        {hasPagination &&
-                                            !isKulinerFiltered &&
-                                            !isDestinasiFiltered &&
-                                            !isKerajinanFiltered && (
-                                                <Pagination className="mt-14">
-                                                    <PaginationContent>
-                                                        {paginator.links?.map(
-                                                            (link, idx) => {
-                                                                const isPrev =
-                                                                    idx === 0;
-                                                                const isNext =
-                                                                    idx ===
-                                                                    paginator
-                                                                        .links
-                                                                        .length -
-                                                                        1;
-                                                                const label =
-                                                                    link.label
-                                                                        .replace(
-                                                                            /&laquo;|&raquo;/g,
-                                                                            "",
-                                                                        )
-                                                                        .trim();
-                                                                const isEllipsis =
-                                                                    label ===
-                                                                    "...";
-                                                                if (
-                                                                    isEllipsis
-                                                                ) {
-                                                                    return (
-                                                                        <PaginationItem
-                                                                            key={
-                                                                                idx
-                                                                            }
-                                                                        >
-                                                                            <PaginationEllipsis />
-                                                                        </PaginationItem>
-                                                                    );
-                                                                }
-                                                                if (isPrev) {
-                                                                    return (
-                                                                        <PaginationItem
-                                                                            key={
-                                                                                idx
-                                                                            }
-                                                                        >
-                                                                            <PaginationPrevious
-                                                                                href={
-                                                                                    link.url ??
-                                                                                    "#"
-                                                                                }
-                                                                                className={
-                                                                                    !link.url
-                                                                                        ? "pointer-events-none opacity-50"
-                                                                                        : ""
-                                                                                }
-                                                                            />
-                                                                        </PaginationItem>
-                                                                    );
-                                                                }
-                                                                if (isNext) {
-                                                                    return (
-                                                                        <PaginationItem
-                                                                            key={
-                                                                                idx
-                                                                            }
-                                                                        >
-                                                                            <PaginationNext
-                                                                                href={
-                                                                                    link.url ??
-                                                                                    "#"
-                                                                                }
-                                                                                className={
-                                                                                    !link.url
-                                                                                        ? "pointer-events-none opacity-50"
-                                                                                        : ""
-                                                                                }
-                                                                            />
-                                                                        </PaginationItem>
-                                                                    );
-                                                                }
-                                                                return (
-                                                                    <PaginationItem
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <PaginationLink
-                                                                            href={
-                                                                                link.url ??
-                                                                                "#"
-                                                                            }
-                                                                            isActive={
-                                                                                link.active
-                                                                            }
-                                                                            className={
-                                                                                link.active
-                                                                                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                                                                                    : ""
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                label
-                                                                            }
-                                                                        </PaginationLink>
-                                                                    </PaginationItem>
-                                                                );
-                                                            },
-                                                        )}
-                                                    </PaginationContent>
-                                                </Pagination>
-                                            )}
-                                    </>
-                                );
-                            })()}
+
+                            <ItemGrid
+                                items={items}
+                                category={category}
+                                activeKulinerCategory={activeKulinerCategory}
+                                activeDestinationCategory={activeDestinationCategory}
+                                activeKerajinanCategory={activeKerajinanCategory}
+                            />
                         </div>
                     </section>
+
+                    {/* ─── Budaya: Cagar Budaya + Galeri ─── */}
                     {category === "budaya" && activeSub !== "sejarah" && (
                         <>
-                            {/* Section C — Destinasi Cagar Budaya Terkait */}
                             <section className="bg-[#FCFBFC] py-12 lg:py-16">
                                 <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                                     <div className="mb-8 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
@@ -1067,12 +264,6 @@ export default function CategoryIndex({
                                                 const img =
                                                     src ??
                                                     fallbackImg.destinasi;
-                                                const badge =
-                                                    it.destination_category
-                                                        ? [
-                                                              it.destination_category,
-                                                          ]
-                                                        : [];
                                                 return (
                                                     <div
                                                         key={`des-${it.slug}`}
@@ -1087,7 +278,6 @@ export default function CategoryIndex({
                                                                 0,
                                                                 110,
                                                             )}
-                                                            badges={badge}
                                                         />
                                                     </div>
                                                 );
@@ -1101,7 +291,6 @@ export default function CategoryIndex({
                                 </div>
                             </section>
 
-                            {/* Section D — Galeri Visual Budaya */}
                             <section className="bg-[#FCFBFC] py-12 lg:py-16">
                                 <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                                     <div className="mb-8 text-center">
@@ -1109,13 +298,8 @@ export default function CategoryIndex({
                                             Arsip Visual
                                         </span>
                                         <h2 className="mt-2 font-display text-[26px] font-bold text-foreground md:text-[32px]">
-                                            Galeri Budaya
+                                            Galeri Budaya Gorontalo
                                         </h2>
-                                        <p className="mx-auto mt-2 max-w-[60ch] text-sm text-muted-foreground">
-                                            Dokumentasi tenun, upacara, dan
-                                            lanskap budaya dari berbagai sudut
-                                            Gorontalo.
-                                        </p>
                                     </div>
                                     {galeriBudaya.length ? (
                                         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
@@ -1160,67 +344,12 @@ export default function CategoryIndex({
                     )}
                 </main>
 
-                {/* Lightbox Galeri Budaya — parity dengan Gallery/Index.jsx */}
-                {lightbox !== null &&
-                    galeriBudaya[lightbox] &&
-                    (() => {
-                        const it = galeriBudaya[lightbox];
-                        const src = it.image_url ?? resolveStorageUrl(it.image);
-                        return (
-                            <div
-                                className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-4"
-                                onClick={() => setLightbox(null)}
-                            >
-                                <button
-                                    type="button"
-                                    aria-label="Tutup"
-                                    onClick={() => setLightbox(null)}
-                                    className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-                                >
-                                    <X className="size-5" />
-                                </button>
-                                {galeriBudaya.length > 1 && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            aria-label="Sebelumnya"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                go(-1);
-                                            }}
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
-                                        >
-                                            <ChevronLeft className="size-5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            aria-label="Berikutnya"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                go(1);
-                                            }}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 max-sm:hidden"
-                                        >
-                                            <ChevronRight className="size-5" />
-                                        </button>
-                                    </>
-                                )}
-                                <div
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="max-h-[90vh] max-w-[90vw]"
-                                >
-                                    <img
-                                        src={src}
-                                        alt={it.alt ?? it.name}
-                                        className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
-                                    />
-                                    <p className="mt-3 text-center text-sm text-white/80">
-                                        {it.name}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })()}
+                <Lightbox
+                    items={galeriBudaya}
+                    index={lightbox}
+                    onClose={() => setLightbox(null)}
+                    go={go}
+                />
 
                 <SiteFooter />
                 <AiAssistantButton />

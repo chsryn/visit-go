@@ -11,11 +11,6 @@ class EnsureAdminAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check()) {
-            return redirect()->route('login')
-                ->with('warning', 'Silakan login terlebih dahulu.');
-        }
-
         if (! Auth::user()->isAdmin()) {
             Auth::logout();
             $request->session()->invalidate();
@@ -24,6 +19,13 @@ class EnsureAdminAuth
                 ->with('warning', 'Maaf, Anda tidak memiliki hak akses admin.');
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // Blok bfcache: tombol Back browser tidak boleh menampilkan cache halaman admin
+        $response->headers->set('Cache-Control', 'no-store, private, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', '0');
+
+        return $response;
     }
 }

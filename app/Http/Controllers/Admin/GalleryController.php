@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class GalleryController extends Controller
@@ -26,7 +25,7 @@ class GalleryController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:galleries,slug',
+            'slug' => 'required|string|max:150|unique:galleries,slug',
             'category' => 'nullable|string|in:'.implode(',', Gallery::CATEGORIES),
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
@@ -34,7 +33,6 @@ class GalleryController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['image'] = $this->storeImage($request, 'image', 'uploads/galleries');
         Gallery::create($data);
 

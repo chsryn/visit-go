@@ -19,7 +19,7 @@ export default function GalleryIndex({ items }) {
                     basePath="/admin/galleries"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug (opsional)", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: galeri-budaya-gorontalo." },
                         { name: "category", label: "Kategori", type: "select", placeholder: "Semua / tanpa filter", options: [
                             { value: "destinasi", label: "Destinasi" },
                             { value: "budaya", label: "Budaya" },

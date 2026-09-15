@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ArticleController extends Controller
@@ -26,14 +25,13 @@ class ArticleController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'slug' => 'nullable|string|max:150|unique:articles,slug',
+            'slug' => 'required|string|max:150|unique:articles,slug',
             'body' => 'required|string',
             'alt' => 'nullable|string|max:200',
             'image' => 'nullable|image|max:4096',
             'is_active' => 'boolean',
         ]);
 
-        $data['slug'] = $data['slug'] ?: Str::slug($data['name']).'-'.Str::lower(Str::random(5));
         $data['image'] = $this->storeImage($request, 'image', 'uploads/articles');
         Article::create($data);
 

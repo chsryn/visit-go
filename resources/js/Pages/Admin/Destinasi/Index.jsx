@@ -1,6 +1,7 @@
 import { Head, Link } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ResourceManager from "@/components/admin/ResourceManager";
+import { AdminBreadcrumb, DESTINASI_NAV } from "@/components/admin/AdminBreadcrumb";
 
 const statusBadge = (active) =>
     active ? (
@@ -41,23 +42,7 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                         : "Semua destinasi wisata — tambah kategori baru lewat Kelola Kategori."
                 }
             >
-                <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                        Destinasi
-                    </span>
-                    <Link
-                        href="/admin/destination-prices"
-                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        Estimasi Harga
-                    </Link>
-                    <Link
-                        href="/admin/destination-categories"
-                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        Kelola Kategori
-                    </Link>
-                </div>
+                <div className="mb-4"><AdminBreadcrumb items={DESTINASI_NAV} /></div>
                 <ResourceManager
                     items={items}
                     basePath="/admin/destinasis"
@@ -65,7 +50,7 @@ export default function DestinasiIndex({ items, filterKategori, categoryOptions 
                     withImageUpload={false}
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: botubarani-pulo-cinta." },
                         {
                             name: "gallery",
                             label: "Foto",

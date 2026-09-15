@@ -1,6 +1,7 @@
-import { Head, Link } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ResourceManager from "@/components/admin/ResourceManager";
+import { AdminBreadcrumb, UMKM_NAV } from "@/components/admin/AdminBreadcrumb";
 
 const statusBadge = (active) =>
     active ? (
@@ -18,12 +19,7 @@ export default function KulinerCategoryIndex({ items }) {
                 subtitle="Kelola jenis kuliner khas — akan muncul sebagai opsi filter di halaman kuliner & form UMKM."
             >
                 <div className="mb-4">
-                    <Link
-                        href="/admin/umkms"
-                        className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                    >
-                        ← Kembali ke UMKM
-                    </Link>
+                    <AdminBreadcrumb items={UMKM_NAV} />
                 </div>
                 <ResourceManager
                     items={items}

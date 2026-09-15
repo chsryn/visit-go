@@ -1,29 +1,15 @@
 import { useEffect, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Navbar } from "@/components/portal/Navbar";
+import { PageBreadcrumb } from "@/components/portal/PageBreadcrumb";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
 import { resolveStorageUrl } from "@/lib/image";
 import { karawoBorder } from "@/lib/karawo";
+import { PaginationBar } from "@/components/portal/PaginationBar";
+import { Lightbox } from "@/components/portal/Lightbox";
+import { categoryLabels } from "../Category/data";
 import bannerGaleri from "@/assets/banner-galeri.jpg"; // ponytail: pastikan asset asli Olele segera menggantikan placeholder ini
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-} from "@/components/ui/pagination";
-
-const LABELS = {
-    destinasi: "Destinasi",
-    budaya: "Budaya",
-    kuliner: "Kuliner",
-    kerajinan: "Kerajinan",
-    event: "Event",
-};
 
 export default function GalleryIndex({ items, categories, activeCategory }) {
     const [lightbox, setLightbox] = useState(null);
@@ -58,7 +44,7 @@ export default function GalleryIndex({ items, categories, activeCategory }) {
                 <Navbar />
                 <main className="min-h-screen h-auto overflow-visible">
                     {/* Hero - mirip referensi injourney */}
-                    <div className="relative overflow-hidden bg-[#2A1E32] pt-20">
+                    <div className="relative overflow-hidden bg-[#2A1E32] pt-28 pb-14">
                         <img
                             src={bannerGaleri}
                             alt=""
@@ -66,10 +52,12 @@ export default function GalleryIndex({ items, categories, activeCategory }) {
                             className="absolute inset-0 size-full object-cover opacity-50"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10" />
+                        <div className="absolute inset-0 bg-[#2A1E32]/80" />
                         <div className="absolute inset-x-0 top-0 h-[142px] bg-gradient-to-b from-black/40 to-transparent" />
-                        <div className="relative mx-auto max-w-[1280px] px-6 py-14 lg:px-8 lg:py-20">
-                            <h1 className="font-display text-[36px] font-bold leading-tight text-white md:text-[48px]">
-                                Gallery
+                        <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
+                            <PageBreadcrumb items={[{ label: "Galeri" }]} />
+                            <h1 className="font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">
+                                Galeri
                             </h1>
                         </div>
                         <div
@@ -105,7 +93,7 @@ export default function GalleryIndex({ items, categories, activeCategory }) {
                                     const label =
                                         cat === "semua"
                                             ? "Semua"
-                                            : (LABELS[cat] ?? cat);
+                                            : (categoryLabels[cat] ?? cat);
                                     return (
                                         <button
                                             key={cat}
@@ -163,102 +151,10 @@ export default function GalleryIndex({ items, categories, activeCategory }) {
                                             })}
                                         </div>
                                         {hasPagination && (
-                                            <Pagination className="mt-10">
-                                                <PaginationContent>
-                                                    {paginator.links?.map(
-                                                        (link, idx) => {
-                                                            const isPrev =
-                                                                idx === 0;
-                                                            const isNext =
-                                                                idx ===
-                                                                paginator.links
-                                                                    .length -
-                                                                    1;
-                                                            const label =
-                                                                link.label
-                                                                    .replace(
-                                                                        /&laquo;|&raquo;/g,
-                                                                        "",
-                                                                    )
-                                                                    .trim();
-                                                            const isEllipsis =
-                                                                label === "...";
-                                                            if (isEllipsis)
-                                                                return (
-                                                                    <PaginationItem
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <PaginationEllipsis />
-                                                                    </PaginationItem>
-                                                                );
-                                                            if (isPrev)
-                                                                return (
-                                                                    <PaginationItem
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <PaginationPrevious
-                                                                            href={
-                                                                                link.url ??
-                                                                                "#"
-                                                                            }
-                                                                            className={
-                                                                                !link.url
-                                                                                    ? "pointer-events-none opacity-50"
-                                                                                    : ""
-                                                                            }
-                                                                        />
-                                                                    </PaginationItem>
-                                                                );
-                                                            if (isNext)
-                                                                return (
-                                                                    <PaginationItem
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <PaginationNext
-                                                                            href={
-                                                                                link.url ??
-                                                                                "#"
-                                                                            }
-                                                                            className={
-                                                                                !link.url
-                                                                                    ? "pointer-events-none opacity-50"
-                                                                                    : ""
-                                                                            }
-                                                                        />
-                                                                    </PaginationItem>
-                                                                );
-                                                            return (
-                                                                <PaginationItem
-                                                                    key={idx}
-                                                                >
-                                                                    <PaginationLink
-                                                                        href={
-                                                                            link.url ??
-                                                                            "#"
-                                                                        }
-                                                                        isActive={
-                                                                            link.active
-                                                                        }
-                                                                        className={
-                                                                            link.active
-                                                                                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                                                                                : ""
-                                                                        }
-                                                                    >
-                                                                        {label}
-                                                                    </PaginationLink>
-                                                                </PaginationItem>
-                                                            );
-                                                        },
-                                                    )}
-                                                </PaginationContent>
-                                            </Pagination>
+                                            <PaginationBar
+                                                paginator={paginator}
+                                                className="mt-10"
+                                            />
                                         )}
                                     </>
                                 ) : (
@@ -275,66 +171,12 @@ export default function GalleryIndex({ items, categories, activeCategory }) {
                 </main>
 
                 {/* Lightbox */}
-                {lightbox !== null &&
-                    data[lightbox] &&
-                    (() => {
-                        const it = data[lightbox];
-                        const src = resolveStorageUrl(it.image_url ?? it.image);
-                        return (
-                            <div
-                                className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-4"
-                                onClick={() => setLightbox(null)}
-                            >
-                                <button
-                                    type="button"
-                                    aria-label="Tutup"
-                                    onClick={() => setLightbox(null)}
-                                    className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
-                                >
-                                    <X className="size-5" />
-                                </button>
-                                {data.length > 1 && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            aria-label="Sebelumnya"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                go(-1);
-                                            }}
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
-                                        >
-                                            <ChevronLeft className="size-5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            aria-label="Berikutnya"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                go(1);
-                                            }}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 max-sm:hidden"
-                                        >
-                                            <ChevronRight className="size-5" />
-                                        </button>
-                                    </>
-                                )}
-                                <div
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="max-h-[90vh] max-w-[90vw]"
-                                >
-                                    <img
-                                        src={src}
-                                        alt={it.alt ?? it.name}
-                                        className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
-                                    />
-                                    <p className="mt-3 text-center text-sm text-white/80">
-                                        {it.name}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })()}
+                <Lightbox
+                    items={data}
+                    index={lightbox}
+                    onClose={() => setLightbox(null)}
+                    go={go}
+                />
 
                 <SiteFooter />
                 <AiAssistantButton />

@@ -19,7 +19,7 @@ export default function ArticleIndex({ items }) {
                     basePath="/admin/articles"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: sejarah-budaya-gorontalo." },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "alt", label: "Alt teks gambar" },
                         { name: "is_active", label: "Status", type: "checkbox" },

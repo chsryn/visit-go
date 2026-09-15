@@ -1,6 +1,7 @@
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import ResourceManager from "@/components/admin/ResourceManager";
+import { AdminBreadcrumb, UMKM_NAV } from "@/components/admin/AdminBreadcrumb";
 
 const statusBadge = (active) =>
     active ? (
@@ -17,14 +18,72 @@ export default function UmkmIndex({
     items,
     kulinerCategories = [],
     kerajinanCategories = [],
+    filterKuliner = null,
+    filterKerajinan = null,
 }) {
+    const setFilter = (kuliner, kerajinan) => {
+        const params = {};
+        if (kuliner) params.kuliner_kategori = kuliner;
+        if (kerajinan) params.kerajinan_kategori = kerajinan;
+        router.get("/admin/umkms", params, { preserveScroll: true });
+    };
+
+    const activeFilter =
+        [filterKuliner, filterKerajinan].filter(Boolean).length > 0;
+
     return (
         <>
             <Head title="UMKM — Admin" />
             <AdminLayout
                 title="UMKM"
-                subtitle="Kelola UMKM — pilih setidaknya satu kategori Kuliner atau Kerajinan."
+                subtitle={
+                    activeFilter
+                        ? "Daftar terfilter — perbesar cakupan lewat Kelola Kategori."
+                        : "Kelola UMKM — pilih setidaknya satu kategori Kuliner atau Kerajinan."
+                }
             >
+                <div className="mb-4">
+                    <AdminBreadcrumb items={UMKM_NAV} />
+                </div>
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <select
+                        value={filterKuliner ?? ""}
+                        onChange={(e) =>
+                            setFilter(e.target.value, filterKerajinan ?? "")
+                        }
+                        className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring"
+                    >
+                        <option value="">Semua kuliner</option>
+                        {kulinerCategories.map((c) => (
+                            <option key={c.id} value={c.slug}>
+                                {c.name}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        value={filterKerajinan ?? ""}
+                        onChange={(e) =>
+                            setFilter(filterKuliner ?? "", e.target.value)
+                        }
+                        className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring"
+                    >
+                        <option value="">Semua kerajinan</option>
+                        {kerajinanCategories.map((c) => (
+                            <option key={c.id} value={c.slug}>
+                                {c.name}
+                            </option>
+                        ))}
+                    </select>
+                    {activeFilter && (
+                        <button
+                            type="button"
+                            onClick={() => router.get("/admin/umkms")}
+                            className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                        >
+                            Reset
+                        </button>
+                    )}
+                </div>
                 <ResourceManager
                     items={items}
                     basePath="/admin/umkms"
@@ -38,7 +97,8 @@ export default function UmkmIndex({
                         {
                             name: "slug",
                             label: "Slug",
-                            hint: "Kosongkan untuk dibuat otomatis.",
+                            required: true,
+                            hint: "Wajib diisi — contoh: milu-siram-ilabulo.",
                             section: "Informasi Dasar",
                             inline: true,
                         },

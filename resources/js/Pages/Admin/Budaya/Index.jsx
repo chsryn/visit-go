@@ -19,13 +19,14 @@ export default function BudayaIndex({ items }) {
                     basePath="/admin/budayas"
                     fields={[
                         { name: "name", label: "Nama" },
-                        { name: "slug", label: "Slug", hint: "Kosongkan untuk dibuat otomatis." },
+                        { name: "slug", label: "Slug", required: true, hint: "Wajib diisi — contoh: tari-saronde-dikili." },
                         { name: "body", label: "Deskripsi", type: "textarea", full: true },
                         { name: "jam_buka", label: "Jam buka", type: "time" },
                         { name: "jam_tutup", label: "Jam tutup", type: "time" },
-                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
-                        { name: "latitude", label: "Latitude", readonly: true },
-                        { name: "longitude", label: "Longitude", readonly: true },
+                        { name: "has_location", label: "Lokasi", type: "checkbox", checkboxLabel: "Perlihatkan lokasi & peta", hint: "Centang jika budaya berupa monumen atau tempat fisik. Biarkan kosong untuk tarian/adat warisan budaya." },
+                        { name: "location_picker", label: "Titik Lokasi — klik peta", type: "location", visibleWhen: (v) => !!v.has_location, hint: "Klik lokasi pada peta, marker muncul dan koordinat terisi otomatis." },
+                        { name: "latitude", label: "Latitude", readonly: true, visibleWhen: (v) => !!v.has_location },
+                        { name: "longitude", label: "Longitude", readonly: true, visibleWhen: (v) => !!v.has_location },
                         { name: "alt", label: "Alt teks gambar" },
                         {
                             name: "area",
