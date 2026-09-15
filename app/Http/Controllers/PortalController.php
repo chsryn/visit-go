@@ -73,16 +73,7 @@ class PortalController extends Controller
                     'budaya' => Budaya::class,
                     default => Destinasi::class,
                 };
-                $sub = strtolower(trim($request->query('sub', '')));
                 $query = $model::where('is_active', true);
-                if ($category === 'budaya' && $sub === 'sejarah') {
-                    $query->where(function ($q) {
-                        $q->where('tags', 'like', '%sejarah%')
-                          ->orWhere('body', 'like', '%sejarah%')
-                          ->orWhere('body', 'like', '%Suwawa%')
-                          ->orWhere('body', 'like', '%Pohala%');
-                    });
-                }
                 $perPage = $category === 'budaya' ? 6 : 9;
                 $paginator = $query->latest()->paginate($perPage)->withQueryString();
                 $paginator->getCollection()->transform(fn($i) => array_merge($i->toArray(), ['category' => $category]));
@@ -90,11 +81,6 @@ class PortalController extends Controller
             }
         }
         $banner = Category::where('slug', $category)->where('is_active', true)->first();
-        $activeSub = strtolower(trim($request->query('sub', '')));
-        // only budaya supports sub, otherwise null
-        if ($category !== 'budaya' || ! in_array($activeSub, ['sejarah'], true)) {
-            $activeSub = null;
-        }
         $kulinerCategories = $category === 'kuliner'
             ? KulinerCategory::where('is_active', true)->orderBy('name')->get(['id','name','slug'])
             : [];
@@ -110,10 +96,10 @@ class PortalController extends Controller
             $activeKerajinanCategory = 'semua';
         }
 
-        // Ekosistem budaya dinamis — hanya untuk /budaya tanpa sub sejarah (tanpa ekosistem kuliner/kerajinan, hanya galeri & destinasi)
+        // Ekosistem budaya dinamis — galeri & destinasi terkait
         $destinasiTerkait = [];
         $galeriBudaya = [];
-        if ($category === 'budaya' && $activeSub !== 'sejarah') {
+        if ($category === 'budaya') {
             $destinasiTerkait = Destinasi::with('destinationCategory:id,name,slug')->where('is_active', true)
                 ->where(function ($q) {
                     $q->whereHas('destinationCategory', fn ($qq) => $qq->whereIn('slug', ['cagar-budaya', 'sejarah-budaya']))
@@ -136,7 +122,6 @@ class PortalController extends Controller
             'category' => $category,
             'items' => $items,
             'banner' => $banner,
-            'activeSub' => $activeSub,
             'kulinerCategories' => $kulinerCategories,
             'activeKulinerCategory' => $activeKulinerCategory,
             'kerajinanCategories' => $kerajinanCategories,

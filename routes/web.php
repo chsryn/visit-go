@@ -43,6 +43,7 @@ Route::get('/kerajinan', [PortalController::class, 'indexByCategory'])->defaults
 Route::get('/event', [PortalController::class, 'indexByCategory'])->defaults('category', 'event')->name('event.index');
 Route::get('/galeri', [PortalController::class, 'galleryIndex'])->name('galeri.index');
 Route::get('/artikel', [PortalController::class, 'articleIndex'])->name('artikel.index');
+Route::get('/sejarah', fn () => Inertia::render('Sejarah'))->name('sejarah.index');
 
 // Dynamic detail routes: /destinasi/{slug}, /budaya/{slug}, /kuliner/{slug}, /kerajinan/{slug}, /event/{slug}
 Route::get('/destinasi/{slug}', [PortalController::class, 'showDestinasi'])->name('destinasi.show');

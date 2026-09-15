@@ -53,20 +53,41 @@ const fallbackNav = {
     destinasiGrouped: [
         {
             heading: "Cagar Budaya",
-            viewAll: { label: "Lihat semua Cagar Budaya", href: "/destinasi?kategori=cagar-budaya" },
+            viewAll: {
+                label: "Lihat semua Cagar Budaya",
+                href: "/destinasi?kategori=cagar-budaya",
+            },
             items: [
-                { label: "Benteng Otanaha", href: "/destinasi/benteng-otanaha" },
-                { label: "Museum Pendarata", href: "/destinasi/museum-pendarata" },
-                { label: "Rumah Adat Dulohupa", href: "/destinasi/rumah-adat-dulohupa" },
+                {
+                    label: "Benteng Otanaha",
+                    href: "/destinasi/benteng-otanaha",
+                },
+                {
+                    label: "Museum Pendarata",
+                    href: "/destinasi/museum-pendarata",
+                },
+                {
+                    label: "Rumah Adat Dulohupa",
+                    href: "/destinasi/rumah-adat-dulohupa",
+                },
                 { label: "Masjid Huntu", href: "/destinasi/masjid-huntu" },
             ],
         },
         {
             heading: "Destinasi Alam",
-            viewAll: { label: "Lihat semua Destinasi Alam", href: "/destinasi?kategori=wisata-alam" },
+            viewAll: {
+                label: "Lihat semua Destinasi Alam",
+                href: "/destinasi?kategori=wisata-alam",
+            },
             items: [
-                { label: "Hiu Paus Botubarani", href: "/destinasi/hiu-paus-botubarani" },
-                { label: "Taman Laut Olele", href: "/destinasi/taman-laut-olele" },
+                {
+                    label: "Hiu Paus Botubarani",
+                    href: "/destinasi/hiu-paus-botubarani",
+                },
+                {
+                    label: "Taman Laut Olele",
+                    href: "/destinasi/taman-laut-olele",
+                },
                 { label: "Pulo Cinta", href: "/destinasi/pulo-cinta" },
                 { label: "Pulau Diyonumo", href: "/destinasi/pulau-diyonumo" },
                 { label: "Pantai Taludaa", href: "/destinasi/pantai-taludaa" },
@@ -89,13 +110,7 @@ const fallbackNav = {
         {
             heading: "Sejarah",
             desc: "Tarian, tradisi & warisan Hulondalo",
-            viewAll: { label: "Lihat semua Sejarah", href: "/budaya?sub=sejarah" },
-            items: [
-                { label: "Tari Saronde", href: "/budaya/tari-saronde" },
-                { label: "Tradisi Dikili", href: "/budaya/tradisi-dikili" },
-                { label: "Upacara Moloopu", href: "/budaya/moloopu" },
-                { label: "Pohutu Limo Lo Pohalaa", href: "/budaya/pohutu-limo" },
-            ],
+            direct: "/sejarah",
         },
         {
             heading: "Kuliner",
@@ -180,7 +195,15 @@ function DropdownPanel({ items }) {
 // Mega / dropright ala InJourney — kiri kategori (Cagar Budaya | Destinasi Alam), kanan list dropright saat hover
 function CaretIcon({ className = "" }) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256" className={className} aria-hidden>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            viewBox="0 0 256 256"
+            className={className}
+            aria-hidden
+        >
             <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z" />
         </svg>
     );
@@ -189,31 +212,54 @@ function DroprightPanel({ sections }) {
     return (
         <div className="invisible absolute left-0 top-full z-50 -translate-y-1 pt-2 opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
             <div className="w-[220px] rounded-sm border border-border bg-white shadow-xl">
-                {sections.map((sec) => (
-                    <div key={sec.heading} className="group/item relative">
-                        <div className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground">
-                            <Link href={sec.viewAll?.href ?? sec.items[0]?.href} className="flex-1 text-left">
+                {sections.map((sec) => {
+                    if (sec.direct) {
+                        return (
+                            <Link
+                                key={sec.heading}
+                                href={sec.direct}
+                                className="block px-4 py-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground"
+                            >
                                 {sec.heading}
                             </Link>
-                            <CaretIcon className="size-3 shrink-0 -rotate-90 text-muted-foreground" />
-                        </div>
-                        {/* list dropright — solid, compact, menyatu -ml-[1px] */}
-                        <div className="invisible absolute left-full top-0 z-10 -ml-[1px] w-[240px] -translate-x-1 rounded-sm rounded-l-none border border-border bg-white p-3 opacity-0 shadow-xl transition-[opacity,transform] duration-150 ease-out group-hover/item:visible group-hover/item:translate-x-0 group-hover/item:opacity-100">
-                            <div className="flex flex-col gap-0.5">
-                                {sec.items.map((it) => (
-                                    <Link key={it.href} href={it.href} className="rounded-sm px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground">
-                                        {it.label}
-                                    </Link>
-                                ))}
-                            </div>
-                            {sec.viewAll && (
-                                <Link href={sec.viewAll.href} className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline">
-                                    {sec.viewAll.label} →
+                        );
+                    }
+                    return (
+                        <div key={sec.heading} className="group/item relative">
+                            <div className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground">
+                                <Link
+                                    href={sec.viewAll?.href ?? sec.items[0]?.href}
+                                    className="flex-1 text-left"
+                                >
+                                    {sec.heading}
                                 </Link>
-                            )}
+                                <CaretIcon className="size-3 shrink-0 -rotate-90 text-muted-foreground" />
+                            </div>
+                            {/* list dropright — solid, compact, menyatu -ml-[1px] */}
+                            <div className="invisible absolute left-full top-0 z-10 -ml-[1px] w-[240px] -translate-x-1 rounded-sm rounded-l-none border border-border bg-white p-3 opacity-0 shadow-xl transition-[opacity,transform] duration-150 ease-out group-hover/item:visible group-hover/item:translate-x-0 group-hover/item:opacity-100">
+                                <div className="flex flex-col gap-0.5">
+                                    {sec.items.map((it) => (
+                                        <Link
+                                            key={it.href}
+                                            href={it.href}
+                                            className="rounded-sm px-2.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/5 hover:text-foreground"
+                                        >
+                                            {it.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                                {sec.viewAll && (
+                                    <Link
+                                        href={sec.viewAll.href}
+                                        className="mt-3 inline-flex text-xs font-semibold text-primary hover:underline"
+                                    >
+                                        {sec.viewAll.label} →
+                                    </Link>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                    })}
             </div>
         </div>
     );
@@ -309,7 +355,9 @@ export function Navbar() {
         if (open) {
             const prev = document.body.style.overflow;
             document.body.style.overflow = "hidden";
-            return () => { document.body.style.overflow = prev; };
+            return () => {
+                document.body.style.overflow = prev;
+            };
         }
     }, [open]);
     useEffect(() => {
@@ -319,8 +367,18 @@ export function Navbar() {
     }, []);
 
     const menu = [
-        { key: "destinasi", label: "Destinasi", sections: sectionsByKey.destinasi, mega: true },
-        { key: "budaya", label: "Budaya", sections: sectionsByKey.budaya, mega: true },
+        {
+            key: "destinasi",
+            label: "Destinasi",
+            sections: sectionsByKey.destinasi,
+            mega: true,
+        },
+        {
+            key: "budaya",
+            label: "Budaya",
+            sections: sectionsByKey.budaya,
+            mega: true,
+        },
         { key: "event", label: "Event", items: itemsByCat.event },
         { key: "galeri", label: "Galeri", href: "/galeri", direct: true },
         { key: "artikel", label: "Artikel", href: "/artikel", direct: true },
@@ -331,9 +389,21 @@ export function Navbar() {
             className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${scrolled ? "bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 border-white/20 shadow-soft" : "bg-transparent border-transparent"}`}
         >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
-                <Link href="/" className="flex items-center gap-2.5 notranslate" translate="no">
-                    <img src={dulohupaLogo} alt="Dulohupa AI" className={`h-10 w-auto object-contain -translate-y-[1.5px] ${scrolled ? "" : "brightness-0 invert"}`} />
-                    <span className={`font-display text-[18px] font-bold leading-none tracking-tight md:text-[20px] ${scrolled ? "text-black" : "text-white"}`}>Dulohupa AI</span>
+                <Link
+                    href="/"
+                    className="flex items-center gap-2.5 notranslate"
+                    translate="no"
+                >
+                    <img
+                        src={dulohupaLogo}
+                        alt="Dulohupa AI"
+                        className={`h-10 w-auto object-contain -translate-y-[1.5px] ${scrolled ? "" : "brightness-0 invert"}`}
+                    />
+                    <span
+                        className={`font-display text-[18px] font-bold leading-none tracking-tight md:text-[20px] ${scrolled ? "text-black" : "text-white"}`}
+                    >
+                        Dulohupa AI
+                    </span>
                 </Link>
 
                 <nav className="hidden items-center gap-4 md:flex lg:gap-5">
@@ -345,7 +415,9 @@ export function Navbar() {
                                 className={`relative inline-flex items-center pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-primary-foreground"}`}
                             >
                                 {m.label}
-                                <span className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`} />
+                                <span
+                                    className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`}
+                                />
                             </Link>
                         ) : (
                             <div key={m.key} className="group relative">
@@ -363,18 +435,30 @@ export function Navbar() {
                                         className={`pointer-events-none absolute inset-x-0 -bottom-1 h-[1.5px] origin-left scale-x-0 transition-transform duration-300 group-hover/link:scale-x-100 ${scrolled ? "bg-black" : "bg-primary-foreground"}`}
                                     />
                                 </span>
-                                {m.mega ? <MegaDropdownPanel sections={m.sections} /> : <DropdownPanel items={m.items} />}
+                                {m.mega ? (
+                                    <MegaDropdownPanel sections={m.sections} />
+                                ) : (
+                                    <DropdownPanel items={m.items} />
+                                )}
                             </div>
                         ),
                     )}
                     <button
                         type="button"
-                        onClick={() => window.dispatchEvent(new CustomEvent("ai:toggle"))}
+                        onClick={() =>
+                            window.dispatchEvent(new CustomEvent("ai:toggle"))
+                        }
                         aria-pressed={isAiOpen}
                         className={`hidden md:inline-flex w-[138px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-colors duration-300 ${scrolled ? "bg-black/5 border-black/10 text-black hover:bg-black/10" : "bg-white/10 border-white/20 text-white hover:bg-white/15"} ${isAiOpen ? (scrolled ? "ring-1 ring-black/15" : "ring-1 ring-white/20") : ""}`}
                     >
-                        {isAiOpen ? <X className="size-4 shrink-0" /> : <Sparkles className="size-4 shrink-0" />}
-                        <span className="tabular-nums">{isAiOpen ? "Tutup Chat" : "Tanya Munggi"}</span>
+                        {isAiOpen ? (
+                            <X className="size-4 shrink-0" />
+                        ) : (
+                            <Sparkles className="size-4 shrink-0" />
+                        )}
+                        <span className="tabular-nums">
+                            {isAiOpen ? "Tutup Chat" : "Tanya Munggi"}
+                        </span>
                     </button>
                     <AudioPlayer scrolled={scrolled} />
                     <div className="relative" ref={langRef}>
@@ -383,7 +467,13 @@ export function Navbar() {
                             onClick={() => setLangOpen((v) => !v)}
                             className={`relative inline-flex items-center gap-1.5 pb-1 text-[16px] font-semibold tracking-normal transition-colors ${scrolled ? "text-black hover:text-black" : "text-primary-foreground/85 hover:text-primary-foreground"}`}
                         >
-                            <img src={`/flags/${locale}.svg`} alt={locale} width="24" height="24" className="size-[1em] shrink-0 rounded-[2px] object-cover" />
+                            <img
+                                src={`/flags/${locale}.svg`}
+                                alt={locale}
+                                width="24"
+                                height="24"
+                                className="size-[1em] shrink-0 rounded-[2px] object-cover"
+                            />
                             {t.lang}
                             <ChevronDown
                                 className={`size-[0.85em] shrink-0 text-current transition-transform duration-300 ${langOpen ? "rotate-180" : ""} ${scrolled ? "text-black/70" : "text-primary-foreground/80"}`}
@@ -476,32 +566,108 @@ export function Navbar() {
                                         <div className="overflow-hidden pb-3">
                                             {m.mega ? (
                                                 <div className="space-y-2 rounded-sm border border-border bg-white p-2 shadow-lg">
-                                                    {m.sections.map((sec) => (
-                                                        <div key={sec.heading} className="rounded-sm border border-transparent has-[button[aria-expanded=true]]:border-border has-[button[aria-expanded=true]]:bg-black/5">
-                                                            <button type="button" aria-expanded={mobileSubOpen === sec.heading} onClick={() => setMobileSubOpen((v) => v === sec.heading ? null : sec.heading)} className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-medium text-foreground">
-                                                                <span>{sec.heading}</span>
-                                                                <CaretIcon className={`size-3 shrink-0 transition-transform ${mobileSubOpen === sec.heading ? "rotate-180" : "-rotate-90 opacity-60"}`} />
+                                                    {m.sections.map((sec) =>
+                                                        sec.direct ? (
+                                                            <Link
+                                                                key={sec.heading}
+                                                                href={sec.direct}
+                                                                onClick={() =>
+                                                                    setOpen(false)
+                                                                }
+                                                                className="block rounded-sm border border-transparent px-3 py-2.5 text-sm font-medium text-foreground"
+                                                            >
+                                                                {sec.heading}
+                                                            </Link>
+                                                        ) : (
+                                                        <div
+                                                            key={sec.heading}
+                                                            className="rounded-sm border border-transparent has-[button[aria-expanded=true]]:border-border has-[button[aria-expanded=true]]:bg-black/5"
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                aria-expanded={
+                                                                    mobileSubOpen ===
+                                                                    sec.heading
+                                                                }
+                                                                onClick={() =>
+                                                                    setMobileSubOpen(
+                                                                        (v) =>
+                                                                            v ===
+                                                                            sec.heading
+                                                                                ? null
+                                                                                : sec.heading,
+                                                                    )
+                                                                }
+                                                                className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm font-medium text-foreground"
+                                                            >
+                                                                <span>
+                                                                    {
+                                                                        sec.heading
+                                                                    }
+                                                                </span>
+                                                                <CaretIcon
+                                                                    className={`size-3 shrink-0 transition-transform ${mobileSubOpen === sec.heading ? "rotate-180" : "-rotate-90 opacity-60"}`}
+                                                                />
                                                             </button>
-                                                            <div className={`grid transition-all ${mobileSubOpen === sec.heading ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                                                            <div
+                                                                className={`grid transition-all ${mobileSubOpen === sec.heading ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                                                            >
                                                                 <div className="overflow-hidden">
                                                                     <div className="px-2 pb-2 pt-1">
                                                                         <div className="grid gap-0.5">
-                                                                            {sec.items.map((it) => (
-                                                                                <Link key={it.href} href={it.href} onClick={() => setOpen(false)} className="block rounded-sm px-3 py-2 text-sm text-foreground/80 hover:bg-black/5 hover:text-foreground">
-                                                                                    {it.label}
-                                                                                </Link>
-                                                                            ))}
+                                                                            {sec.items.map(
+                                                                                (
+                                                                                    it,
+                                                                                ) => (
+                                                                                    <Link
+                                                                                        key={
+                                                                                            it.href
+                                                                                        }
+                                                                                        href={
+                                                                                            it.href
+                                                                                        }
+                                                                                        onClick={() =>
+                                                                                            setOpen(
+                                                                                                false,
+                                                                                            )
+                                                                                        }
+                                                                                        className="block rounded-sm px-3 py-2 text-sm text-foreground/80 hover:bg-black/5 hover:text-foreground"
+                                                                                    >
+                                                                                        {
+                                                                                            it.label
+                                                                                        }
+                                                                                    </Link>
+                                                                                ),
+                                                                            )}
                                                                         </div>
                                                                         {sec.viewAll && (
-                                                                            <Link href={sec.viewAll.href} onClick={() => setOpen(false)} className="mt-2 inline-flex px-3 text-xs font-semibold text-primary hover:underline">
-                                                                                {sec.viewAll.label} →
+                                                                            <Link
+                                                                                href={
+                                                                                    sec
+                                                                                        .viewAll
+                                                                                        .href
+                                                                                }
+                                                                                onClick={() =>
+                                                                                    setOpen(
+                                                                                        false,
+                                                                                    )
+                                                                                }
+                                                                                className="mt-2 inline-flex px-3 text-xs font-semibold text-primary hover:underline"
+                                                                            >
+                                                                                {
+                                                                                    sec
+                                                                                        .viewAll
+                                                                                        .label
+                                                                                }{" "}
+                                                                                →
                                                                             </Link>
                                                                         )}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    ))}
+                                                        )
+                                                        )}
                                                 </div>
                                             ) : (
                                                 <div className="grid gap-0.5 rounded-sm border border-border bg-white p-2 shadow-lg">
