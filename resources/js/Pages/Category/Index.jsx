@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Head, router } from "@inertiajs/react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Navbar } from "@/components/portal/Navbar";
 import { SiteFooter } from "@/components/portal/SiteFooter";
 import { AiAssistantButton } from "@/components/portal/AiAssistantButton";
@@ -15,7 +17,7 @@ import {
     PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { Sejarah } from "@/components/portal/Sejarah";
-import { karawoBorder } from "@/lib/karawo";
+import { karawoBorder, karawoPattern } from "@/lib/karawo";
 import destinasiImage from "@/assets/kategori-destinasi.jpg";
 import budayaImage from "@/assets/kategori-budaya.jpg";
 import kulinerImage from "@/assets/kategori-kuliner.jpg";
@@ -215,7 +217,7 @@ function BudayaNavCards() {
         },
     ];
     return (
-        <section className="bg-white py-8 lg:py-12">
+        <section className="bg-[#FCFBFC] py-8 lg:py-12">
             <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                 <div className="grid gap-6 md:grid-cols-3">
                     {cards.map((c) => (
@@ -536,6 +538,27 @@ export default function CategoryIndex({
         : fallback;
     const label = isSejarah ? "Sejarah Gorontalo" : hero.title;
 
+    // Lightbox untuk Arsip Visual Galeri Budaya — parity dengan Gallery/Index.jsx
+    const [lightbox, setLightbox] = useState(null);
+    useEffect(() => {
+        if (lightbox === null) return;
+        const onKey = (e) => {
+            if (e.key === "Escape") setLightbox(null);
+            if (e.key === "ArrowLeft")
+                setLightbox(
+                    (i) => (i - 1 + galeriBudaya.length) % galeriBudaya.length,
+                );
+            if (e.key === "ArrowRight")
+                setLightbox((i) => (i + 1) % galeriBudaya.length);
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [lightbox, galeriBudaya.length]);
+    const go = (dir) =>
+        setLightbox(
+            (i) => (i + dir + galeriBudaya.length) % galeriBudaya.length,
+        );
+
     if (isSejarah) {
         return (
             <>
@@ -608,11 +631,26 @@ export default function CategoryIndex({
                                 backgroundSize: "240px 240px",
                             }}
                         />
+                        {category === "budaya" && (
+                            <div
+                                aria-hidden
+                                className="pointer-events-none absolute inset-0 opacity-10 mix-blend-overlay"
+                                style={{
+                                    backgroundImage: karawoPattern,
+                                    backgroundRepeat: "repeat",
+                                    backgroundSize: "240px 240px",
+                                }}
+                            />
+                        )}
                         <div className="relative mx-auto max-w-[1280px] px-6 lg:px-8">
                             <h1 className="mt-6 max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">
                                 {label}
                             </h1>
                         </div>
+                        <div
+                            aria-hidden
+                            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent"
+                        />
                         <div
                             aria-hidden
                             className="h-[10px] w-full opacity-90 absolute inset-x-0 bottom-0 z-10"
@@ -1015,18 +1053,10 @@ export default function CategoryIndex({
                                 <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                                     <div className="mb-8 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
                                         <div>
-                                            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">
-                                                Jejak Ruang
-                                            </span>
                                             <h2 className="mt-2 font-display text-[26px] font-bold text-foreground md:text-[32px]">
                                                 Destinasi Cagar Budaya Terkait
                                             </h2>
                                         </div>
-                                        <p className="max-w-[40ch] text-sm text-muted-foreground">
-                                            Benteng, masjid tua, dan kampung
-                                            adat yang menjadi panggung hidup
-                                            tradisi.
-                                        </p>
                                     </div>
                                     {destinasiTerkait.length ? (
                                         <div className="grid gap-x-8 gap-y-14 md:grid-cols-3">
@@ -1072,7 +1102,7 @@ export default function CategoryIndex({
                             </section>
 
                             {/* Section D — Galeri Visual Budaya */}
-                            <section className="bg-white py-12 lg:py-16">
+                            <section className="bg-[#FCFBFC] py-12 lg:py-16">
                                 <div className="mx-auto max-w-[1280px] px-6 lg:px-8">
                                     <div className="mb-8 text-center">
                                         <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ocean">
@@ -1089,34 +1119,33 @@ export default function CategoryIndex({
                                     </div>
                                     {galeriBudaya.length ? (
                                         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
-                                            {galeriBudaya.map((g) => {
+                                            {galeriBudaya.map((g, idx) => {
                                                 const src =
                                                     g.image_url ??
                                                     resolveStorageUrl(g.image);
                                                 if (!src) return null;
                                                 return (
-                                                    <div
+                                                    <button
                                                         key={
                                                             g.id ??
                                                             g.slug ??
                                                             g.name
                                                         }
-                                                        className="mb-4 break-inside-avoid overflow-hidden rounded-xl bg-white shadow-sm"
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setLightbox(idx)
+                                                        }
+                                                        className="mb-4 block w-full break-inside-avoid overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:shadow-md group text-left"
                                                     >
                                                         <img
                                                             src={src}
                                                             alt={
                                                                 g.alt ?? g.name
                                                             }
-                                                            className="w-full object-cover"
+                                                            className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                                                             loading="lazy"
                                                         />
-                                                        {g.name && (
-                                                            <p className="px-3 py-2 text-xs font-medium text-foreground">
-                                                                {g.name}
-                                                            </p>
-                                                        )}
-                                                    </div>
+                                                    </button>
                                                 );
                                             })}
                                         </div>
@@ -1130,6 +1159,69 @@ export default function CategoryIndex({
                         </>
                     )}
                 </main>
+
+                {/* Lightbox Galeri Budaya — parity dengan Gallery/Index.jsx */}
+                {lightbox !== null &&
+                    galeriBudaya[lightbox] &&
+                    (() => {
+                        const it = galeriBudaya[lightbox];
+                        const src = it.image_url ?? resolveStorageUrl(it.image);
+                        return (
+                            <div
+                                className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-4"
+                                onClick={() => setLightbox(null)}
+                            >
+                                <button
+                                    type="button"
+                                    aria-label="Tutup"
+                                    onClick={() => setLightbox(null)}
+                                    className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+                                >
+                                    <X className="size-5" />
+                                </button>
+                                {galeriBudaya.length > 1 && (
+                                    <>
+                                        <button
+                                            type="button"
+                                            aria-label="Sebelumnya"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                go(-1);
+                                            }}
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
+                                        >
+                                            <ChevronLeft className="size-5" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            aria-label="Berikutnya"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                go(1);
+                                            }}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 max-sm:hidden"
+                                        >
+                                            <ChevronRight className="size-5" />
+                                        </button>
+                                    </>
+                                )}
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="max-h-[90vh] max-w-[90vw]"
+                                >
+                                    <img
+                                        src={src}
+                                        alt={it.alt ?? it.name}
+                                        className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
+                                    />
+                                    <p className="mt-3 text-center text-sm text-white/80">
+                                        {it.name}
+                                    </p>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
                 <SiteFooter />
                 <AiAssistantButton />
             </div>
