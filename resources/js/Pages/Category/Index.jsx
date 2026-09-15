@@ -34,27 +34,22 @@ import binteImg from "@/assets/binte.jpg";
 const heroByCategory = {
     destinasi: {
         title: "Destinasi Wisata",
-        desc: "Jelajahi keindahan alam Gorontalo — dari hiu paus Botubarani hingga lagun Pulo Cinta.",
         image: destinasiImage,
     },
     budaya: {
         title: "Budaya Gorontalo",
-        desc: "Warisan Hulondalo: Tari Saronde, Tradisi Dikili, dan adat Pohutu Limo.",
         image: budayaImage,
     },
     kuliner: {
         title: "Kuliner Khas",
-        desc: "Cita rasa pesisir: Milu Siram, Ilabulo, dan sambal Sagela.",
         image: kulinerImage,
     },
     kerajinan: {
         title: "Kerajinan Daerah",
-        desc: "Mahakarya tangan: Sulaman Karawo dan anyaman rotan.",
         image: kerajinanImage,
     },
     event: {
         title: "Agenda Budaya",
-        desc: "Perayaan yang akan datang — Karnaval Karawo, Tradisi Dikili, FESBUJATON.",
         image: karawoImage,
     },
 };
@@ -536,7 +531,6 @@ export default function CategoryIndex({
     const hero = banner
         ? {
               title: banner.name ?? fallback.title,
-              desc: banner.description ?? fallback.desc,
               image: banner.banner_image ?? fallback.image,
           }
         : fallback;
@@ -618,9 +612,6 @@ export default function CategoryIndex({
                             <h1 className="mt-6 max-w-2xl font-display text-[32px] font-bold leading-tight text-white md:text-[40px]">
                                 {label}
                             </h1>
-                            <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-white/70">
-                                {hero.desc}
-                            </p>
                         </div>
                         <div
                             aria-hidden

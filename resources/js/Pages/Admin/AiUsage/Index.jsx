@@ -171,7 +171,7 @@ export default function AiUsageIndex({ keys, envFallback }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {keys.map((k) => (
+                                {keys.data.map((k) => (
                                     <Fragment key={k.id}>
                                         <tr className="border-b border-border/60 last:border-0 hover:bg-muted/40">
                                             <td className="px-4 py-3">
@@ -207,7 +207,7 @@ export default function AiUsageIndex({ keys, envFallback }) {
                                         )}
                                     </Fragment>
                                 ))}
-                                {keys.length === 0 && (
+                                {keys.data.length === 0 && (
                                     <tr>
                                         <td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">
                                             Belum ada API key — tambah key baru atau andalkan .env.
@@ -218,7 +218,7 @@ export default function AiUsageIndex({ keys, envFallback }) {
                         </table>
                     </div>
                     <div className="space-y-3 p-3 sm:hidden">
-                        {keys.map((k) => (
+                        {keys.data.map((k) => (
                             <div key={k.id}>
                                 <div className="rounded-xl border border-border/80 bg-card p-3">
                                     <div className="flex items-start justify-between gap-2">
@@ -253,13 +253,29 @@ export default function AiUsageIndex({ keys, envFallback }) {
                                 )}
                             </div>
                         ))}
-                        {keys.length === 0 && (
+                        {keys.data.length === 0 && (
                             <div className="rounded-xl border border-dashed border-border/80 px-4 py-10 text-center text-sm text-muted-foreground">
                                 Belum ada API key — tambah key baru atau andalkan .env.
                             </div>
                         )}
                     </div>
                 </div>
+
+                {keys.links && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        {keys.links.map((l, i) => (
+                            <Button
+                                key={i}
+                                size="sm"
+                                variant={l.active ? "default" : "outline"}
+                                disabled={!l.url}
+                                onClick={() => l.url && router.get(l.url, {}, { preserveScroll: true })}
+                            >
+                                <span dangerouslySetInnerHTML={{ __html: l.label }} />
+                            </Button>
+                        ))}
+                    </div>
+                )}
             </AdminLayout>
         </>
     );

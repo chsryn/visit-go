@@ -18,7 +18,7 @@ class DestinationPriceController extends Controller
         $items = DestinationPriceEstimate::with('destinasi:id,name')
             ->when($destinasiId, fn ($q) => $q->where('destinasi_id', $destinasiId))
             ->latest()
-            ->paginate(12)
+            ->paginate(5)
             ->withQueryString();
 
         return Inertia::render('Admin/Destinasi/Prices', [

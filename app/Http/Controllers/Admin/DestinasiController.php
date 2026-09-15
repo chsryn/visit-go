@@ -23,7 +23,7 @@ class DestinasiController extends Controller
             ->when($kategori, fn ($q) => $q->whereHas('destinationCategory', fn ($qq) => $qq->where('slug', $kategori)))
             ->withCount('images')
             ->latest()
-            ->paginate(12)
+            ->paginate(5)
             ->withQueryString();
 
         $items->through(function ($d) {

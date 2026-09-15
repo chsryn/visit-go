@@ -12,7 +12,7 @@ class KulinerCategoryController extends Controller
 {
     public function index()
     {
-        $items = KulinerCategory::withCount('umkms')->latest()->paginate(12);
+        $items = KulinerCategory::withCount('umkms')->latest()->paginate(5);
 
         return Inertia::render('Admin/KulinerCategory/Index', ['items' => $items]);
     }

@@ -12,7 +12,7 @@ class DestinationCategoryController extends Controller
 {
     public function index()
     {
-        $items = DestinationCategory::withCount('destinasis')->latest()->paginate(12);
+        $items = DestinationCategory::withCount('destinasis')->latest()->paginate(5);
 
         return Inertia::render('Admin/Destinasi/Categories', ['items' => $items]);
     }

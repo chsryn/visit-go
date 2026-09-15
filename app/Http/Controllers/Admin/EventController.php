@@ -16,7 +16,7 @@ class EventController extends Controller
 
     public function index()
     {
-        $items = Event::latest()->paginate(12);
+        $items = Event::latest()->paginate(5);
         $items->through(fn ($e) => array_merge($e->toArray(), [
             'image_url' => $this->resolveModelImageUrl($e->image),
             'display_location' => $e->location_name ?? $e->location,

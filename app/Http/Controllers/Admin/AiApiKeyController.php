@@ -11,8 +11,8 @@ class AiApiKeyController extends Controller
 {
     public function index()
     {
-        $keys = AiApiKey::orderBy('provider')->latest()->get()
-            ->map(fn ($k) => [
+        $keys = AiApiKey::orderBy('provider')->latest()->paginate(5)
+            ->through(fn ($k) => [
                 'id' => $k->id,
                 'provider' => $k->provider,
                 'label' => $k->label,

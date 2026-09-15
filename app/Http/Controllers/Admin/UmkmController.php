@@ -17,7 +17,7 @@ class UmkmController extends Controller
     {
         $items = Umkm::with(['kulinerCategories:id,name,slug', 'kerajinanCategories:id,name,slug'])
             ->latest()
-            ->paginate(12)
+            ->paginate(5)
             ->withQueryString();
 
         $items->through(fn ($u) => array_merge($u->toArray(), [

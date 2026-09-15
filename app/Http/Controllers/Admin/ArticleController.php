@@ -14,7 +14,7 @@ class ArticleController extends Controller
 
     public function index()
     {
-        $items = Article::latest()->paginate(12);
+        $items = Article::latest()->paginate(5);
         $items->through(fn ($a) => array_merge($a->toArray(), [
             'image_url' => $this->resolveModelImageUrl($a->image),
         ]));

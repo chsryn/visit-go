@@ -16,7 +16,7 @@ class BudayaController extends Controller
 
     public function index()
     {
-        $items = Budaya::latest()->paginate(12);
+        $items = Budaya::latest()->paginate(5);
         $items->through(fn ($b) => array_merge($b->toArray(), [
             'image_url' => $this->resolveModelImageUrl($b->image),
         ]));

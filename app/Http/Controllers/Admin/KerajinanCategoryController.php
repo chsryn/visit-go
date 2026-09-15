@@ -12,7 +12,7 @@ class KerajinanCategoryController extends Controller
 {
     public function index()
     {
-        $items = KerajinanCategory::withCount('umkms')->latest()->paginate(12);
+        $items = KerajinanCategory::withCount('umkms')->latest()->paginate(5);
 
         return Inertia::render('Admin/KerajinanCategory/Index', ['items' => $items]);
     }

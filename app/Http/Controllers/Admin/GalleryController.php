@@ -14,7 +14,7 @@ class GalleryController extends Controller
 
     public function index()
     {
-        $items = Gallery::latest()->paginate(12);
+        $items = Gallery::latest()->paginate(5);
         $items->through(fn ($g) => array_merge($g->toArray(), [
             'image_url' => $this->resolveModelImageUrl($g->image),
         ]));
